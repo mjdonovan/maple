@@ -802,17 +802,18 @@ SLists:=[TrimSListBYst(S1List,sMax,tMax,dValue),
  TrimSListBYst(S4List,sMax,tMax,dValue),
  [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
 for N from 5 to 20 do
-print(N);
-SNList:=[]:
-for i from 1 to nops(SLists[N-1]) do
- for m3 from -1 to nops(SLists[N-1][i][1])-1 do
-  for j from 1 to nops(I3ListByM(m3)) do
-   SNList:=[op(SNList), [I3ListByM(m3)[j], op(SLists[N-1][i])]];
+ print("calculating SLists[N]:=S^(N) where N=",N);
+ SNList:=[]:
+ for i from 1 to nops(SLists[N-1]) do
+  for m3 from -1 to nops(SLists[N-1][i][1])-1 do
+   for j from 1 to nops(I3ListByM(m3)) do
+    SNList:=[op(SNList), [I3ListByM(m3)[j], op(SLists[N-1][i])]];
+   od;
   od;
  od;
-od;
-SLists[N]:=TrimSListBYst(SNList,sMax,tMax,dValue);
+ SLists[N]:=TrimSListBYst(SNList,sMax,tMax,dValue);
 end do:
+
 
 
 
