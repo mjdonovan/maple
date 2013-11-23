@@ -550,10 +550,8 @@ end proc:
 multiDimension:=proc(S,d)
  local i,ans,ellR,ennR,N,smr;
  N:=nops(S);ellR:=[];ennR:=[];
- for i to N do
-  ellR:=map(x->nops(x),S);
-  ennR:=map(x->sum(x[smr],smr=1..nops(x)),S);
- od;
+ ellR:=map(x->nops(x),S);
+ ennR:=map(x->sum(x[smr],smr=1..nops(x)),S);
  ans:=[0,op(ennR)]+[op(ellR),1+ellR[N]+d];
  for i from 3 to N+1 do
   ans[i]:=ans[i]*2^(sum(ellR[smr],smr=1..i-2));
@@ -562,9 +560,25 @@ multiDimension:=proc(S,d)
  ans;
 end proc:
 
+multiDimensionAdjusted:=proc(S,d)
+ #adjusted so that all but the final entry are inputted in excess-vector format
+ local i,ans,ellR,ennR,N,smr;
+ N:=nops(S);ellR:=[];ennR:=[];
+ ellR:=map(x->nops(x),S);
+ ennR:=map(x->add(x[smr+1]*(2^(smr+1)-1),smr=0..nops(x)-1),S);
+ ennR[N]:=sum(S[N][smr],smr=1..nops(S[N]));
+ ans:=[0,op(ennR)]+[op(ellR),1+ellR[N]+d];
+ for i from 3 to N+1 do
+  ans[i]:=ans[i]*2^(sum(ellR[smr],smr=1..i-2));
+ od;
+ ans[N+1]:=ans[N+1]-1;
+ ans;
+end proc:
+
+
 E2DegreePRHomElt:=proc(HE,d)
  local ans;
- ans:=[add(HE[r][1],r=1..nops(HE))-1,0,op(add(HE[i][1]*multiDimension(HE[i][2],d),i=1..nops(HE)))];
+ ans:=[add(HE[r][1],r=1..nops(HE))-1,0,op(add(HE[i][1]*multiDimensionAdjusted(HE[i][2],d),i=1..nops(HE)))];
  ans[nops(ans)]:=ans[nops(ans)]+ans[1];
  ans;
 end proc:
@@ -598,7 +612,7 @@ TrimSListBYst:=proc(sL,smax,tmax,d)
  local ans,i,j,Dm,S,T;
  ans:=[];
  for i to nops(sL) do
-  Dm:=multiDimension(sL[i],d);
+  Dm:=multiDimensionAdjusted(sL[i],d);
   S:=add(Dm[j],j=1..nops(Dm)-1);
   T:=Dm[nops(Dm)];
   if T<=tmax and S<=smax then
@@ -611,7 +625,7 @@ TrimSListBYtMINUSs:=proc(sL,tMINUSs,d)
  local ans,i,j,Dm,S,T;
  ans:=[];
  for i to nops(sL) do
-  Dm:=multiDimension(sL[i],d);
+  Dm:=multiDimensionAdjusted(sL[i],d);
   S:=add(Dm[j],j=1..nops(Dm)-1);
   T:=Dm[nops(Dm)];
   if T-S=tMINUSs then
@@ -845,7 +859,14 @@ od;
 
 
 
-
+Is00:=proc(L)
+>  local ans;
+>  ans:=0;
+>  if nops(L)>1 and L[1]=0 and L[2]=0 then
+>   ans:=1;
+>  fi;
+>  ans;
+> end proc: 
 
 
 
