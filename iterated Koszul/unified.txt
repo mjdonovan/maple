@@ -4,7 +4,7 @@
 #"dNS"  (deltas with unshifted degree)
 #"u"    (opposite of lambda)
 #"Sq1+" (koszul dual of u)
-
+ 
 # AdemIndexPairs(i,j,algtype)
 #   will return a list of pairs after applying Adem relations
 # MakesSense(L,algtype)
