@@ -577,8 +577,7 @@ end proc:
 
 E2DegreeIndecElt:=proc(S,d)
  [0,op(multiDimensionAdjusted(S,d))];
-end proc;
-
+end proc:
 
 E2DegreePRHomElt:=proc(HE,d)
  local ans;
@@ -638,6 +637,20 @@ TrimSListBYtMINUSs:=proc(sL,tMINUSs,d)
  od;
  ans;
 end proc:
+TrimSListBYtMINUSsAndNovelty:=proc(sL,tMINUSs,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=multiDimensionAdjusted(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if T-S=tMINUSs and Dm[1]>0 then
+   ans:=[op(ans),sL[i]];
+  fi;
+ od;
+ ans;
+end proc:
+
 TrimPRHomologyListBYst:=proc(sL,smax,tmax,d)
  local ans,i,j,Dm,S,T;
  ans:=[];
@@ -664,6 +677,20 @@ TrimPRHomologyListBYtMINUSs:=proc(sL,tMINUSs,d)
  od;
  ans;
 end proc:
+TrimPRHomologyListBYtMINUSsAndNovelty:=proc(sL,tMINUSs,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=E2DegreePRHomElt(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if T-S=tMINUSs and IsX00or00X(Dm)=0 then
+   ans:=[op(ans),sL[i]];
+  fi;
+ od;
+ ans;
+end proc:
+
 
 Is00:=proc(L)
  local ans;
@@ -870,9 +897,9 @@ for tMINUSs from 2 to 40 do
       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs;
-"1Eoxx"=map(x->[PrettyPrintSequence(x)=multiDimensionAdjusted(x,dValue)],TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));
+"1Eoxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));
 "2Exoxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],TrimPRHomologyListBYtMINUSs(PRLists[1],tMINUSs,dValue));
-"2Eoxxx"=map(x->[PrettyPrintSequence(x)=multiDimensionAdjusted(x,dValue)],TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
+"2Eoxxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
 "3Exoxxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
 #"2Eoxxx"=map(PrettyPrintSequence,TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
 #"3Exoxxx"=map(PrettyPrintPRelt,TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
