@@ -670,6 +670,18 @@ Is00:=proc(L)
  ans;
 end proc: 
 
+IsX00or00X:=proc(L)
+ local ans;
+ ans:=0;
+ if nops(L)>2 and L[3]=0 and L[2]=0 then
+  ans:=1;
+ fi;
+ if nops(L)>1 and L[1]=0 and L[2]=0 then
+  ans:=1;
+ fi;
+ ans;
+end proc: 
+
 
 
 PRHomologyIterator:=proc(s01,s2,s3,shorterOnes,maxL)
