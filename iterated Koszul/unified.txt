@@ -834,15 +834,17 @@ Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
 "S2ListLengths"=map(x->nops(x),S2Lists);
 "S3ListLengths"=map(x->nops(x),S3Lists);
 
-
 for NnN from 1 to 3 do
- NnN;oldValue:=-1:
+ oldValue:=-1:
+ print("calculating PR homology on length ",NnN," sequences");
  for i to 10 while oldValue<>nops(PRLists[NnN]) do
   oldValue:=nops(PRLists[NnN]);
   PRLists[NnN]:=PRHomologyIterator(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],PRLists[NnN],10):
-  PRLists[NnN]:=TrimPRHomologyListBYst(PRLists[NnN],sMax,tMax,dValue);print(Gamma,NnN,nops(%%)=nops(%));
+  PRLists[NnN]:=TrimPRHomologyListBYst(PRLists[NnN],sMax,tMax,dValue);
+  print(nops(%%)=nops(%));
  od:
-od;
+od:
+
 
 for tMINUSs from 2 to 40 do
 "t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
