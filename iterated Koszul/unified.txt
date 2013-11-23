@@ -1,0 +1,857 @@
+#There are five categories:
+#"P"
+#"d"    (deltas with degrees +1)
+#"dNS"  (deltas with unshifted degree)
+#"u"    (opposite of lambda)
+#"Sq1+" (koszul dual of u)
+
+# AdemIndexPairs(i,j,algtype)
+#   will return a list of pairs after applying Adem relations
+# MakesSense(L,algtype)
+#   tests whether a given expression makes sense in said algebra
+# IsAdmissible(L,algtype)
+#   tests if a list is admissible
+#  AdemAtLocation(L,loc,algtype)
+#     performs a substitution of an adem relation into a string
+#  ListModTwo(L)
+#     removes pairs from a list
+#  AddListsModTwo(N1,N2,...)
+#     adds up to seven lists mod 2
+#  QueueAdem(seqn,algtype)
+#     puts an expression in admissible form
+#  MinDegree(L,algtype)
+#     calculates M
+#  InternalDegree(L,algtype)
+#     calcuates how much a sequence adds to internal degree (accepts "sum")
+#  AllSequences(s,l,algtype)
+#     calculates all (inadmissible) sequences using an internal function
+#  AllSequencesReinvented(SuM,LengtH,algtype)
+#     reinvents the previous wheel
+#  AllAdmissibleSequences(SuM,LengtH,algtype,prevEntry:=-1)
+#     produces all admissibles (modifies the heavy wheel - slow)
+#  BarCycle(II,uOrP)
+#     produces a representative in the Bar construction for an element of the Koszul Complex
+#  BarDifferentialOnMonomial(b,uOrP)
+#     accepts a monomial b=[[c_j],e] where c_j and e are P-admissible sequences
+#  BarDifferential(B,uOrP)
+#     accepts B=[b_i] where b_i=[[c_ij],e_i] where c_ij and e_i are P-admissible sequences
+#  MprecN(M,N)
+#     is M<N in an ordering on monomials in the bar construction: nastiest are less than
+#  LengthMinusHomDeg(M)
+#     given something in Bar, calculates the difference between u-length and hom degree.
+#  PhiHomotopy(B,uOrP)
+#     constructs Priddy's nullhomotopy Phi
+#  dPhi(B,uOrP)
+#     returns d(Phi(B))
+#  ADDdPhi(B,uOrP)
+#     returns B+d(PhI(B))
+#  RestrictionOfMuI(II,cDim)
+#     returns the restriction (in level 0) of 'mu(I) on a class of dimension cDim'
+#  RepeatedHomotopy(B,maxTries,uOrP)
+#     repeatedly homotopes the expression B
+#  MprecNalt(M,N)
+#     a sorting order that emphasises what has excaped the [.|.|.|.]
+
+AdemIndexPairs:=proc(i,j,algtype)
+ local ans,s;
+ if algtype="u" then
+  if i>2*j then
+   ans:=[];
+   for s from 0 to floor(.5*(i-2*j)-1) do
+    if binomial(i-2*j-2-s,s) mod 2=1 then
+     ans:=[op(ans),[2*j+1+s,i-j-1-s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ elif algtype="Sq1+" then
+  if i<=2*j then
+   ans:=[];
+   for s from 0 to floor(.5*(i-1)) do
+    if binomial(j-s-1,i-2*s-1) mod 2=1 then
+     ans:=[op(ans),[i+j-s,s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ elif algtype="P" then
+  if i>=2*j then
+   ans:=[];
+   for s from i-j+1 to i+j-2 do
+    if binomial(2*s-i-1,s-j) mod 2=1 then
+     ans:=[op(ans),[i+j-s,s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ elif algtype="d" or algtype="dNS" then
+  if i<2*j then
+   ans:=[];
+   for s from ceil((i+1)/2) to floor((i+j)/3) do
+    if binomial(j-i+s-1,j-s) mod 2=1 then
+     ans:=[op(ans),[i+j-s,s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ else
+  error "unknown algtype"
+ end if;
+ ans;
+end proc:
+
+MakesSense:=proc(L,algtype)
+ local i;
+ if algtype="u" or algtype="Sq1+" then
+  for i from 1 to nops(L) do
+   if type(L[i],nonnegint)=false then
+    error "bad entry";
+   fi; 
+  od;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  for i from 1 to nops(L) do
+   if type(L[i]-1,posint)=false then
+    error "bad entry";
+   fi; 
+  od;
+ else
+  error "unknown algtype"
+ end if;
+end proc:
+
+IsAdmissible:=proc(L,algtype)
+ local i, ans;
+ ans:=true;
+ if algtype="u" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]>2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ elif algtype="Sq1+" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]<=2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ elif algtype="P" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]>=2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ elif algtype="d" or algtype="dNS" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]<2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ else
+  error "unknown algtype"
+ end if;
+ ans;
+end proc:
+
+AdemAtLocation:=proc(L,loc,algtype)
+ map(AR->[op(L[1..loc-1]),op(AR),op(L[loc+2..nops(L)])],
+    AdemIndexPairs(L[loc],L[loc+1],algtype));
+end proc:
+
+ListModTwo:=proc(L)
+ local ans,i,T;
+ T:=ListTools[MakeUnique](L); ans:=[];
+ for i from 1 to nops(T) do
+  if (numboccur(L,{T[i]}) mod 2)=1 then
+   ans:=[op(ans),T[i]];
+  fi;
+ od;
+ ans;
+end proc:
+
+AddListsModTwo:=proc(N1:=[],N2:=[],N3:=[],N4:=[],N5:=[],N6:=[],N7:=[])
+ ListModTwo([op(N1),op(N2),op(N3),op(N4),op(N5),op(N6),op(N7)])
+end proc:
+
+QueueAdem:=proc(seqn,algtype)
+ local ADMISlist,q,i,ent,ADM,j,PostReln;
+ if nargs>2 then print("input"=seqn);fi;
+ ADMISlist:=[]:
+ q := queue:-new(seqn):
+ for i to 10000 while queue:-length(q)>0 do
+  ent:=queue:-dequeue(q);
+  ADM:=IsAdmissible(ent,algtype);
+  if ADM=true then
+   ADMISlist:=[op(ADMISlist),ent];
+  else
+   PostReln:=AdemAtLocation(ent,ADM,algtype);
+   if nargs>2 then print(ent,"inadmissible at",ent[ADM..ADM+1],"giving",nops
+(PostReln), "terms");fi;
+   for j to nops(PostReln) do
+    queue:-enqueue(q,PostReln[j]);
+    if nargs>2 then print(PostReln[j]," enqueued");fi;
+   od;
+  fi;
+ end do:
+ if nargs>2 then print("if",queue:-length(q)=0,"then have emptied queue and result 
+follows");fi;
+ ListModTwo(ADMISlist);
+end proc:
+
+MinDegree:=proc(L,algtype)
+ local ans,shift,i,storeddim;
+ if algtype="u" or algtype="Sq1+" or algtype="dNS" then
+  shift:=0;
+ elif algtype="P" or algtype="d" then
+  shift:=1;
+ else
+  error "unknown algtype"
+ end if;
+ if nops(L)=0 then
+  ans:=-1;
+ else
+  ans:=L[nops(L)];
+  storeddim:=0;
+  for i by -1 from nops(L)-1 to 1 do
+   storeddim:=storeddim+L[i+1]+shift;
+   ans:=max(ans,L[i]-storeddim);
+  od;
+ fi;
+ ans;
+end proc:
+
+InternalDegree:=proc(L,algtype)
+ local ans;
+ if algtype="u" or algtype="Sq1+" or algtype="dNS" or algtype="sum" then
+  ans:=sum(L[kakaka],kakaka=1..nops(L));
+ elif algtype="P" or algtype="d" then
+  ans:=sum(L[kakaka]+1,kakaka=1..nops(L));
+ else
+  error "unknown algtype"
+ end if;
+ ans;
+end proc:
+
+AllSequences:=proc(s,l,algtype)
+ local m;
+ if algtype="u" or algtype="Sq1+"  then
+  m:=0;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  m:=2;
+ else
+  error "unknown algtype"
+ end if;
+ sort(convert(map(xx->map(yy->yy+(m-1),xx),combinat[composition](s-l*(m-1),l)),list));
+end proc:
+
+AllSequencesReinvented:=proc(SuM,LengtH,algtype)
+ local i,minclass,listo,temp;
+ if algtype="u" or algtype="Sq1+"  then
+  minclass:=0;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  minclass:=2;
+ else
+  error "unknown algtype"
+ end if;
+ if LengtH=1 then
+  listo:=[[SuM]];
+ else
+  listo:=[];
+  for i from minclass to SuM-minclass*(LengtH-1) do
+   temp:=AllSequencesReinvented(SuM-i,LengtH-1,algtype);
+   listo:=[op(listo),op(map(AR->[i,op(AR)],temp))];
+  od;
+ fi;
+ sort(listo);
+end proc:
+
+AllAdmissibleSequences:=proc(SuM,LengtH,algtype,prevEntry:=-1)
+ local i,minclass,listo,temp;
+ if algtype="u" or algtype="Sq1+"  then
+  minclass:=0;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  minclass:=2;
+ else
+  error "unknown algtype"
+ end if;
+ if LengtH=1 then
+  if prevEntry=-1 or IsAdmissible([prevEntry,SuM],algtype)=true then
+   listo:=[[SuM]];
+  else
+   listo:=[];
+  fi;
+ else
+  listo:=[];
+  for i from minclass to SuM-minclass*(LengtH-1) do
+   if prevEntry=-1 or IsAdmissible([prevEntry,i],algtype)=true then
+    temp:=AllAdmissibleSequences(SuM-i,LengtH-1,algtype,i);
+    listo:=[op(listo),op(map(AR->[i,op(AR)],temp))];
+   fi;
+  od;
+ fi;
+ sort(listo);
+end proc:
+
+BarCycle:=proc(II,uOrP)
+ local possibleJ,i,j,k,l,ANS,DorSq;
+ if uOrP="u" then
+  DorSq:="Sq1+";
+ elif uOrP="P" then
+  DorSq:="d";
+ else
+  error "need algtype P or u to do Koszul complex"
+ end if;
+ if IsAdmissible(II,DorSq)<>true then
+  error "need Koszul-dual-admissible input"
+ fi;
+ ANS:=[];
+ possibleJ:=AllSequences(InternalDegree(II,"sum"),nops(II),uOrP);
+ for i to nops(possibleJ) do
+  if (numboccur(II,QueueAdem(possibleJ[i],DorSq)) mod 2)=1 then
+   ANS:=[op(ANS),possibleJ[i]];
+  fi;
+ od;
+ sort(map(x->[map(y->[y],x),[]],ANS));
+end proc:
+
+BarDifferentialOnMonomial:=proc(b,uOrP)
+ local i, ans, compactI, compactF, AdjProduct;
+ if nops(b)<>2 or IsAdmissible(b[2],uOrP)<>true then error "b is bad" fi;
+ for i from 1 to nops(b[1]) do
+  if IsAdmissible(b[1][i],uOrP)<>true then error "b is bad" fi;
+ od;
+ ans:=[];
+ compactI:=[op(b[1]),b[2]];
+ for i from 1 to nops(b[1]) do
+  AdjProduct:=QueueAdem([op(compactI[i]),op(compactI[i+1])],uOrP);
+  compactF:= map(AR->[op(compactI[1..i-1]),(AR),op(compactI[i+2..nops(compactI)])],
+    AdjProduct);
+  compactF:=map(x->[x[1..nops(x)-1],x[nops(x)]],compactF);
+  ans:=[op(ans),op(compactF)];
+ od;
+ ans;
+end proc:
+
+BarDifferential:=proc(B,uOrP)
+ sort(ListModTwo(map(x->op(BarDifferentialOnMonomial(x,uOrP)),B)),MprecN);
+end proc:
+
+MprecN:=proc(M,N)
+ local m,n,ans,i;
+ m:=ListTools[FlattenOnce](M[1]);
+ n:=ListTools[FlattenOnce](N[1]);
+ if nops(m)>nops(n) then
+  ans:=true;
+ elif nops(m)<nops(n) then
+  ans:=false;
+ elif m=n then
+  ans:=true;
+ else
+  ans:=5;
+  for i from 1 to nops(m) while ans=5 do
+   if   m[i]>n[i] then ans:=true
+   elif m[i]<n[i] then ans:=false
+   fi;
+  od;
+ fi;
+ ans;
+end proc:
+
+
+LengthMinusHomDeg:=proc(M)
+ nops(ListTools[FlattenOnce](M[1]))-nops(M[1]);
+end proc:
+
+PhiHomotopy:=proc(B,uOrP)
+ local Bs,ms,num,i,j,ans,b,stillsingle,b1is,newb1,goforit;
+ ans:=[];
+ Bs:=sort(B,MprecN);
+ ms:=map(x->ListTools[FlattenOnce](x[1]),Bs);
+ if nops(B)=0 or nops(ms[1])=nops(Bs[1][1]) then
+  print("done, dummy!");
+  ans:=[];
+ else
+  num:=numboccur(ms,{ms[1]});
+  for i from 1 to num do
+   b:=Bs[i];
+   stillsingle:=true;
+   b1is:=[];
+   for j from 1 to nops(b[1]) while stillsingle=true do
+    b1is:=[op(b1is),[b[1][j][1]]];
+    if nops(b[1][j])>1 then stillsingle:=false; fi;
+   od;
+   if uOrP="P" and IsAdmissible(ListTools[FlattenOnce](b1is),"d")=true then goforit:=true
+   elif uOrP="u" and IsAdmissible(ListTools[FlattenOnce](b1is),"Sq1+")=true then goforit:=true
+   else goforit:=false; fi;
+   if goforit=true then
+    newb1:=[op(b1is),b[1][nops(b1is)][2..nops(b[1][nops(b1is)])],
+      op(b[1][nops(b1is)+1..nops(b[1])])];
+    ans:=[op(ans),[newb1,b[2]]];
+   fi;
+  od;
+ fi;
+ ans;
+end proc:
+
+dPhi:=proc(B,uOrP)
+ sort(BarDifferential(PhiHomotopy(B,uOrP),uOrP),MprecN);
+end proc:
+
+ADDdPhi:=proc(B,uOrP)
+ sort(AddListsModTwo(B,BarDifferential(PhiHomotopy(B,uOrP),uOrP)),MprecN);
+end proc:
+
+RestrictionOfMuI:=proc(II,cDim)
+ local i,ans,temp,topUdim,uII;
+ if IsAdmissible(II,"Sq1+")<>true then error "not u-admissible" fi;
+ if MinDegree(II,"u")>=cDim then error "not only nontop u" fi;
+ if cDim<0 then error "negative dimensional class? really?" fi;
+ ans:=[];
+ topUdim:=cDim+InternalDegree(II,"u");
+ uII:=BarCycle(II,"u");
+ for i to nops(uII) do
+  temp:=AdemIndexPairs(topUdim,uII[i][1][1][1],"u");
+  temp:=map(a->[[a,op(uII[i][1][2..nops(uII[i][1])])],uII[i][2]],temp);
+  ans:=[op(ans),op(temp)];
+ od;
+ sort(ListModTwo(ans),MprecN);
+end proc:
+
+RepeatedHomotopy:=proc(B,maxTries,uOrP)
+ local i,T;
+ T:=sort(B,MprecN);
+ for i to maxTries while LengthMinusHomDeg(T[1])>0 do
+  T:=ADDdPhi(T,uOrP);
+ od;
+ #if LengthMinusHomDeg(T[1])=0 then print(DONE); fi;
+ T;
+end proc:
+
+MprecNalt:=proc(M,N)
+ local ans,i;
+ if nops(M[2])<nops(N[2]) then
+  ans:=true;
+ elif nops(M[2])>nops(N[2]) then
+  ans:=false;
+ elif M[2]=N[2] then
+  ans:=MprecN(M,N)
+ else
+  ans:=5;
+  for i from nops(M[2]) to 1 by -1 while ans=5 do
+   if   M[2][i]<N[2][i] then ans:=true
+   elif M[2][i]>N[2][i] then ans:=false
+   fi;
+  od;
+ fi;
+ ans;
+end proc:
+
+
+
+
+SqCompsMLi:=proc(M,L,i1min)
+  local shifter,i;
+  shifter:=[i1min-1];
+  for i to L-1 do shifter:=[0,op(shifter)];od;
+  map(xx->xx+shifter,combinat[composition](M-(i1min-1), L));
+end proc:
+SqCompsMi:=proc(M,i1min)
+  local ans,L;
+  ans:=[];
+  for L from 1 to M-i1min+1 do
+    ans:=[op(ans),op(SqCompsMLi(M,L,i1min))];
+  od;
+  ans;
+end proc:
+
+
+SqCompM:=proc(comp)
+ sum(comp[k],k=1..nops(comp));
+end proc:
+SqCompN:=proc(comp)
+ sum((2^k-1)*comp[k],k=1..nops(comp));
+end proc:
+
+
+
+
+
+
+delAdmisExtensions:=proc(adm,d)
+ local i,ans,strt;
+ strt:=2;
+ if nops(adm)>0 then strt:=2*adm[1]; fi;
+ ans:=[];
+ for i from strt to (sum(adm[k],k=1..nops(adm))+nops(adm)+d) do
+  ans:=[[i,op(adm)],op(ans)];
+ od;
+ ans;
+end proc:
+
+delAdmissables:=proc(maxLength,d)
+ local ADMISlist,q,i,ent,j,PostReln;
+ ADMISlist:=[]:
+ q := queue:-new([]):
+ for i to 10000 while queue:-length(q)>0 do
+  ent:=queue:-dequeue(q);
+   ADMISlist:=[op(ADMISlist),ent];
+   if(nops(ent)<maxLength) then
+    PostReln:=delAdmisExtensions(ent,d);
+   else
+    PostReln:=[];
+   fi;
+   for j to nops(PostReln) do
+    queue:-enqueue(q,PostReln[j]);
+   od;
+ od:
+ ADMISlist;
+end proc:
+
+
+
+
+
+
+
+
+
+I1vulnerable:=proc(I1,d)
+ local ans;
+ ans:=0;
+ if nops(I1)>2 then
+  if I1[1]=sum(I1[jJki],jJki=2..nops(I1))+d+nops(I1)-1 then
+   ans:=1;
+  fi;
+ fi;
+ ans;
+end proc:
+I2vulnerable:=proc(I2)
+ local ans;
+ ans:=0;
+ if nops(I2)>0 and I2[nops(I2)]>2 then
+  ans:=1;
+ fi;
+ ans;
+end proc:
+Esatisfied:=proc(I1,I2,d)
+ I1vulnerable(I1,d)* I2vulnerable(I2);
+end proc:
+
+
+
+
+
+
+multiDimension:=proc(S,d)
+ local i,ans,ellR,ennR,N,smr;
+ N:=nops(S);ellR:=[];ennR:=[];
+ for i to N do
+  ellR:=map(x->nops(x),S);
+  ennR:=map(x->sum(x[smr],smr=1..nops(x)),S);
+ od;
+ ans:=[0,op(ennR)]+[op(ellR),1+ellR[N]+d];
+ for i from 3 to N+1 do
+  ans[i]:=ans[i]*2^(sum(ellR[smr],smr=1..i-2));
+ od;
+ ans[N+1]:=ans[N+1]-1;
+ ans;
+end proc:
+
+E2DegreePRHomElt:=proc(HE,d)
+ local ans;
+ ans:=[add(HE[r][1],r=1..nops(HE))-1,0,op(add(HE[i][1]*multiDimension(HE[i][2],d),i=1..nops(HE)))];
+ ans[nops(ans)]:=ans[nops(ans)]+ans[1];
+ ans;
+end proc:
+
+Swhat:=proc(elt,d)
+ local i,N,T,ans;
+ N:=nops(elt);
+ T:=add(nops(elt[i]),i=1..N);
+ ans:=3; 
+ if T>2 then
+  ans:=3;
+ elif T=0 then
+  ans:=0;
+ elif T=1 then
+  ans:=1;
+ elif nops(elt[N])=2 and elt[N][1]=elt[N][2]+d+1 then
+  ans:=2;
+ fi;
+ ans;
+end proc:
+
+I1DecomposableTest:=proc(I1,d)
+ local ans;
+ ans:=0;
+ if nops(I1)>1 and I1[1]=sum(I1[jJki],jJki=2..nops(I1))+d+nops(I1)-1 then
+   1;
+else 0 fi;
+end proc:
+
+TrimSListBYst:=proc(sL,smax,tmax,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=multiDimension(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if T<=tmax and S<=smax then
+   ans:=[op(ans),sL[i]];
+  fi;
+ od;
+ ans;
+end proc:
+TrimSListBYtMINUSs:=proc(sL,tMINUSs,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=multiDimension(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if T-S=tMINUSs then
+   ans:=[op(ans),sL[i]];
+  fi;
+ od;
+ ans;
+end proc:
+TrimPRHomologyListBYst:=proc(sL,smax,tmax,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=E2DegreePRHomElt(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if T<=tmax and S<=smax then
+   ans:=[op(ans),sL[i]];
+  fi;
+ od;
+ ans;
+end proc:
+TrimPRHomologyListBYtMINUSs:=proc(sL,tMINUSs,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=E2DegreePRHomElt(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if T-S=tMINUSs then
+   ans:=[op(ans),sL[i]];
+  fi;
+ od;
+ ans;
+end proc:
+
+
+PRHomologyIterator:=proc(s01,s2,s3,shorterOnes,maxL)
+ local ans,numShrt,i,j,ToIns,pos,r;
+ ans:=shorterOnes;numShrt:=nops(ans);
+ for i to numShrt do
+  for j to nops(s01) do
+   if ListTools[Search](s01[j],map(x->x[2],ans[i]))=0 then
+    ToIns:=sort([op(ans[i]),[1,s01[j]]]);
+    if add(ToIns[r][1],r=1..nops(ToIns))<=maxL and ListTools[Search](ToIns,ans)=0 then
+     ans:=[op(ans),ToIns];
+    fi;
+   fi;
+  od;
+  for j to nops(s2) do
+   pos:=ListTools[Search](s2[j],map(x->x[2],ans[i]));
+   if pos=0 then
+    ToIns:=sort([op(ans[i]),[2,s2[j]]]);
+   else
+    ToIns:=ans[i];
+    ToIns[pos][1]:=ToIns[pos][1]+2;
+    ToIns:=sort(ToIns);
+   fi;
+   if add(ToIns[r][1],r=1..nops(ToIns))<=maxL and ListTools[Search](ToIns,ans)=0 then
+    ans:=[op(ans),ToIns];
+   fi;
+  od;
+  for j to nops(s3) do
+   pos:=ListTools[Search](s3[j],map(x->x[2],ans[i]));
+   if pos=0 then
+    ToIns:=sort([op(ans[i]),[1,s3[j]]]);
+   else
+    ToIns:=ans[i];
+    ToIns[pos][1]:=ToIns[pos][1]+1;
+    ToIns:=sort(ToIns);
+   fi;
+   if add(ToIns[r][1],r=1..nops(ToIns))<=maxL and ListTools[Search](ToIns,ans)=0 then
+    ans:=[op(ans),ToIns];
+   fi;
+  od;
+ od;
+ ans;
+end proc:
+
+PrettyPrintSequence:=proc(KE)
+local ANS,i,symbls;
+ symbls:=[P,QQ,QQQ,QQQQ,QQQQQ,QQQQQQ,QQQQQQQ,QQQQQQQQ,QQQQQQQQQ,QQQQQQQQQQ,QQQQQQQQQQQ,
+QQQQQQQQQQQQ,QQQQQQQQQQQQQ,QQQQQQQQQQQQQQ, QQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQQQ];
+ ANS:='e':
+ for i from nops(KE) to 1 by -1 do 
+  if nops(KE[i])>0 then 
+   ANS:=symbls[1+nops(KE)-i][op(KE[i])]*ANS;
+  fi;
+ od;
+ ANS; 
+end proc:
+PrettyPrintPRelt:=proc(PRelt)
+ local ANSr,i;
+ if nops(PRelt)>0 then
+  ANSr:=gamma[PRelt[nops(PRelt)][1]](PrettyPrintSequence(PRelt[nops(PRelt)][2]));
+  for i from nops(PRelt)-1 to 1 by -1 do
+   ANSr:=gamma[PRelt[i][1]](PrettyPrintSequence(PRelt[i][2]))*ANSr;
+  od;
+ else ANSr:=1;
+ fi;
+ ANSr;
+end proc:
+
+
+
+
+
+
+
+
+dValue:=2;
+sMax:=40;
+tMax:=50;
+l1Max:=4;
+
+PRLists:=[[[]],[[]],[[]],[[]],[[]],
+[[]],[[]],[[]],[[]],[[]],
+[[]],[[]],[[]],[[]],[[]],
+[[]],[[]],[[]],[[]],[[]]]:
+Indec:=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
+
+
+SqList:=[[[]],[[0]]]:
+for M from 1 to 11 do
+ SqList:=[op(SqList),[op(SqCompsMi(M,0))]];
+od:
+I2SqList:=[[[]],[]]:
+for M from 1 to 11 do
+ I2SqList:=[op(I2SqList),[op(SqCompsMi(M,2))]];
+od:
+I2ListByM:=x->I2SqList[x+2]:
+I3ListByM:=x->SqList[x+2]:
+
+S1List:=map(x->[x],delAdmissables(l1Max,dValue)):
+S2List:=[]:
+for i from 1 to nops(S1List) do
+ for m2 from -1 to nops(S1List[i][1])-1 do
+  for j from 1 to nops(I2ListByM(m2)) do
+   if Esatisfied(S1List[i][1],I2ListByM(m2)[j],dValue)=0 then 
+    S2List:=[op(S2List),[I2ListByM(m2)[j],op(S1List[i])]];
+   fi;
+  od;
+ od;
+od;
+S3List:=[]:
+for i from 1 to nops(S2List) do
+ for m3 from -1 to nops(S2List[i][1])-1 do
+  for j from 1 to nops(I3ListByM(m3)) do
+   S3List:=[op(S3List),[I3ListByM(m3)[j],op(S2List[i])]];
+  od;
+ od;
+od;
+S4List:=[]:
+for i from 1 to nops(S3List) do
+ for m3 from -1 to nops(S3List[i][1])-1 do
+  for j from 1 to nops(I3ListByM(m3)) do
+   S4List:=[op(S4List),[I3ListByM(m3)[j],op(S3List[i])]];
+  od;
+ od;
+od;
+
+SLists:=[TrimSListBYst(S1List,sMax,tMax,dValue),
+ TrimSListBYst(S2List,sMax,tMax,dValue),
+ TrimSListBYst(S3List,sMax,tMax,dValue),
+ TrimSListBYst(S4List,sMax,tMax,dValue),
+ [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
+for N from 5 to 20 do
+print(N);
+SNList:=[]:
+for i from 1 to nops(SLists[N-1]) do
+ for m3 from -1 to nops(SLists[N-1][i][1])-1 do
+  for j from 1 to nops(I3ListByM(m3)) do
+   SNList:=[op(SNList), [I3ListByM(m3)[j], op(SLists[N-1][i])]];
+  od;
+ od;
+od;
+SLists[N]:=TrimSListBYst(SNList,sMax,tMax,dValue);
+end do:
+
+
+
+
+
+
+
+
+S01Lists:=map(y->remove(x->Swhat(x,dValue)>1,y),SLists):
+S1Lists:=map(y->remove(x->Swhat(x,dValue)=0,y),S01Lists):
+S2Lists:=map(y->remove(x->Swhat(x,dValue)<>2,y),SLists):
+S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
+
+Indec:=map(y->remove(x->Swhat(x,dValue)=2,y),SLists):
+Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
+
+"S01ListLengths"=map(x->nops(x),S01Lists);
+"S2ListLengths"=map(x->nops(x),S2Lists);
+"S3ListLengths"=map(x->nops(x),S3Lists);
+
+
+for NnN from 1 to 3 do
+ NnN;oldValue:=-1:
+ for i to 10 while oldValue<>nops(PRLists[NnN]) do
+  oldValue:=nops(PRLists[NnN]);
+  PRLists[NnN]:=PRHomologyIterator(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],PRLists[NnN],10):
+  PRLists[NnN]:=TrimPRHomologyListBYst(PRLists[NnN],sMax,tMax,dValue);print(Gamma,NnN,nops(%%)=nops(%));
+ od:
+od;
+
+for tMINUSs from 2 to 40 do
+"t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs;
+"1Eoxx"=map(PrettyPrintSequence,TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));
+"2Exoxx"=map(PrettyPrintPRelt,TrimPRHomologyListBYtMINUSs(PRLists[1],tMINUSs,dValue));
+"2Eoxxx"=map(PrettyPrintSequence,TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
+"3Exoxxx"=map(PrettyPrintPRelt,TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
+od;
+
+
+"What's going on with things being decomposable on E1, but not on E2? I guess I need to hit them with a diffl.";
+"Also might be good to be able to display elements better!";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

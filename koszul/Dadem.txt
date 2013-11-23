@@ -1,0 +1,150 @@
+dAdemIndexPairs:=proc(i,j)
+ local ans,s;
+ if i<2*j then
+  ans:=[];
+  for s from ceil((i+1)/2) to floor((i+j)/3) do
+   if binomial(j-i+s-1,j-s) mod 2=1 then
+    ans:=[op(ans),[i+j-s,s]];
+   fi;
+  od;
+ else
+  ans:=[[i,j]];
+ fi;
+ ans;
+end proc:
+dExcess:=proc(L)
+ local ans;
+ if nops(L)=0 then
+  ans:=0;
+ elif nops(L)=1 then
+  ans:=L[1];
+ else
+  ans:=L[1]-sum(L[kakaka],kakaka=2..nops(L));
+ fi;
+ ans;
+end proc:
+dIsAdmissible:=proc(L,n:=100000000000)
+ local i, ans;
+ ans:=true;
+ if dExcess(L)>n then ans:=false; fi;
+ for i from 1 to nops(L)-1 while ans=true do
+  if L[i]<2*L[i+1] then
+   ans:=i;
+  fi;
+ end do;
+ ans;
+end proc:
+dAdemAtLocation:=proc(L,loc)
+ local s, ans, Lt, AIP;
+ AIP:=dAdemIndexPairs(L[loc],L[loc+1]);
+ map(AR->[op(L[1..loc-1]),op(AR),op(L[loc+2..nops(L)])],AIP);
+end proc:
+dQueueAdem:=proc(seqn)
+ local ADMISlist,q,i,ent,ADM,j,PostReln;
+ if nargs>1 then print("input"=seqn);fi;
+ ADMISlist:=[]:
+ q := queue:-new(seqn):
+ for i to 10000 while queue:-length(q)>0 do
+  ent:=queue:-dequeue(q);
+  ADM:=dIsAdmissible(ent);
+  if ADM=true then
+   ADMISlist:=[op(ADMISlist),ent];
+  else
+   PostReln:=dAdemAtLocation(ent,ADM);
+   if nargs>1 then print(ent,"inadmissible at",ent[ADM..ADM+1],"giving",nops
+(PostReln), "terms out of",2*ent[ADM+1]-2,"starting with s=",ent[ADM]-ent[ADM
++1]+1);fi;
+   for j to nops(PostReln) do
+    queue:-enqueue(q,PostReln[j]);
+    if nargs>1 then print(PostReln[j]," enqueued");fi;
+   od;
+  fi;
+ end do:
+ if nargs>1 then print("if",queue:-length(q)=0,"then have emptied queue and result 
+follows");fi;
+ ADMISlist;
+end proc:
+dStackAdem:=proc(seqn)
+ local ADMISlist,q,i,ent,ADM,j,PostReln;
+ if nargs>1 then print("input"=seqn);fi;
+ ADMISlist:=[]:
+ q := stack:-new(seqn):
+ for i to 10000 while stack:-depth(q)>0 do
+  ent:=stack:-pop(q);
+  ADM:=dIsAdmissible(ent);
+  if ADM=true then
+   ADMISlist:=[op(ADMISlist),ent];
+  else
+   PostReln:=dAdemAtLocation(ent,ADM);
+   if nargs>1 then print(ent,"inadmissible at",ADM=ent[ADM..ADM+1],"giving",nops
+(PostReln), "terms out of",2*ent[ADM+1]-2,"starting with s=",ent[ADM]-ent[ADM
++1]+1);fi;
+   for j to nops(PostReln) do
+    stack:-push(PostReln[j],q);
+    if nargs>1 then 
+     if dIsAdmissible(PostReln[j])=true then
+      print(PostReln[j],"admissible");
+     else
+      print(PostReln[j],"inadmissible");
+     fi;
+    fi;
+   od;
+  fi;
+ end do:
+ if nargs>1 then print("if",stack:-depth(q)=0,"then have emptied stack and result 
+follows");fi;
+ ADMISlist;
+end proc:
+dLength4Admissibles:=proc(N,n:=100000000)
+ local LZ,i,j,k,l;
+ LZ:=[]:
+ for l from 2 to floor(N/15) do
+  for k from 2*l to floor((N-l)/7) do
+   for j from 2*k to floor((N-l-k)/3) do
+   if dIsAdmissible([N-j-k-l,j,k,l])=true then
+    if dExcess([N-j-k-l,j,k,l])<=n then
+     LZ:=[op(LZ),[N-j-k-l,j,k,l]];
+    fi;
+   fi;
+   od;
+  od;
+ od;
+ LZ;
+error "seems wrong"
+end proc:
+dLength3Admissibles:=proc(N,n:=100000000)
+ local LZ,i,j,k,l;
+ LZ:=[]:
+ for l from 2 to floor(N/7) do
+  for k from 2*l to floor((N-l)/3) do
+   if dIsAdmissible([N-k-l,k,l])=true then
+    if dExcess([N-k-l,k,l])<=n then
+     LZ:=[op(LZ),[N-k-l,k,l]];
+    fi;
+   fi;
+  od;
+ od;
+ LZ;
+end proc:
+dLength2Admissibles:=proc(N,n:=100000000)
+ local LZ,i,j,k,l;
+ LZ:=[]:
+ for l from 2 to floor(N/3) do
+   if dIsAdmissible([N-l,l])=true then
+    if dExcess([N-l,l])<=n then
+     LZ:=[op(LZ),[N-l,l]];
+    fi;
+   fi;
+ od;
+ LZ;
+end proc:
+dLength1Admissibles:=proc(N,n:=100000000)
+ if N<=n and N>1 then
+  [[N]]
+ else
+  []
+ fi;
+end proc:
+dTotalPower:=proc(L)
+ sum(L[kakaka],kakaka=1..nops(L));
+end proc:

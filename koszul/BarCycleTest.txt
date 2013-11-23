@@ -1,0 +1,166 @@
+IsDoubledList:=proc(L)
+>  local i,stat;
+>  if nops(L) mod 2=1 then
+>   stat:=false;
+>  else
+>   stat:=true;
+>  fi;
+>  for i from 1 to nops(L)/2 while (stat=true) do
+>   if (L[2*i-1]<>L[2*i]) then stat:=false; fi;
+>  od;
+>  stat;
+> end proc:
+allLength4Sequences:=proc(N)
+>  local LZ,i,j,k,l;
+>  LZ:=[]:
+>  for l from 2 to N-6 do
+>   for k from 2 to N-l-4 do
+>    for j from 2 to N-l-k-2 do
+>     LZ:=[op(LZ),[l,k,j,N-l-j-k]]; 
+>    od;
+>   od;
+>  od;
+>  LZ;
+> end proc:
+> allLength3Sequences:=proc(N)
+>  local LZ,i,j,k,l;
+>  LZ:=[]:
+>  for l from 2 to N-4 do
+>   for k from 2 to N-l-2 do
+>    LZ:=[op(LZ),[l,k,N-k-l]];
+>   od;
+>  od;
+>  LZ;
+> end proc:
+> allLength2Sequences:=proc(N)
+>  local LZ,i,j,k,l;
+>  LZ:=[]:
+>  for l from 2 to N-2 do
+>     LZ:=[op(LZ),[l,N-l]]; 
+>  od;
+>  LZ;
+> end proc:
+> allLength1Sequences:=proc(N)
+>  local LZ,i,j,k,l;
+>  LZ:=[]:
+>  if N>1 then
+>    LZ:=[op(LZ),[N]];
+>  fi;
+>  LZ;
+> end proc:
+
+
+GeneratePICycle:=proc(II)
+>  local possibleJ,i,j,k,l,ANS;
+>  if dIsAdmissible(II) and nops(II)>0 and nops(II)<5 then
+>   ANS:=[];
+>   if nops(II)=1 then possibleJ:=allLength1Sequences(II[1]); fi;
+>   if nops(II)=2 then possibleJ:=allLength2Sequences(II[1]+II[2]); fi;
+>   if nops(II)=3 then possibleJ:=allLength3Sequences(II[1]+II[2]+II[3]); fi;
+>   if nops(II)=4 then possibleJ:=allLength4Sequences(II[1]+II[2]+II[3]+II[4]); fi;
+> print(possibleJ);
+>   for i to nops(possibleJ) do
+>    if (numboccur(II,dQueueAdem(possibleJ[i])) mod 2)=1 then
+>     ANS:=[op(ANS),possibleJ[i]];
+>    fi;
+>   od;
+>  else
+>   print(II," not d-admissible, or too long/short");
+>  fi;
+>  ANS;
+> end proc:
+
+
+
+
+
+TestI:=[13,6,2]:
+> GPC:=GeneratePICycle(TestI):
+> print("if ",I=TestI," then we calculate that P(I) has ",nops(GPC)," terms:");
+> P(I)=GPC;
+> print("Testing that P(I) is a cycle in NB");
+> for FIXEDNUMBER from 2 to (TestI[1]+TestI[2]+TestI[3]-4) do
+> print([FIXEDNUMBER,"."],"------------------------------------------------------------");
+> alltogether:=[]; 
+> for i to nops(GPC) do
+>  if GPC[i][1]=FIXEDNUMBER then
+>   testa:=GPC[i][2..3];
+>   #print(testa,"            ",PStackAdem(testa),"            ",testa);
+>   #print(PStackAdem(testa));
+>    alltogether:=[op(alltogether),op(PStackAdem(testa))];
+>  fi:
+> od:
+> if(nops(alltogether)>0) then
+>  laksjdflajsdkflj:=sort(alltogether);
+>  if (IsDoubledList(laksjdflajsdkflj)=true) then
+>   print(laksjdflajsdkflj);
+>  else
+>   print(laksjdflajsdkflj);
+>   error "this list isn't zero mod 2!";
+>  fi;
+> fi;
+> print([".",FIXEDNUMBER],"------------------------------------------------------------");
+> alltogether:=[]; 
+> for i to nops(GPC) do
+>  if GPC[i][3]=FIXEDNUMBER then
+>   testa:=GPC[i][1..2];
+>   #print(testa,"            ",PStackAdem(testa),"            ",testa);
+>   #print(PStackAdem(testa));
+>    alltogether:=[op(alltogether),op(PStackAdem(testa))];
+>  fi:
+> od:
+> if(nops(alltogether)>0) then
+>  laksjdflajsdkflj:=sort(alltogether);
+>  if (IsDoubledList(laksjdflajsdkflj)=true) then
+>   print(laksjdflajsdkflj);
+>  else
+>   print(laksjdflajsdkflj);
+>   error "this list isn't zero mod 2!";
+>  fi;
+> fi;
+> od:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dofacemap:=proc(L,i)
+>  local Linner,j,ADS;
+>  Linner:=L[i..i+1];
+>  ADS:=PStackAdem(Linner);
+>  ADS:=map(vvv->[op(L[1..i-1]),op(vvv),op(L[i+2..nops(L)])],ADS);
+> end proc:
+TestI:=[10,5,2]:
+> GPC:=GeneratePICycle(TestI):
+> 
+> print("if ",I=TestI," then we calculate that P(I) has ",nops(GPC)," terms:");
+> P(I)=GPC;
+> print("Testing that P(I) is a cycle in NB");
+for dd from 1 to nops(TestI)-1 do
+>  print("We're applying d",dd);
+>  alltogether:=[]: 
+>  for i to nops(GPC) do
+>   slkjd:=dofacemap(GPC[i],dd);
+>   alltogether:=[op(alltogether),op(slkjd)];
+>  od:
+>  if(nops(alltogether)>0) then
+>   laksjdflajsdkflj:=sort(alltogether);
+>   if (IsDoubledList(laksjdflajsdkflj)=true) then
+>    print(laksjdflajsdkflj);
+>    print("success");
+>   else
+>    print(laksjdflajsdkflj);
+>    error "this list isn't zero mod 2!";
+>   fi;
+>  fi:
+> od:

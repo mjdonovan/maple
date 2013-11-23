@@ -1,0 +1,314 @@
+PAdemIndexPairs:=proc(i,j)
+	#Gives a list of pairs resluting from an odd binomial coefficient
+PAdemIndexPairsNoBinomial:=proc(i,j)
+	#ignores the binomial coefficient
+PIsAdmissible:=proc(L)
+	#Gives location of a failure of admissibility, else returns true. Accepts a 2nd variable for dimn of universal class. If gives zero thereupon, get "false".
+PAdemAtLocation:=proc(L,loc)
+	#Returns list of terms resluting from applying an adem relation at 'loc' to 'L'. Will just return same as input if admissible at loc.
+PLeadingAdemAtLocation:=proc(L,loc)
+	#returns only the leading term
+PQueueAdem:=proc(seqn)
+	#Using a queue returns list of terms produced by iterating the Adem relations
+PStackAdem:=proc(seqn)
+	#same but with a stack
+PLeadingStackAdem:=proc(seqn)
+	#Grabs the leading term only, in form [[2,3,4]].
+PLength?Admissibles:=proc(N)
+	#returns all length ? admissibles with index sum N. Accepts second variable for the size of the fundamental class to cut down list.
+CalculateRightPAction:=proc(L,r)
+	#does just as described on L of length up to 5. Verbose if given extra input.
+CalculateAllRightPActionsAtOnce:=proc(L, startingPoint := 2)
+	#never verbose, starts at startingPoint:=2.
+PTotalPower:=proc(L)
+	#gives amount that a P sequence raises degrees
+SequenceSum:=proc(L)
+	#adds sequences of integers
+PExcess:=proc(L)
+	#calculates a version of excess for P sequences.
+
+
+
+
+PAdemIndexPairsNoBinomial:=proc(i,j)
+ local ans,s;
+ if i>=2*j then
+  ans:=[];
+  for s from i-j+1 to i+j-2 do
+  ans:=[op(ans),[i+j-s,s]];
+  od;
+ else
+  ans:=[[i,j]];
+ fi;
+ ans;
+end proc:
+PAdemIndexPairs:=proc(i,j)
+ local ans,s;
+ if i>=2*j then
+  ans:=[];
+  for s from i-j+1 to i+j-2 do
+   if binomial(2*s-i-1,s-j) mod 2=1 then
+    ans:=[op(ans),[i+j-s,s]];
+   fi;
+  od;
+ else
+  ans:=[[i,j]];
+ fi;
+ ans;
+end proc:
+PLeadingAdemAtLocation:=proc(L,loc)
+ local s, ans, Lt, AIP;
+ AIP:=[[2*L[loc+1]-1,L[loc]-L[loc+1]+1]];
+ map(AR->[op(L[1..loc-1]),op(AR),op(L[loc+2..nops(L)])],AIP);
+end proc:
+PIsAdmissible:=proc(L,n:=100000000)
+ local i, ans;
+ ans:=true;
+ if nops(L)>0 and n<L[nops(L)] then ans:=false; fi;
+ for i from 1 to nops(L)-1 while ans=true do
+  if L[i]<2 then
+   error "P0 or P1 found"
+  fi;
+  if L[i]>=2*L[i+1] then
+   ans:=i;
+  fi;
+ end do;
+ if nops(L)>0 and L[nops(L)]<2 then
+  error "P0 or P1 found"
+ fi;
+ ans;
+end proc:
+PAdemAtLocation:=proc(L,loc)
+ local s, ans, Lt, AIP;
+ AIP:=PAdemIndexPairs(L[loc],L[loc+1]);
+ map(AR->[op(L[1..loc-1]),op(AR),op(L[loc+2..nops(L)])],AIP);
+end proc:
+PQueueAdem:=proc(seqn)
+ local ADMISlist,q,i,ent,ADM,j,PostReln;
+ if nargs>1 then print("input"=seqn);fi;
+ ADMISlist:=[]:
+ q := queue:-new(seqn):
+ for i to 10000 while queue:-length(q)>0 do
+  ent:=queue:-dequeue(q);
+  ADM:=PIsAdmissible(ent);
+  if ADM=true then
+   ADMISlist:=[op(ADMISlist),ent];
+  else
+   PostReln:=PAdemAtLocation(ent,ADM);
+   if nargs>1 then print(ent,"inadmissible at",ent[ADM..ADM+1],"giving",nops
+(PostReln), "terms out of",2*ent[ADM+1]-2,"starting with s=",ent[ADM]-ent[ADM
++1]+1);fi;
+   for j to nops(PostReln) do
+    queue:-enqueue(q,PostReln[j]);
+    if nargs>1 then print(PostReln[j]," enqueued");fi;
+   od;
+  fi;
+ end do:
+ if nargs>1 then print("if",queue:-length(q)=0,"then have emptied queue and result 
+follows");fi;
+ ADMISlist;
+end proc:
+PStackAdem:=proc(seqn)
+ local ADMISlist,q,i,ent,ADM,j,PostReln;
+ if nargs>1 then print("input"=seqn);fi;
+ ADMISlist:=[]:
+ q := stack:-new(seqn):
+ for i to 10000 while stack:-depth(q)>0 do
+  ent:=stack:-pop(q);
+  ADM:=PIsAdmissible(ent);
+  if ADM=true then
+   ADMISlist:=[op(ADMISlist),ent];
+  else
+   PostReln:=PAdemAtLocation(ent,ADM);
+   if nargs>1 then print(ent,"inadmissible at",ADM=ent[ADM..ADM+1],"giving",nops
+(PostReln), "terms out of",2*ent[ADM+1]-2,"starting with s=",ent[ADM]-ent[ADM
++1]+1);fi;
+   for j to nops(PostReln) do
+    stack:-push(PostReln[j],q);
+    if nargs>1 then 
+     if PIsAdmissible(PostReln[j])=true then
+      print(PostReln[j],"admissible");
+     else
+      print(PostReln[j],"inadmissible");
+     fi;
+    fi;
+   od;
+  fi;
+ end do:
+ if nargs>1 then print("if",stack:-depth(q)=0,"then have emptied stack and result 
+follows");fi;
+ ADMISlist;
+end proc:
+PLeadingStackAdem:=proc(seqn)
+  local ADMISlist,q,i,ent,ADM,j,PostReln;
+  if nargs>1 then print("input"=seqn);fi;
+  ADMISlist:=[]:
+  q := stack:-new(seqn):
+  for i to 10000 while stack:-depth(q)>0 do
+   ent:=stack:-pop(q);
+   ADM:=PIsAdmissible(ent);
+   if ADM=true then
+    ADMISlist:=[op(ADMISlist),ent];
+   else
+    PostReln:=PLeadingAdemAtLocation(ent,ADM);
+    if nargs>1 then print(ent,"inadmissible at",ADM=ent[ADM..ADM+1],"giving",nops
+(PostReln), "terms out of",2*ent[ADM+1]-2,"starting with  s=",ent[ADM]-ent[ADM
++1]+1);fi;
+    for j to nops(PostReln) do
+     stack:-push(PostReln[j],q);
+     if nargs>1 then 
+      if PIsAdmissible(PostReln[j])=true then
+       print(PostReln[j],"admissible");
+      else
+       print(PostReln[j],"inadmissible");
+      fi;
+     fi;
+    od;
+   fi;
+  end do:
+  if nargs>1 then print("if",stack:-depth(q)=0,"then have emptied stack and result 
+follows");fi;
+  ADMISlist;
+end proc:
+PLength4Admissibles:=proc(N,n:=10000000)
+ local LZ,i,j,k;
+ LZ:=[]:
+ for i from 2 to N-6 do
+  for j from max(2,floor(i/2)+1) to N-4-i do
+   for k from max(2,floor(j/2)+1) to N-2-i-j do
+   if PIsAdmissible([i,j,k,N-i-j-k],n)=true then
+    LZ:=[op(LZ),[i,j,k,N-i-j-k]];
+   fi;
+   od;
+  od;
+ od;
+ LZ;
+end proc:
+PLength3Admissibles:=proc(N,n:=10000000)
+ local LZ,i,j;
+ LZ:=[]:
+ for i from 2 to N-4 do
+  for j from max(2,floor(i/2)+1) to N-2-i do
+   if PIsAdmissible([i,j,N-i-j],n)=true then
+    LZ:=[op(LZ),[i,j,N-i-j]];
+   fi;
+  od;
+ od;
+ LZ;
+end proc:
+PLength2Admissibles:=proc(N,n:=10000000)
+ local LZ,i;
+ LZ:=[]:
+ for i from 2 to N-2 do
+   if PIsAdmissible([i,N-i],n)=true then
+    LZ:=[op(LZ),[i,N-i]];
+   fi
+ od;
+LZ;
+end proc:
+PLength1Admissibles:=proc(N,n:=100000000)
+ if N<=n and N>1 then
+  [[N]]
+ else
+  []
+ fi;
+end proc:
+PExcess:=proc(L)
+ local ans;
+ if nops(L)=0 then
+  ans:=0;
+ elif nops(L)=1 then
+  ans:=L[1];
+ else
+  ans:=sum(2*L[kakaka+1]-L[kakaka],kakaka=1..nops(L)-1);
+ fi;
+ ans;
+end proc:
+SequenceSum:=proc(L)
+ sum(L[kakaka],kakaka=1..nops(L));
+end proc:
+PTotalPower:=proc(L)
+ sum(L[kakaka]+1,kakaka=1..nops(L));
+end proc:
+CalculateRightPAction:=proc(L,r)
+ local i,j,k,T,Candidates,rCandidates,ans;
+ ans:=[];
+ if nargs>2 then print("we seek copies of ",L,"taking r=",r);fi;
+ if nops(L)=0 or SequenceSum(L)-r<2*(nops(L)-1) then
+  Candidates:=[];
+ elif nops(L)=1 then
+  Candidates:=[[]];
+ elif nops(L)=2 then
+  Candidates:=[[SequenceSum(L)-r]];
+ elif nops(L)=3 then
+  Candidates:=PLength2Admissibles(SequenceSum(L)-r);
+ elif nops(L)=4 then
+  Candidates:=PLength3Admissibles(SequenceSum(L)-r);
+ elif nops(L)=5 then
+  Candidates:=PLength4Admissibles(SequenceSum(L)-r);
+ else
+  print(nops(L),"is not a good length on which to calculate right action")
+ fi;
+ rCandidates:=map(KK->[r,op(KK)],Candidates);
+ if nargs>2 then print("our candidate sources are",Candidates);print('``');fi;
+ for i to nops(rCandidates) do
+  T:=PStackAdem(rCandidates[i]):
+  if nargs>2 then print([r,`*`,op(Candidates[i])]=T);fi;
+  for j to nops(T) do
+   if T[j]=L then
+    ans:=[op(ans),Candidates[i]];
+    if nargs>2 then print("got one at location",j);fi;
+   fi;
+  od;
+  if nargs>2 then print('``')fi;
+ od;
+ if nargs>2 then print("process complete.");fi;
+ ans;
+end proc:
+CalculateAllRightPActionsAtOnce:=proc(L, startingPoint := 2)
+ local T,r,Lizt,i;
+ if PIsAdmissible(L)<>true then
+  error "inadmissible entry for Right P action"
+ fi;
+ Lizt:=[];
+ for r from startingPoint to SequenceSum(L)-2*nops(L)+2 do
+  T:=CalculateRightPAction(L,r);
+  if nargs>2 then print('T'*'P'[r]=T); fi;
+  for i from 1 to nops(T) do
+   Lizt:=[op(Lizt),[[r],T[i]]];
+  od;
+ od;
+ Lizt;
+end proc:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+L4a23:=PLength4Admissibles(19);nops(%);
+iterator:=0;
+
+iterator:=iterator+1; sEq:=L4a23[iterator];
+PTotalPower(sEq);
+IIIII:=(PTotalPower(sEq)+sEq[nops(sEq)]-1)/2;
+CalculateAllRightPActionsAtOnce(sEq,floor(IIIII));

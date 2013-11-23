@@ -1,0 +1,163 @@
+PQueueAdem([10,4]);
+                  [[7, 7], [6, 8], [5, 9], [2, 12]]
+
+> for s from 7 to 12 do
+> 2*s-11,s-4,binomial(2*s-11,s-4);
+> od;
+
+                               3, 3, 1
+
+
+                               5, 4, 5
+
+
+                               7, 5, 21
+
+
+                               9, 6, 84
+
+
+                              11, 7, 330
+
+
+                             13, 8, 1287
+
+> CompBounds:=proc(l,L,u,U)
+> local ans;
+> if max(l,L)>min(u,U) then 
+>  ans:=false;
+> else ans:=[max(l,L),min(u,U)];
+> fi;
+> ans;
+> end proc;
+> 
+> 
+> 
+
+  CompBounds := proc(l, L, u, U)
+local ans;
+    if min(u, U) < max(l, L) then ans := false
+    else ans := [max(l, L), min(u, U)]
+    end if;
+    ans
+end proc
+
+> CompBounds(2,5,7,9);
+
+                                [5, 7]
+
+> n:=40;
+
+                               n := 40
+
+> for j from 2 to n do
+>  for i from max(0*2*j,n+j+1) to 100 do
+>   tempo:=CompBounds((i+j-n-1)/2,i-j+1,n,i+j-2);
+>   if tempo<>false then
+>    print(["ij"=[i,j],n,"svals"=tempo]);
+>    print(PStackAdem([i,j]));
+>   fi;
+>  od;
+> od;
+> PStackAdem([14,2]);
+
+                          [[2, 14], [3, 13]]
+
+> AutoZero:=proc(L,n)
+>  local ans,i,deg;
+>  ans:=false;deg:=n;
+>  for i from nops(L) to 1 by -1 while ans=false do
+>   if L[i]>deg then ans:=true; fi;
+>   deg:=deg+L[i]+1;
+>  od;
+>  ans;
+> end proc:
+> minNonvanishingDim:=proc(L)
+>  local ans,i,deg;
+>  ans:=0;deg:=L[nops(L)];
+>  for i from nops(L) to 1 by -1 do
+>   ans:=max(ans,L[i]-add(L[j]+1,j=i+1..nops(L)));
+>  od;
+>  ans;
+> end proc:
+> mins:=proc(L)
+>  [L[1]-L[2]-1,L[2]]:
+> end proc:
+> minNonvanishingDim([4,7,4,2,4]);
+
+                                  4
+
+> L4A:=PLength3Admissibles(30):
+> for i from 1 to nops(L4A) do
+>  minNonvanishingDim(L4A[i]),L4A[i][nops(L4A[i])]
+> od:
+> for cycler from 1 to 1000 do
+> i:=(rand()mod 70)+2:
+> j:=(rand()mod 70)+2:
+> k:=(rand()mod 70)+2:
+> l:=(rand()mod 50)+2:
+> m:=(rand()mod 50)+2:
+> Plist:=[i,j,k,l]:
+> #Plist:=[27, 6, 19, 30, 8];
+> mindim:=minNonvanishingDim(Plist):
+> ademList:=PStackAdem(Plist):
+> for i to nops(ademList) do
+>  if minNonvanishingDim(ademList[i])<mindim then
+>   print(ademList[i],minNonvanishingDim(ademList[i])=mindim);
+>  fi;
+> od;
+> if cycler mod 100 = 0 then print(cycler) fi;
+> od:
+
+                                 100
+
+
+                                 200
+
+
+                                 300
+
+
+                                 400
+
+
+                                 500
+
+
+                                 600
+
+
+                                 700
+
+
+                                 800
+
+
+                                 900
+
+
+                                 1000
+
+> mins([II,JJ]);
+> LLL:=[12+1,6];
+> mins(LLL);
+> PSA:=PStackAdem(LLL):
+> [5,6]=PSA;
+> map(ish->mins(ish),PSA);
+
+                          [II - JJ - 1, JJ]
+
+
+                            LLL := [13, 6]
+
+
+                                [6, 6]
+
+
+                 [5, 6] = [[5, 14], [9, 10], [11, 8]]
+
+
+                    [[-10, 14], [-2, 10], [2, 8]]
+
+> 
+> 

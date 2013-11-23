@@ -1,0 +1,42 @@
+with(Statistics):with(stats):
+B:=proc(s,MNp)
+  stats[statevalf,dcdf,binomiald[MNp[2],MNp[3]]](s);
+end proc:
+Cdf:=proc(s,MNp)
+  (B(s,MNp))^(MNp[1]);
+end proc:
+ICDF:=proc(a,MNp)
+  stats[statevalf,idcdf,binomiald[MNp[2],MNp[3]]](a^(1/MNp[1]));
+end proc:
+E:=proc(MNp)
+  add(1-B(x,MNp)^(MNp[1]),x=0..MNp[2]-1);
+end proc:
+V:=proc(MNp)
+  local e;
+  e:=E(MNp);
+  add(2*x*(1-B(x,MNp)^(MNp[1])),x=0..MNp[2]-1)+e-e^2;
+end proc:
+sdev:=proc(MNp)
+  sqrt(V(MNp));
+end proc:
+MNpFromGraph:=proc(nodes,p)
+  [nodes,nodes-1,p];
+end proc:
+
+# top order stat of M iid binomial(N,p)
+MNp:=MNpFromGraph(10,.05);
+mean=E(MNp);
+sDev=sdev(MNp);
+Quartiles=ICDF(.25,MNp),ICDF(.5,MNp),ICDF(.75,MNp);
+
+# test out the previous a little bit
+R:=RandomVariable(Binomial(MNp[2],MNp[3])):
+ans:=0:vec:=[]:
+for i to 100 do
+ tempo:=sort(Sample(R,MNp[1]))[MNp[1]]:
+ ans:=ans+tempo;
+ vec:=[op(vec),tempo];
+od:
+ans/100;
+vec:=sort(vec):
+vec[25],vec[50],vec[75];

@@ -1,0 +1,56 @@
+#### Two blocks on taking representatives for the classes of interest, applying a top mu operation and homotoping back down to something nicer.
+
+sumOfIndices:=22;
+lengthToInvestigate:=3;
+AA:=AllAdmissibleSequences(sumOfIndices,lengthToInvestigate,"Sq1+"):
+AA:=select(x->x[nops(x)]>1,AA);
+indy:=0;
+classDim:=20;
+maxTries:=100;
+
+indy:=indy+1:
+if indy>nops(AA) then
+ print("we've run out of admissibles!");
+elif MinDegree(AA[indy],"u")>=classDim then
+ print('lambda'[0]*'u'(AA[indy])*'i'[classDim], "is IRRELEVANT, since ",'M'(AA[indy])=MinDegree(AA[indy],"u"),">=",classDim);
+else
+ print('lambda'[0]*'u'(AA[indy])*'i'[classDim], "is good, since ",'M'(AA[indy])=MinDegree(AA[indy],"u"),"<",classDim);
+ print(sort((BarCycle(AA[indy],"u")),MprecNalt));
+ ROuI:=RestrictionOfMuI(AA[indy],classDim);
+ print(ROuI);
+ repHtpy:=RepeatedHomotopy(ROuI,maxTries,"u"):
+ if nops(repHtpy)=0 then
+  print("WOW! This was nullhomotopic.");
+ elif LengthMinusHomDeg(repHtpy[1])=0 then 
+  print("We nullhomotoped this completely:");
+  print(sort(repHtpy,MprecNalt));
+ else
+  print("We nullhomotoped this partially:");
+  print(repHtpy);
+ fi;
+ #print("BTW, here's ",'d'*'lambda'[0]*'u'(AA[indy])*'i'[classDim]);
+ #print(BarDifferential(ROuI,"u"));
+ #print("BTW, here's ",'d'*'u'(AA[indy])*'i'[classDim]);
+ #print(sort(BarDifferential(BarCycle(AA[indy],"u"),"u"),MprecNalt));
+
+
+ if nops(repHtpy)=0 or repHtpy[1][2][1]>1 then
+  print("YAY - all the previous terms have a high lambda")
+ else
+  error "one of these terms has a LOW lambda"
+ fi;
+fi:
+
+### Two blocks on answering the question "what admissible sequences are even out there" ordering by M value.
+
+tempo:=[]:
+for i from 0 to 20 do
+ for j from 1 to 5 do
+  tempo:=[op(tempo),op(AllAdmissibleSequences(i,j,"Sq1+"))];
+ od:
+od:
+tempo;
+
+tempo:=select(a->MinDegree(a,"Sq1+")<5,tempo):
+tempo:=sort(tempo,(a,b)->MinDegree(a,"Sq1+")<=MinDegree(b,"Sq1+"));
+map(x->MinDegree(x,"Sq1+"),tempo);

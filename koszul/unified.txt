@@ -1,0 +1,450 @@
+#There are five categories:
+#"P"
+#"d"    (deltas with degrees +1)
+#"dNS"  (deltas with unshifted degree)
+#"u"    (opposite of lambda)
+#"Sq1+" (koszul dual of u)
+
+# AdemIndexPairs(i,j,algtype)
+#   will return a list of pairs after applying Adem relations
+# MakesSense(L,algtype)
+#   tests whether a given expression makes sense in said algebra
+# IsAdmissible(L,algtype)
+#   tests if a list is admissible
+#  AdemAtLocation(L,loc,algtype)
+#     performs a substitution of an adem relation into a string
+#  ListModTwo(L)
+#     removes pairs from a list
+#  AddListsModTwo(N1,N2,...)
+#     adds up to seven lists mod 2
+#  QueueAdem(seqn,algtype)
+#     puts an expression in admissible form
+#  MinDegree:=proc(L,algtype)
+#     calculates M
+#  InternalDegree(L,algtype)
+#     calcuates how much a sequence adds to internal degree (accepts "sum")
+#  AllSequences(s,l,algtype)
+#     calculates all (inadmissible) sequences using an internal function
+#  AllSequencesReinvented(SuM,LengtH,algtype)
+#     reinvents the previous wheel
+#  AllAdmissibleSequences(SuM,LengtH,algtype,prevEntry:=-1)
+#     produces all admissibles (modifies the heavy wheel - slow)
+#  BarCycle(II,uOrP)
+#     produces a representative in the Bar construction for an element of the Koszul Complex
+#  BarDifferentialOnMonomial(b,uOrP)
+#     accepts a monomial b=[[c_j],e] where c_j and e are P-admissible sequences
+#  BarDifferential(B,uOrP)
+#     accepts B=[b_i] where b_i=[[c_ij],e_i] where c_ij and e_i are P-admissible sequences
+#  MprecN(M,N)
+#     is M<N in an ordering on monomials in the bar construction: nastiest are less than
+#  LengthMinusHomDeg(M)
+#     given something in Bar, calculates the difference between u-length and hom degree.
+#  PhiHomotopy(B,uOrP)
+#     constructs Priddy's nullhomotopy Phi
+#  dPhi(B,uOrP)
+#     returns d(Phi(B))
+#  ADDdPhi(B,uOrP)
+#     returns B+d(PhI(B))
+#  RestrictionOfMuI:=proc(II,cDim)
+#     returns the restriction (in level 0) of 'mu(I) on a class of dimension cDim'
+#  RepeatedHomotopy(B,maxTries,uOrP)
+#     repeatedly homotopes the expression B
+#  MprecNalt(M,N)
+#     a sorting order that emphasises what has excaped the [.|.|.|.]
+
+AdemIndexPairs:=proc(i,j,algtype)
+ local ans,s;
+ if algtype="u" then
+  if i>2*j then
+   ans:=[];
+   for s from 0 to floor(.5*(i-2*j)-1) do
+    if binomial(i-2*j-2-s,s) mod 2=1 then
+     ans:=[op(ans),[2*j+1+s,i-j-1-s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ elif algtype="Sq1+" then
+  if i<=2*j then
+   ans:=[];
+   for s from 0 to floor(.5*(i-1)) do
+    if binomial(j-s-1,i-2*s-1) mod 2=1 then
+     ans:=[op(ans),[i+j-s,s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ elif algtype="P" then
+  if i>=2*j then
+   ans:=[];
+   for s from i-j+1 to i+j-2 do
+    if binomial(2*s-i-1,s-j) mod 2=1 then
+     ans:=[op(ans),[i+j-s,s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ elif algtype="d" or algtype="dNS" then
+  if i<2*j then
+   ans:=[];
+   for s from ceil((i+1)/2) to floor((i+j)/3) do
+    if binomial(j-i+s-1,j-s) mod 2=1 then
+     ans:=[op(ans),[i+j-s,s]];
+    fi;
+   od;
+  else
+   ans:=[[i,j]];
+  fi;
+ else
+  error "unknown algtype"
+ end if;
+ ans;
+end proc:
+
+MakesSense:=proc(L,algtype)
+ local i;
+ if algtype="u" or algtype="Sq1+" then
+  for i from 1 to nops(L) do
+   if type(L[i],nonnegint)=false then
+    error "bad entry";
+   fi; 
+  od;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  for i from 1 to nops(L) do
+   if type(L[i]-1,posint)=false then
+    error "bad entry";
+   fi; 
+  od;
+ else
+  error "unknown algtype"
+ end if;
+end proc:
+
+IsAdmissible:=proc(L,algtype)
+ local i, ans;
+ ans:=true;
+ if algtype="u" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]>2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ elif algtype="Sq1+" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]<=2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ elif algtype="P" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]>=2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ elif algtype="d" or algtype="dNS" then
+  for i from 1 to nops(L)-1 while ans=true do
+   if L[i]<2*L[i+1] then
+    ans:=i;
+   fi;
+  end do;  
+ else
+  error "unknown algtype"
+ end if;
+ ans;
+end proc:
+
+AdemAtLocation:=proc(L,loc,algtype)
+ map(AR->[op(L[1..loc-1]),op(AR),op(L[loc+2..nops(L)])],
+    AdemIndexPairs(L[loc],L[loc+1],algtype));
+end proc:
+
+ListModTwo:=proc(L)
+ local ans,i,T;
+ T:=ListTools[MakeUnique](L); ans:=[];
+ for i from 1 to nops(T) do
+  if (numboccur(L,{T[i]}) mod 2)=1 then
+   ans:=[op(ans),T[i]];
+  fi;
+ od;
+ ans;
+end proc:
+
+AddListsModTwo:=proc(N1:=[],N2:=[],N3:=[],N4:=[],N5:=[],N6:=[],N7:=[])
+ ListModTwo([op(N1),op(N2),op(N3),op(N4),op(N5),op(N6),op(N7)])
+end proc:
+
+QueueAdem:=proc(seqn,algtype)
+ local ADMISlist,q,i,ent,ADM,j,PostReln;
+ if nargs>2 then print("input"=seqn);fi;
+ ADMISlist:=[]:
+ q := queue:-new(seqn):
+ for i to 10000 while queue:-length(q)>0 do
+  ent:=queue:-dequeue(q);
+  ADM:=IsAdmissible(ent,algtype);
+  if ADM=true then
+   ADMISlist:=[op(ADMISlist),ent];
+  else
+   PostReln:=AdemAtLocation(ent,ADM,algtype);
+   if nargs>2 then print(ent,"inadmissible at",ent[ADM..ADM+1],"giving",nops
+(PostReln), "terms");fi;
+   for j to nops(PostReln) do
+    queue:-enqueue(q,PostReln[j]);
+    if nargs>2 then print(PostReln[j]," enqueued");fi;
+   od;
+  fi;
+ end do:
+ if nargs>2 then print("if",queue:-length(q)=0,"then have emptied queue and result 
+follows");fi;
+ ListModTwo(ADMISlist);
+end proc:
+
+MinDegree:=proc(L,algtype)
+ local ans,shift,i,storeddim;
+ if algtype="u" or algtype="Sq1+" or algtype="dNS" then
+  shift:=0;
+ elif algtype="P" or algtype="d" then
+  shift:=1;
+ else
+  error "unknown algtype"
+ end if;
+ if nops(L)=0 then
+  ans:=-1;
+ else
+  ans:=L[nops(L)];
+  storeddim:=0;
+  for i by -1 from nops(L)-1 to 1 do
+   storeddim:=storeddim+L[i+1]+shift;
+   ans:=max(ans,L[i]-storeddim);
+  od;
+ fi;
+ ans;
+end proc:
+
+InternalDegree:=proc(L,algtype)
+ local ans;
+ if algtype="u" or algtype="Sq1+" or algtype="dNS" or algtype="sum" then
+  ans:=sum(L[kakaka],kakaka=1..nops(L));
+ elif algtype="P" or algtype="d" then
+  ans:=sum(L[kakaka]+1,kakaka=1..nops(L));
+ else
+  error "unknown algtype"
+ end if;
+ ans;
+end proc:
+
+AllSequences:=proc(s,l,algtype)
+ local m;
+ if algtype="u" or algtype="Sq1+"  then
+  m:=0;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  m:=2;
+ else
+  error "unknown algtype"
+ end if;
+ sort(convert(map(xx->map(yy->yy+(m-1),xx),combinat[composition](s-l*(m-1),l)),list));
+end proc:
+
+AllSequencesReinvented:=proc(SuM,LengtH,algtype)
+ local i,minclass,listo,temp;
+ if algtype="u" or algtype="Sq1+"  then
+  minclass:=0;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  minclass:=2;
+ else
+  error "unknown algtype"
+ end if;
+ if LengtH=1 then
+  listo:=[[SuM]];
+ else
+  listo:=[];
+  for i from minclass to SuM-minclass*(LengtH-1) do
+   temp:=AllSequencesReinvented(SuM-i,LengtH-1,algtype);
+   listo:=[op(listo),op(map(AR->[i,op(AR)],temp))];
+  od;
+ fi;
+ sort(listo);
+end proc:
+
+AllAdmissibleSequences:=proc(SuM,LengtH,algtype,prevEntry:=-1)
+ local i,minclass,listo,temp;
+ if algtype="u" or algtype="Sq1+"  then
+  minclass:=0;
+ elif algtype="P" or algtype="d" or algtype="dNS" then
+  minclass:=2;
+ else
+  error "unknown algtype"
+ end if;
+ if LengtH=1 then
+  if prevEntry=-1 or IsAdmissible([prevEntry,SuM],algtype)=true then
+   listo:=[[SuM]];
+  else
+   listo:=[];
+  fi;
+ else
+  listo:=[];
+  for i from minclass to SuM-minclass*(LengtH-1) do
+   if prevEntry=-1 or IsAdmissible([prevEntry,i],algtype)=true then
+    temp:=AllAdmissibleSequences(SuM-i,LengtH-1,algtype,i);
+    listo:=[op(listo),op(map(AR->[i,op(AR)],temp))];
+   fi;
+  od;
+ fi;
+ sort(listo);
+end proc:
+
+BarCycle:=proc(II,uOrP)
+ local possibleJ,i,j,k,l,ANS,DorSq;
+ if uOrP="u" then
+  DorSq:="Sq1+";
+ elif uOrP="P" then
+  DorSq:="d";
+ else
+  error "need algtype P or u to do Koszul complex"
+ end if;
+ if IsAdmissible(II,DorSq)<>true then
+  error "need Koszul-dual-admissible input"
+ fi;
+ ANS:=[];
+ possibleJ:=AllSequences(InternalDegree(II,"sum"),nops(II),uOrP);
+ for i to nops(possibleJ) do
+  if (numboccur(II,QueueAdem(possibleJ[i],DorSq)) mod 2)=1 then
+   ANS:=[op(ANS),possibleJ[i]];
+  fi;
+ od;
+ sort(map(x->[map(y->[y],x),[]],ANS));
+end proc:
+
+BarDifferentialOnMonomial:=proc(b,uOrP)
+ local i, ans, compactI, compactF, AdjProduct;
+ if nops(b)<>2 or IsAdmissible(b[2],uOrP)<>true then error "b is bad" fi;
+ for i from 1 to nops(b[1]) do
+  if IsAdmissible(b[1][i],uOrP)<>true then error "b is bad" fi;
+ od;
+ ans:=[];
+ compactI:=[op(b[1]),b[2]];
+ for i from 1 to nops(b[1]) do
+  AdjProduct:=QueueAdem([op(compactI[i]),op(compactI[i+1])],uOrP);
+  compactF:= map(AR->[op(compactI[1..i-1]),(AR),op(compactI[i+2..nops(compactI)])],
+    AdjProduct);
+  compactF:=map(x->[x[1..nops(x)-1],x[nops(x)]],compactF);
+  ans:=[op(ans),op(compactF)];
+ od;
+ ans;
+end proc:
+
+BarDifferential:=proc(B,uOrP)
+ sort(ListModTwo(map(x->op(BarDifferentialOnMonomial(x,uOrP)),B)),MprecN);
+end proc:
+
+MprecN:=proc(M,N)
+ local m,n,ans,i;
+ m:=ListTools[FlattenOnce](M[1]);
+ n:=ListTools[FlattenOnce](N[1]);
+ if nops(m)>nops(n) then
+  ans:=true;
+ elif nops(m)<nops(n) then
+  ans:=false;
+ elif m=n then
+  ans:=true;
+ else
+  ans:=5;
+  for i from 1 to nops(m) while ans=5 do
+   if   m[i]>n[i] then ans:=true
+   elif m[i]<n[i] then ans:=false
+   fi;
+  od;
+ fi;
+ ans;
+end proc:
+
+
+LengthMinusHomDeg:=proc(M)
+ nops(ListTools[FlattenOnce](M[1]))-nops(M[1]);
+end proc:
+
+PhiHomotopy:=proc(B,uOrP)
+ local Bs,ms,num,i,j,ans,b,stillsingle,b1is,newb1,goforit;
+ ans:=[];
+ Bs:=sort(B,MprecN);
+ ms:=map(x->ListTools[FlattenOnce](x[1]),Bs);
+ if nops(B)=0 or nops(ms[1])=nops(Bs[1][1]) then
+  print("done, dummy!");
+  ans:=[];
+ else
+  num:=numboccur(ms,{ms[1]});
+  for i from 1 to num do
+   b:=Bs[i];
+   stillsingle:=true;
+   b1is:=[];
+   for j from 1 to nops(b[1]) while stillsingle=true do
+    b1is:=[op(b1is),[b[1][j][1]]];
+    if nops(b[1][j])>1 then stillsingle:=false; fi;
+   od;
+   if uOrP="P" and IsAdmissible(ListTools[FlattenOnce](b1is),"d")=true then goforit:=true
+   elif uOrP="u" and IsAdmissible(ListTools[FlattenOnce](b1is),"Sq1+")=true then goforit:=true
+   else goforit:=false; fi;
+   if goforit=true then
+    newb1:=[op(b1is),b[1][nops(b1is)][2..nops(b[1][nops(b1is)])],
+      op(b[1][nops(b1is)+1..nops(b[1])])];
+    ans:=[op(ans),[newb1,b[2]]];
+   fi;
+  od;
+ fi;
+ ans;
+end proc:
+
+dPhi:=proc(B,uOrP)
+ sort(BarDifferential(PhiHomotopy(B,uOrP),uOrP),MprecN);
+end proc:
+
+ADDdPhi:=proc(B,uOrP)
+ sort(AddListsModTwo(B,BarDifferential(PhiHomotopy(B,uOrP),uOrP)),MprecN);
+end proc:
+
+RestrictionOfMuI:=proc(II,cDim)
+ local i,ans,temp,topUdim,uII;
+ if IsAdmissible(II,"Sq1+")<>true then error "not u-admissible" fi;
+ if MinDegree(II,"u")>=cDim then error "not only nontop u" fi;
+ if cDim<0 then error "negative dimensional class? really?" fi;
+ ans:=[];
+ topUdim:=cDim+InternalDegree(II,"u");
+ uII:=BarCycle(II,"u");
+ for i to nops(uII) do
+  temp:=AdemIndexPairs(topUdim,uII[i][1][1][1],"u");
+  temp:=map(a->[[a,op(uII[i][1][2..nops(uII[i][1])])],uII[i][2]],temp);
+  ans:=[op(ans),op(temp)];
+ od;
+ sort(ListModTwo(ans),MprecN);
+end proc:
+
+RepeatedHomotopy:=proc(B,maxTries,uOrP)
+ local i,T;
+ T:=sort(B,MprecN);
+ for i to maxTries while LengthMinusHomDeg(T[1])>0 do
+  T:=ADDdPhi(T,uOrP);
+ od;
+ #if LengthMinusHomDeg(T[1])=0 then print(DONE); fi;
+ T;
+end proc:
+
+MprecNalt:=proc(M,N)
+ local ans,i;
+ if nops(M[2])<nops(N[2]) then
+  ans:=true;
+ elif nops(M[2])>nops(N[2]) then
+  ans:=false;
+ elif M[2]=N[2] then
+  ans:=MprecN(M,N)
+ else
+  ans:=5;
+  for i from nops(M[2]) to 1 by -1 while ans=5 do
+   if   M[2][i]<N[2][i] then ans:=true
+   elif M[2][i]>N[2][i] then ans:=false
+   fi;
+  od;
+ fi;
+ ans;
+end proc:

@@ -1,0 +1,43 @@
+summer:=proc(II)
+>  local i,a;
+>  a:=0;
+>  for i to nops(II) do
+>   a:=a+II[i];
+>  od;
+>  a;
+> end proc:
+IsSupposedToVanish:=proc(II,n)
+>  local vanish,i,dimsofar;
+>  vanish:=false;
+>  dimsofar:=n;
+>  for i from nops(II) to 1 by -1 while (vanish=false) do
+>   if (II[i]>dimsofar) then vanish:=true; fi;
+>   dimsofar:=dimsofar+II[i];
+>  od;
+>  vanish;
+> end proc:
+> TrimVanishing:=proc(L,n)
+>  local ans,i;
+>  ans:=[];
+>  for i to nops(L) do
+>   if IsSupposedToVanish(L[i],n)=false then
+>    ans:=[op(ans),L[i]];
+>   fi;
+>  od;
+>  ans;
+> end proc:
+
+
+
+TestI:=[14,5];
+> classdim:=16;
+> if IsSupposedToVanish(TestI,classdim) then
+>  error "that won't fly";
+> else
+>  GPCi:=GeneratePICycle(TestI);
+>  TestPI:=[summer(TestI)+classdim+nops(TestI),op(TestI)];
+>  GPCpi:=GeneratePICycle(TestPI);
+>  print("modulo things that are 0 for dimension reasons, the two versions of PtopPI are");
+>  map(v->[summer(TestI)+classdim+nops(TestI),op(v)],TrimVanishing(GPCi,classdim));
+>  TrimVanishing(GPCpi,classdim);
+> fi;

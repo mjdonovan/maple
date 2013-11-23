@@ -1,0 +1,534 @@
+with(LinearAlgebra):with(LinearAlgebra[Modular]):
+interface(rtablesize=100):
+lambdaIndices:=proc(targSphere,lambdaindex)
+  [sigma[targSphere-lambdaindex](lambda[lambdaindex]),"from",S[targSphere+lambdaindex],"to",S[targSphere]]
+end proc:
+pushDiIn := proc( i,S )
+    local ANS,j,fin;
+    ANS:=[];
+    fin:=0;
+    for j from 1 to nops(S) do
+        if fin=0 then
+          if S[j]>i then
+            ANS:=[op(ANS),S[j]-1];
+          else if S[j]>i-2 then
+            fin:=1;
+          else
+            fin:=2;
+            ANS:=S;
+          fi;fi;
+        else if fin=1 then 
+          ANS:=[op(ANS),S[j]];
+        fi;fi;
+   od;
+   if nops(ANS)=nops(S) then ANS:=0; fi;
+   ANS;
+end proc:
+diago := proc (i,T)
+    local a1,a2, ans;
+    a1:=pushDiIn(i,T[1]);
+    a2:=pushDiIn(i,T[2]);
+    if a1=0 or a2=0 then
+      ans:=0;
+    else
+      ans:=[a1,a2];
+    fi;
+    ans;
+end proc:
+listProduct := proc (L1,L2)
+    local i,j,Prs;
+    Prs:=[];
+    for i from 1 to nops(L1) do
+    for j from 1 to nops(L2) do
+    Prs:=[op(Prs),[L1[i],L2[j]]];
+    od;od;
+    Prs;
+end proc:
+listProduct3 := proc (L1,L2,L3)
+    local i,j,k,Prs;
+    Prs:=[];
+    for i from 1 to nops(L1) do
+    for j from 1 to nops(L2) do
+    for k from 1 to nops(L3) do
+    Prs:=[op(Prs),[L1[i],L2[j],L3[k]]];
+    od;od;od;
+    Prs;
+end proc:
+vectorFind := proc(ent,L)
+   local ans,i;
+   ans:=[];
+   for i from 1 to nops(L) do
+    if L[i]=ent then
+      ans:=[op(ans),1];
+    else
+      ans:=[op(ans),0];
+    fi
+   od;
+   ans;
+end proc:
+dMatrix := proc(i,sL,tL)
+  local j, ANS, postDiff;
+  ANS:=[]; postDiff:=[];
+  for j from 1 to nops(sL) do
+    postDiff:=[op(postDiff),vectorFind(diago(i,sL[j]),tL)];
+  od;
+  Transpose(2,Mod(2,Matrix(postDiff),integer));
+end proc:
+epimorphisms := proc(s,t)
+   local L,i,ARR;
+   L:=[];
+   for i from 0 to s-1 do
+      L:=[i,op(L)]
+   od;
+   if s-t>-1 then
+     L:=combinat[choose](L,s-t);
+     ARR:=Array(1..nops(L));
+     for i from 1 to nops(L) do
+        ARR[i]:=ListTools[Reverse](L[i]);
+     od;
+   else L:=[];
+   fi;
+   convert(ARR,list);
+end proc:
+SubsetEpimorphisms := proc(s,t)
+ epimorphisms(s,s-t);
+end proc;
+EulerChar:=proc(L)
+  local i,a;
+  a:=0;
+  for i from 1 to nops(L) do
+    a:=a+(-1)^(i+1)*L[i];
+  od;
+  a;
+end proc:
+getNullSpace:=proc(A)
+   local r,tempMat; tempMat:=Copy(2,A);
+   r:=MatBasis(2,tempMat,RowDimension(tempMat),true);
+   [r,SubMatrix(tempMat,[r+1..RowDimension(tempMat)],[1..ColumnDimension(tempMat)])];
+end proc:
+PrintRow:=proc(M,r,N)
+   local rw,i,ans;
+   rw:=convert(SubMatrix(Copy(2,M),[r],[1..ColumnDimension(M)]),list);
+   ans:=[];
+   for i from 1 to nops(rw) do
+       if rw[i] mod 2=1 mod 2 then
+           if nops(ans)=0 then
+               ans:=[N[i]];
+           else
+               ans:=[op(ans),"+",N[i]];
+           fi;
+       fi;
+   od;
+   print(ans);
+end proc:
+PrintNull:=proc(M,N)
+   local Nl,i;
+   Nl:=Copy(2,getNullSpace(M)[2]);
+   for i from 1 to RowDimension(Nl) do
+     PrintRow(M,i,N);
+   od;
+end proc:
+vecToNum:=proc(V)
+   local i,a;
+   a:=0;
+   for i to nops(V) do
+      a:=a*10+V[i];
+   od;
+   a;
+end proc:
+SURROUND:=proc(M,v,h)
+ <<Transpose(2,<<"v.h">,<h>>)>,<<v>|<M>>>; 
+end proc:
+ListIsZeroMod2:=proc(L)
+  local i,ans;
+  ans:=1;
+  for i to nops(L) do
+   ans:=ans*(numboccur(L[i],L)+1);
+  od;
+  ans:=ans+1;
+  if ans mod 2=0 then ans:="zero" else ans:="nonzero"; fi;
+  ans;
+end proc:
+flipper:=proc(max,L)
+ local i,j,k,l,out;
+ out:=Array(1..nops(L));
+ for i from 1 to nops(L) do
+ out[i]:=[];
+ for j from 1 to nops(L[i]) do
+ out[i]:=[op(out[i]),[]];
+ #for k from 1 to nops(L[i][j]) do
+ # out[i][j]:=[op(out[i][j]),[]];
+ for l from 0 to max do
+  if ListTools[Search](l,L[i][j])=0 then
+    out[i][j]:=[op(out[i][j]),l];
+  fi;
+ od;od;
+ od;
+ convert(out,list);
+end proc:
+flipperPrint:=proc(max,L)
+ local i,j,k,l,out;
+ out:=[];
+ for i from 1 to nops(L) do
+ out:=[];
+ for j from 1 to nops(L[i]) do
+ out:=[op(out),[]];
+ for l from 0 to max do
+  if ListTools[Search](l,L[i][j])=0 then
+    out[j]:=[op(out[j]),l];
+  fi;
+ od;od;
+ print(out);
+ od;
+end proc:
+lambdaShuffles:=proc(n)
+ local i,j,epi,ARR;
+ epi:=epimorphisms(2*n,n);
+ ARR:=[];
+ for i to nops(epi) do
+ for j from i+1 to nops(epi) do
+  if nops(ListTools[MakeUnique]([op(epi[i]),op(epi[j])]))=2*n then
+   ARR:=[op(ARR),[epi[i],epi[j]]];
+  fi;
+ od;od;
+ ARR;
+end proc:
+EilZilberShuffles:=proc(a,b)
+ local i,j,epiA,epiB,ARR;
+ epiA:=epimorphisms(a+b,a);
+ epiB:=epimorphisms(a+b,b);
+ ARR:=[];
+ for i to nops(epiA) do
+ for j to nops(epiB) do
+  if nops(ListTools[MakeUnique]([op(epiA[i]),op(epiB[j])]))=a+b then
+   ARR:=[op(ARR),[epiA[i],epiB[j]]];
+  fi;
+ od;od;
+ ARR;
+end proc:
+singlePass:=proc(L)
+ local i,A,TEMP;
+ A:=L;
+ for i to nops(L)-1 do
+  if A[i]<=A[i+1] then
+   TEMP:=A[i+1]+1;A[i+1]:=A[i];A[i]:=TEMP;
+  fi;
+ od;
+ A;
+end proc;
+sortS:=proc(L)
+ local A,B;
+ A:=L;
+ B:=singlePass(A);
+ while A<>B do
+  A:=B;
+  B:=singlePass(A);
+ od;
+ B
+end proc;
+prodS:=proc(L1,L2)
+ sortS([op(L1),op(L2)]);
+end proc;
+#just a handy tag here
+sphere_dimensions_here; 
+
+
+
+
+SphereDimensions:=[3,2];
+ListOfNullities:=[]:
+CycleDimension:=SphereDimensions[1]+SphereDimensions[2]-1;
+#for CycleDimension from SphereDimensions[1]+SphereDimensions[2] to SphereDimensions[1]+SphereDimensions[2] do
+if CycleDimension<SphereDimensions[1] or CycleDimension<SphereDimensions[2] then
+["rank is ",0," so nullity is ",0];
+RANK:=0:SOURCEDIM:=0;
+elif CycleDimension=SphereDimensions[1] then
+RANK:=0:SOURCEDIM:=nops(epimorphisms(CycleDimension,SphereDimensions
+[2]));
+elif CycleDimension=SphereDimensions[2] then
+RANK:=0:SOURCEDIM:=nops(epimorphisms(CycleDimension,SphereDimensions
+[1]));
+else
+sourceSimplices:=[epimorphisms(CycleDimension,SphereDimensions[1]),epimorphisms
+(CycleDimension,SphereDimensions[2])]:
+targetSimplices:=[epimorphisms(CycleDimension-1,SphereDimensions[1]),epimorphisms
+(CycleDimension-1,SphereDimensions[2])]:
+sourceSimplexPairs:=listProduct(sourceSimplices[1],sourceSimplices[2]);
+targetSimplexPairs:=listProduct(targetSimplices[1],targetSimplices[2]);
+dMatrixList:=[]:
+for i from 0 to CycleDimension do
+ dMatrixList:=[op(dMatrixList),dMatrix(i,sourceSimplexPairs,targetSimplexPairs)]:
+od:
+dMatrixList:
+dPlus:=Mod(2,<<dMatrixList[2]>>,integer):
+for i from 3 to CycleDimension+1 do
+ dPlus:=Mod(2,<<dPlus>,<dMatrixList[i]>>,integer);
+od:
+dPlus:
+RANK:=Rank(2,dPlus):SOURCEDIM:=nops(sourceSimplexPairs);
+["rank is ",RANK," so nullity is ",SOURCEDIM-RANK];
+fi:
+["degree ",CycleDimension," source ",SOURCEDIM," rank ",RANK," nullity ",SOURCEDIM-RANK];
+ListOfNullities:=[op(ListOfNullities),SOURCEDIM-RANK]:
+#od;
+#[EulerChar(ListOfNullities)," should equal ",(-1)^(SphereDimensions[1]+SphereDimensions[2])];
+
+
+#put the nullspace of dPlus in N
+S:=sourceSimplexPairs:
+Extra0s:=Create(2,max(0,-RowDimension(dPlus)+ColumnDimension(dPlus)),ColumnDimension(dPlus),0,integer[]):
+if(RowDimension(dPlus)<ColumnDimension(dPlus)) then
+  dPlusBig:=<<dPlus>,<Extra0s>>;
+else
+  dPlusBig:=dPlus;
+fi:
+Nbig:=getNullSpace(dPlusBig)[2]:
+N:=SubMatrix(Nbig,[1..SOURCEDIM-RANK],[1..ColumnDimension(Nbig)]):
+#make some convenient labels for the basis elements
+Sshort:=[]:
+for i to nops(S) do
+Sshort:=[op(Sshort),[vecToNum(S[i][1]),vecToNum(S[i][2])]];
+od:
+SS1:=sourceSimplices[1]:
+SS2:=sourceSimplices[2]:
+HoRI:=[]:
+for i to nops(SS2) do
+HoRI:=[op(HoRI),vecToNum(SS2[i])];
+od:
+VeRT:=[]:
+for i to nops(SS1) do
+VeRT:=[op(VeRT),vecToNum(SS1[i])];
+od:
+HoRIfat:=[]:
+for i to nops(SS2) do
+HoRIfat:=[op(HoRIfat),(SS2[i])];
+od:
+VeRTfat:=[]:
+for i to nops(SS1) do
+VeRTfat:=[op(VeRTfat),(SS1[i])];
+od:
+#(suppressed: ugly) print out a basis for the nullspace
+ans:=[]:ansfat:=[]:
+for i from 1 to RowDimension(N) do
+temp:=[]:tempfat:=[]:
+ for j from 1 to ColumnDimension(N) do
+  if N[i,j]=1 then
+   temp:=[op(temp),Sshort[j]];
+   tempfat:=[op(tempfat),S[j]];
+  fi;
+ od;
+ ans:=[op(ans),temp];ansfat:=[op(ansfat),tempfat];
+# print(temp);
+od:
+#put the square diagrams expressing the basis elements in a list C, of length RD(N)
+C:=[]:
+for NNum from 1 to RowDimension(N) do
+A3 := Create(2,nops(sourceSimplices[1]),nops(sourceSimplices[2]),0,integer[]):
+for i from 0 to nops(sourceSimplices[1])-1 do
+for j from 0 to nops(sourceSimplices[2])-1 do
+ if N[NNum,i*nops(sourceSimplices[2])+j+1]=1 then
+  A3[i+1,j+1]:=1;
+ fi;
+od:od:
+C := [op(C),A3]:
+od:
+#(suppressed: next is better) print out the square diagrams
+"vert",VeRT:
+"hori",HoRI:
+C:
+#print out the square diagrams
+for aft from 1 to RowDimension(N) do
+  aft,SURROUND(C[aft],VeRT,HoRI);
+od;
+
+
+#investigating why these are cycles
+hlists:=[]:vlists:=[]:vzeros:=[]:hzeros:=[]:vlistlengths:=[]:hlistlengths:=[]:
+
+for interest to nops(C) do
+SURROUND(C[interest],VeRT,HoRI);
+hlist:=[]:hdiffs:=[]:
+vlist:=[]:vdiffs:=[]:
+vzero:=[]:hzero:=[]:
+for i from 1 to nops(ans[interest]) do
+ vlist:=[op(vlist),ansfat[interest][i][1]];
+od:
+vlist:=ListTools[MakeUnique](vlist);
+for k from 1 to CycleDimension do
+ vdiffs:=[op(vdiffs),[]];
+ for i from 1 to nops(vlist) do
+  vdiffs[k]:=[op(vdiffs[k]),pushDiIn(k,vlist[i])];
+ od;
+ vdiffs[k]:=remove(t -t = 0, vdiffs[k]);
+ vdiffs[k]:=sort(vdiffs[k]);
+ #print(vd[k],vdiffs[k],ListIsZeroMod2(vdiffs[k]));
+ if ListIsZeroMod2(vdiffs[k])="zero" then
+   vzero:=[op(vzero),k];
+ fi;
+od:
+for i from 1 to nops(ans[interest]) do
+ hlist:=[op(hlist),ansfat[interest][i][2]];
+od:
+hlist:=ListTools[MakeUnique](hlist);
+for k from 1 to CycleDimension do
+ hdiffs:=[op(hdiffs),[]];
+ for i from 1 to nops(hlist) do
+  hdiffs[k]:=[op(hdiffs[k]),pushDiIn(k,hlist[i])];
+ od;
+ hdiffs[k]:=remove(t -t = 0, hdiffs[k]);
+ hdiffs[k]:=sort(hdiffs[k]);
+ #print(hd[k],hdiffs[k],ListIsZeroMod2(hdiffs[k]));
+ if ListIsZeroMod2(hdiffs[k])="zero" then
+   hzero:=[op(hzero),k];
+ fi;
+od:
+
+hlists:=[op(hlists),hlist];
+vlists:=[op(vlists),vlist];
+vlistlengths:=[op(vlistlengths),nops(vlist)];
+hlistlengths:=[op(hlistlengths),nops(hlist)];
+vzeros:=[op(vzeros),vzero];
+hzeros:=[op(hzeros),hzero];
+od:
+for j to nops(vzeros) do print(vzeros[j]," and ",vlistlengths[j]," terms ",vlists[j]);od;
+
+
+
+
+
+
+lambdaComposite:=proc(gd,ab)
+ local listo,gammadeltas,alphabetas,g,d,a,b,A,B,i,ARR;
+ gammadeltas:=lambdaShuffles(gd);
+ alphabetas:=lambdaShuffles(ab);
+ listo:=listProduct3(gammadeltas,alphabetas,alphabetas);
+ ARR:=Array(1..nops(listo));
+ for i to nops(listo) do
+  g:=listo[i][1][1];
+  d:=listo[i][1][2];
+  a:=listo[i][2][1];
+  b:=listo[i][2][2];
+  A:=listo[i][3][1];
+  B:=listo[i][3][2];
+  #print(listo[i]);
+  #print([prodS(g,a),prodS(g,b),prodS(d,A),prodS(d,B)]);
+  ARR[i]:=[prodS(g,a),prodS(g,b),prodS(d,A),prodS(d,B)];
+ od;
+ convert(ARR,list);
+end proc:
+lamc:=lambdaComposite(4,2);
+nops(lamc);nops(ListTools[MakeUnique](lamc));
+
+
+
+lambdaBrac:=proc(gd,ab)
+ local listo,gammadeltas,alphabetas,g,d,a,b,A,B,i,ARR;
+ gammadeltas:=lambdaShuffles(gd);
+ alphabetas:=EilZilberShuffles(2*gd,ab);
+ listo:=listProduct(gammadeltas,alphabetas);
+ ARR:=Array(1..nops(listo));
+ for i to nops(listo) do
+  g:=listo[i][1][1];
+  d:=listo[i][1][2];
+  a:=listo[i][2][1];
+  b:=listo[i][2][2];
+  #print([prodS(g,a),prodS(g,b),prodS(d,A),prodS(d,B)]);
+  ARR[i]:=[prodS(a,g),prodS(a,d),b];
+ od;
+ convert(ARR,list);
+end proc:
+
+LieTripple:=proc(p,q,r)
+ local listo,dcs,bas,c,d,a,b,A,B,i,ARR;
+ dcs:=EilZilberShuffles(p+q,r);
+ bas:=EilZilberShuffles(p,q);
+ listo:=listProduct(dcs,bas);
+ ARR:=Array(1..nops(listo));
+ for i to nops(listo) do
+  c:=listo[i][1][2];
+  d:=listo[i][1][1];
+  a:=listo[i][2][2];
+  b:=listo[i][2][1];
+  #print([prodS(g,a),prodS(g,b),prodS(d,A),prodS(d,B)]);
+  ARR[i]:=[prodS(d,b),prodS(d,a),c];
+ od;
+ convert(ARR,list);
+end proc:
+
+LieLambda:=proc(p,r,sus)
+ local listo,dcs,bas,c,d,a,b,A,B,q,i,ARR;
+ q:=p;
+ dcs:=EilZilberShuffles(p+q+sus,r);
+ bas:=lambdaShuffles(p);
+ listo:=listProduct(dcs,bas);
+ ARR:=Array(1..nops(listo));
+ for i to nops(listo) do
+  c:=listo[i][1][2];
+  d:=listo[i][1][1];
+  a:=listo[i][2][2];
+  b:=listo[i][2][1];
+ ARR[i]:=[prodS(d,b),prodS(d,a),c];
+ od;
+ convert(ARR,list);
+end proc:
+
+pP:=2;rR:=2;sSus:=3;
+LLLLL:=LieLambda(pP,rR,sSus):nops(%);
+flipperPrint(2*pP+rR+sSus-1,LLLLL);
+FFFFF:=flipper(2*pP+rR+sSus-1,LLLLL);
+
+listo:=[]:
+for i to nops(FFFFF) do
+if FFFFF[i][1][3]=4 and FFFFF[i][1][4]=5 and FFFFF[i][1][5]=6 then
+listo:=[op(listo),FFFFF[i]];
+fi;
+od:
+listo;
+nops(listo);
+
+
+
+
+
+
+
+
+
+SubsetEpiTarget:=proc(ss)
+ nops(ss[2]);
+end proc:
+SubsetEpiSource:=proc(ss)
+ ss[1];
+end proc:
+SubsetCheck:=proc(ss)
+ local i;
+ if SubsetEpiTarget(ss)<0 then print("wrong",ss); fi;
+ for i from 1 to nops(ss[2]) do
+  if ss[2][i]>=ss[1] or ss[2][i]<0 then print("wrong",ss); fi;
+ od;
+ if nops(ss[2])>nops(ListTools[MakeUnique](ss[2])) then print("wrong",ss); fi;
+end proc:
+prodSubset:=proc(ss1,ss2)
+ if SubsetEpiTarget(ss1)<>SubsetEpiSource(ss2) then print("error",ss1,ss2); fi;
+ SubsetToString([ss1[1],prodS(SubsetToString(ss1)[2],SubsetToString(ss2)[2])]);
+end proc:SubsetToString:=proc(ss)
+ local i,str;
+ str:=[];
+ for i from 0 to ss[1]-1 do
+  if ListTools[Search](i,ss[2])=0 then
+   str:=[i,op(str)];
+  fi;
+ od;
+ [ss[1],str];
+end proc:
+epis:=SubsetEpimorphisms(8,5);
+for i to nops(epis) do
+ ss1:=[8,epis[i]];ss2:=[SubsetEpiTarget(ss1),[3,2,1]];
+ print(ss1,ss2,"out",prodSubset(ss1,ss2)[2]);
+od:
+
+
+
+
+
+

@@ -1,0 +1,42 @@
+with(StringTools):makestring:=proc(a)
+ local ans,i; ans:="";
+ for i to nops(a) do
+  ans:=cat(ans,convert(a[i],string));
+ od;
+ ans;
+end proc:
+IsLyndon:=proc(L)
+  local ans;
+  if nops(LyndonFactors(makestring(L)))=1 then ans:=true; else ans:=false; fi;
+  ans;
+end proc:
+lyndonWordsOn:=proc(L)
+  local Lp,i,ans;
+  Lp:=combinat[permute](L);ans:=[];
+  for i to nops(Lp) do
+   if nops(LyndonFactors(makestring(Lp[i])))=1 then
+    ans:=[op(ans),(Lp[i])];
+   fi;
+  od;
+  ans;
+end proc:
+lyndonBracket:=proc(W)
+ local ans,l,r,i;
+ if nops(W)=1 then
+  ans:=W[1];
+ else
+  for i from 2 to nops(W) do
+   if IsLyndon(W[i..nops(W)]) then
+    l:=W[1..i-1];r:=W[i..nops(W)]; i:=nops(W)+1;
+   fi
+  od;
+  ans:=[lyndonBracket(l),lyndonBracket(r)];
+ fi;
+ ans;
+end proc:
+
+
+lyndon4:=[[1, 2, 3, 4], [1, 2, 4, 3], [1, 3, 2, 4], [1, 3, 4, 2], [1, 4, 2, 3], [1, 4, 3, 2], [1, 1, 2, 3], [1, 1, 3, 2], [1, 2, 1, 3], [1, 2, 2, 3], [1, 2, 3, 2], [1, 3, 2, 2], [1, 2, 3, 3], [1, 3, 2, 3], [1, 3, 3, 2], [1, 2, 2, 2], [1, 1, 1, 2], [1, 2, 2, 2]]:
+for i to nops(lyndon4) do
+  print(lyndonBracket(lyndon4[i]));
+od;

@@ -1,0 +1,104 @@
+ElementAnalyser:=proc(dpu,volume:="quiet")
+ #returns:
+ #out1: Dimension of homology element
+ #out2: excess of d sequence
+ #out3: Dimension of whole thing
+ #out4: number of top divided squares
+ #out5: flag for automatically zero ("zero"/"nonzero") 
+ local listo,i,accum,out1,out2,out3,out4,out5,dlist,Plist,UnivDimn;
+ dlist:=dpu[1];Plist:=dpu[2];UnivDimn:=dpu[3];
+ out5:="nonzero";
+ if PIsAdmissible(Plist)<>true then
+  error "inadmissible P entry";
+ else
+  if volume<>"quiet" then print(Plist,"is admissible.");fi;
+ fi;
+ if nops(Plist)>0 then
+  if Plist[nops(Plist)]=UnivDimn then
+   if volume<>"quiet" then print("Final P is a self-square");fi;
+  elif Plist[nops(Plist)]>UnivDimn then
+   if volume<>"quiet" then print("Final P is too big");fi;
+   out5:="zero";
+  else
+   if volume<>"quiet" then print("Final entry is not a self square");fi;
+  fi;
+ fi;
+ accum:=UnivDimn;
+ for i from 0 to nops(Plist)-1 do
+  if volume<>"quiet" then print([Plist[nops(Plist)-i]<=accum], `if`(Plist[nops(Plist)-i]<=accum,true,"FALSEfalse"));fi;
+  accum:=accum+1+Plist[nops(Plist)-i];
+ od;
+ out1:=accum;
+ #by now, accum contains the dimension of the P part
+ if volume<>"quiet" then print("dimension of homology element"=accum);fi;
+
+if dIsAdmissible(dlist)<>true then
+  error "inadmissible d entry";
+ else
+  if volume<>"quiet" then print(dlist,"is admissible.");fi;
+ fi;
+ out2:=dExcess(dlist);
+ if volume<>"quiet" then print("excess of d entry"=out2);fi;
+ if out2=accum then
+  if volume<>"quiet" then print("Leftmost d is a divided square");fi;
+  for i from 2 to nops(dlist) while dlist[1]=2^(i-1)*dlist[i] do od;
+  out4:=i-1;
+  if volume<>"quiet" then print("Leftmost",out4,"d term(s) are divided square(s)");fi;
+ elif out2>accum then
+  if volume<>"quiet" then print("Leftmost d is too big - the d excess is too big");fi;
+  out5:="zero";
+  out4:=0
+ else
+  if volume<>"quiet" then print("All d terms are non-top");fi;
+  out4:=0;
+ fi;
+ for i from 0 to nops(dlist)-1 do
+  if volume<>"quiet" then print([dlist[nops(dlist)-i]<=accum], `if`(dlist[nops(dlist)-i]<=accum,true,"FALSEfalse"));fi;
+  accum:=accum+dlist[nops(dlist)-i];
+ od;
+ #by now, accum contains the dimension of the whole thing
+ if volume<>"quiet" then print("dimension of full element"=accum);fi;
+ out3:=accum;
+ ["dim(Pi)",out1,"dExcess",out2,"totalDim",out3,"TopSqs",out4,out5];
+end proc:
+CriticalDifferential:=proc(dpu,volUme:=1)
+ local r,Pact,dProd,initAnal,i,j,outList,EA,dList,PList,UnivDimn;
+ dList:=dpu[1];PList:=dpu[2];UnivDimn:=dpu[3];
+ outList:=[];
+ initAnal:=ElementAnalyser([dList,PList,UnivDimn]);
+ if volUme>0 then 
+  print("Working with",[dList,PList,UnivDimn]);
+ fi;
+ if volUme>1 then print(initAnal);fi;
+ if initAnal[9]="zero" then
+  error "looking at zero element"
+ fi;
+ for r from 2 to floor((PTotalPower(PList)+UnivDimn-1)/2) do
+  Pact:=CalculateRightPAction(PList,r);
+  dProd:=dStackAdem([op(dList),r]);
+  if nops(dProd)*nops(Pact)>0 then   
+   for i to nops(Pact) do
+   for j to nops(dProd) do
+    EA:=ElementAnalyser([dProd[j],Pact[i],UnivDimn]);
+    if volUme>0 then print([dProd[j],Pact[i],UnivDimn],'r'=r,'P'=Pact,'d'=dProd, EA[8..9]);fi;
+    if EA[9]="nonzero" then
+     outList:=[op(outList),[dProd[j],Pact[i],UnivDimn]];
+    fi;
+   od;od;
+   #print('``');
+  fi; 
+ od:
+ outList;
+end proc:
+listProduct := proc (L1,L2)
+    local i,j,Prs;
+    Prs:=[];
+    for i from 1 to nops(L1) do
+    for j from 1 to nops(L2) do
+    Prs:=[op(Prs),[L1[i],L2[j]]];
+    od;od;
+    Prs;
+end proc:
+
+
+CriticalDifferential([22],[6,7],8);
