@@ -888,25 +888,23 @@ for NnN from 1 to 3 do
  od:
 od:
 
-
 for tMINUSs from 2 to 40 do
-"t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs;
-"1Eoxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));
-"2Exoxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],TrimPRHomologyListBYtMINUSs(PRLists[1],tMINUSs,dValue));
-"2Eoxxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
-"3Exoxxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
-#"2Eoxxx"=map(PrettyPrintSequence,TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
-#"3Exoxxx"=map(PrettyPrintPRelt,TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
+ "t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs;
+ "1Eoxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],
+            TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));#not by novelty-want fund class
+ "2Exoxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],
+             TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[1],tMINUSs,dValue));
+ "2Eoxxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],
+             TrimSListBYtMINUSsAndNovelty(Indec[2],tMINUSs,dValue));
+ "3Exoxxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],
+              TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[2],tMINUSs,dValue));
 od;
-
-
-
 
 
 
