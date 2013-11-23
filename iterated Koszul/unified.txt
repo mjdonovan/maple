@@ -849,16 +849,20 @@ od:
 for tMINUSs from 2 to 40 do
 "t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+      tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs;
-"1Eoxx"=map(PrettyPrintSequence,TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));
-"2Exoxx"=map(PrettyPrintPRelt,TrimPRHomologyListBYtMINUSs(PRLists[1],tMINUSs,dValue));
-"2Eoxxx"=map(PrettyPrintSequence,TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
-"3Exoxxx"=map(PrettyPrintPRelt,TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
+"1Eoxx"=map(x->[PrettyPrintSequence(x)=multiDimensionAdjusted(x,dValue)],TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));
+"2Exoxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],TrimPRHomologyListBYtMINUSs(PRLists[1],tMINUSs,dValue));
+"2Eoxxx"=map(x->[PrettyPrintSequence(x)=multiDimensionAdjusted(x,dValue)],TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
+"3Exoxxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
+#"2Eoxxx"=map(PrettyPrintSequence,TrimSListBYtMINUSs(Indec[2],tMINUSs,dValue));
+#"3Exoxxx"=map(PrettyPrintPRelt,TrimPRHomologyListBYtMINUSs(PRLists[2],tMINUSs,dValue));
 od;
 
 
-"What's going on with things being decomposable on E1, but not on E2? I guess I need to hit them with a diffl.";
-"Also might be good to be able to display elements better!";
 
 
 
