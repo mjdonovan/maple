@@ -888,23 +888,34 @@ for NnN from 1 to 3 do
  od:
 od:
 
+
+
+
 for tMINUSs from 2 to 40 do
- "t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
+ print("t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
        tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
        tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
        tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
        tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
        tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs;
- "1Eoxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],
-            TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue));#not by novelty-want fund class
- "2Exoxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],
-             TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[1],tMINUSs,dValue));
- "2Eoxxx"=map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],
-             TrimSListBYtMINUSsAndNovelty(Indec[2],tMINUSs,dValue));
- "3Exoxxx"=map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],
-              TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[2],tMINUSs,dValue));
-od;
+       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs);
+ listo:=TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue);#not by novelty-want fund class
+ if nops(listo)>0 then
+  print("1Eoxx"=op(map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],listo)));
+ fi;
+ listo:=TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[1],tMINUSs,dValue);
+ if nops(listo)>0 then
+  print("2Exoxx"=op(map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],listo)));
+ fi;
+ listo:=TrimSListBYtMINUSsAndNovelty(Indec[2],tMINUSs,dValue);
+ if nops(listo)>0 then
+  print("2Eoxxx"=op(map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],listo)));
+ fi;
+ listo:=TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[2],tMINUSs,dValue);
+ if nops(listo)>0 then
+  print("3Exoxxx"=op(map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],listo)));
+ fi;
+od:
 
 
 
