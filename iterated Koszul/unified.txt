@@ -528,14 +528,16 @@ I1vulnerable:=proc(I1,d)
  fi;
  ans;
 end proc:
+
 I2vulnerable:=proc(I2)
  local ans;
  ans:=0;
- if nops(I2)>0 and I2[nops(I2)]>2 then
+ if nops(I2)=0 or I2[nops(I2)]>2 then
   ans:=1;
  fi;
  ans;
 end proc:
+
 Esatisfied:=proc(I1,I2,d)
  I1vulnerable(I1,d)* I2vulnerable(I2);
 end proc:
