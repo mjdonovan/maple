@@ -575,6 +575,10 @@ multiDimensionAdjusted:=proc(S,d)
  ans;
 end proc:
 
+E2DegreeIndecElt:=proc(S,d)
+ [0,op(multiDimensionAdjusted(S,d))];
+end proc;
+
 
 E2DegreePRHomElt:=proc(HE,d)
  local ans;
