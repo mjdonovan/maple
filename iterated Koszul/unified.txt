@@ -661,6 +661,16 @@ TrimPRHomologyListBYtMINUSs:=proc(sL,tMINUSs,d)
  ans;
 end proc:
 
+Is00:=proc(L)
+ local ans;
+ ans:=0;
+ if nops(L)>1 and L[1]=0 and L[2]=0 then
+  ans:=1;
+ fi;
+ ans;
+end proc: 
+
+
 
 PRHomologyIterator:=proc(s01,s2,s3,shorterOnes,maxL)
  local ans,numShrt,i,j,ToIns,pos,r;
@@ -859,14 +869,6 @@ od;
 
 
 
-Is00:=proc(L)
->  local ans;
->  ans:=0;
->  if nops(L)>1 and L[1]=0 and L[2]=0 then
->   ans:=1;
->  fi;
->  ans;
-> end proc: 
 
 
 
