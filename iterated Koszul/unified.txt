@@ -928,6 +928,7 @@ Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
 for NnN from 1 to 3 do
  oldValue:=-1:
  print("calculating PR homology on length ",NnN," sequences");
+ print("could be improved by feeding in the previous result");
  for i to 10 while oldValue<>nops(PRLists[NnN]) do
   oldValue:=nops(PRLists[NnN]);
   PRLists[NnN]:=PRHomologyIterator(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],PRLists[NnN],10):
