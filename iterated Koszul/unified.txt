@@ -887,10 +887,7 @@ for i from 1 to nops(S3List) do
  od;
 od;
 S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
-SLists:=[TrimSListBYst(S1List,sMax,tMax,dValue),
- TrimSListBYst(S2List,sMax,tMax,dValue),
- TrimSListBYst(S3List,sMax,tMax,dValue),
- TrimSListBYst(S4List,sMax,tMax,dValue),
+SLists:=[S1List,S2List,S3List,S4List,
  [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
 for N from 5 to 20 do
  print("calculating SLists[N]:=S^(N) where N=",N);
@@ -972,6 +969,6 @@ ALLND:=[funClassND,op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),o
 ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->[inp[3],(map(x->(E[op(x)]),(CollapseDimensions(inp[5]))))],ALLND):
-interface(rtablesize=20000):(Matrix(ALLNDbrief));
+interface(rtablesize=20000):latex(Matrix(ALLNDbrief));
 
 
