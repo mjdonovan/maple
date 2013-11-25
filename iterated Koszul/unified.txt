@@ -830,9 +830,11 @@ end proc:
 
 
 dValue:=2;
-sMax:=40;
-tMax:=50;
-l1Max:=4;
+calcToDimension:=40;
+sMax:=floor(calcToDimension*4/5-1);
+tMax:=floor(calcToDimension*9/5-1);
+l1Max:=floor(log[2](tMax-dValue+1));
+
 
 PRLists:=[[[]],[[]],[[]],[[]],[[]],
 [[]],[[]],[[]],[[]],[[]],
@@ -962,6 +964,7 @@ PLND:=[PRHomologyListNovelData(PRLists[1],dValue),
        PRHomologyListNovelData(PRLists[3],dValue)]:
 funClassND:=["Ind", [[]], e, 2, [0, 2]]:
 ALLND:=[funClassND,op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),op(PLND[2]),op(PLND[3])]:
+ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->[inp[3],(map(x->(E[op(x)]),(CollapseDimensions(inp[5]))))],ALLND):
 interface(rtablesize=20000):(Matrix(ALLNDbrief));
