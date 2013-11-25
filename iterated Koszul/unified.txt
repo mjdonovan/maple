@@ -811,13 +811,14 @@ od:
 I2ListByM:=x->I2SqList[x+2]:
 I3ListByM:=x->SqList[x+2]:
 
-S1List:=map(x->[x],delAdmissables(l1Max,dValue)):
+S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
+S1List:=remove(x->I1vulnerable(x[1],dValue)>0,S1ListIgnoreE):
 S2List:=[]:
-for i from 1 to nops(S1List) do
- for m2 from -1 to nops(S1List[i][1])-1 do
+for i from 1 to nops(S1ListIgnoreE) do
+ for m2 from -1 to nops(S1ListIgnoreE[i][1])-1 do
   for j from 1 to nops(I2ListByM(m2)) do
-   if Esatisfied(S1List[i][1],I2ListByM(m2)[j],dValue)=0 then 
-    S2List:=[op(S2List),[I2ListByM(m2)[j],op(S1List[i])]];
+   if Esatisfied(S1ListIgnoreE[i][1],I2ListByM(m2)[j],dValue)=0 then 
+    S2List:=[op(S2List),[I2ListByM(m2)[j],op(S1ListIgnoreE[i])]];
    fi;
   od;
  od;
@@ -892,13 +893,7 @@ od:
 
 
 for tMINUSs from 2 to 40 do
- print("t-s"=tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,
-       tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs,tMINUSs);
+ print("-%-%-%-%-%- t-s"=tMINUSs,"-%-%-%-%-%-");
  listo:=TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue);#not by novelty-want fund class
  if nops(listo)>0 then
   print("1Eoxx"=op(map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],listo)));
