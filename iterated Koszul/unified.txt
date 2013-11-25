@@ -911,3 +911,82 @@ for tMINUSs from 2 to 40 do
   print("3Exoxxx"=op(map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],listo)));
  fi;
 od:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PRHomologyListNovelData:=proc(sL,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=E2DegreePRHomElt(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if IsX00or00X(Dm)=0 and Dm[1]>-1 then
+   ans:=[op(ans),["PR",sL[i],PrettyPrintPRelt(sL[i]),T-S,Dm]];
+  fi;
+ od;
+ ans;
+end proc:
+IndecListNovelData:=proc(sL,d)
+ local ans,i,j,Dm,S,T;
+ ans:=[];
+ for i to nops(sL) do
+  Dm:=multiDimensionAdjusted(sL[i],d);
+  S:=add(Dm[j],j=1..nops(Dm)-1);
+  T:=Dm[nops(Dm)];
+  if Dm[1]>0 then
+   ans:=[op(ans),["Ind",sL[i],PrettyPrintSequence(sL[i]),T-S,Dm]];
+  fi;
+ od;
+ ans;
+end proc:
+
+ILND:=[IndecListNovelData(Indec[1],dValue),
+       IndecListNovelData(Indec[2],dValue),
+       IndecListNovelData(Indec[3],dValue),
+       IndecListNovelData(Indec[4],dValue)]:
+PLND:=[PRHomologyListNovelData(PRLists[1],dValue),
+       PRHomologyListNovelData(PRLists[2],dValue),
+       PRHomologyListNovelData(PRLists[3],dValue)]:
+ALLND:=[op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),op(PLND[2]),op(PLND[3])]:
+ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
+
+CollapseDimensions:=proc(Dm)
+ local ans,i,deeT;
+ deeT:=Dm;
+ ans:=[Dm];
+ for i to nops(Dm)-2 do
+  deeT:=[deeT[1]+deeT[2],op(deeT[3..nops(deeT)])];
+  ans:=[op(ans),deeT];
+ od:
+ [op(ans),[deeT[2]-deeT[1]]];
+end proc:
+
+PrintNData:=proc(inp)
+ print(inp[3],"    ",op(map(x->([E[op(x)]]),CollapseDimensions(inp[5]))));
+end proc:
+
+for i to nops(ALLND) do
+ PrintNData(ALLND[i]):
+od;
+
+
