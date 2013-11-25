@@ -823,6 +823,57 @@ PrintNData:=proc(inp)
  print(inp[3],"    ",op(map(x->([E[op(x)]]),CollapseDimensions(inp[5]))));
 end proc:
 
+ToInsTmS:=proc(ToIns,d)
+ E2DegreePRHomElt(ToIns,d);
+ %[nops(%)]-add(%[j],j=1..nops(%)-1);
+end proc:
+
+PRHomologyIteratorExtraSmart:=proc(s01,s2,s3,shorterOnes,maxTmS,d)
+ local ans,numShrt,i,j,ToIns,pos,r;
+ ans:=[];numShrt:=nops(shorterOnes);
+ for i to numShrt do
+  for j to nops(s01) do
+   if ListTools[Search](s01[j],map(x->x[2],shorterOnes[i]))=0 then
+    ToIns:=sort([op(shorterOnes[i]),[1,s01[j]]]);
+    if ToInsTmS(ToIns,d)<=maxTmS and ListTools[Search](ToIns,shorterOnes)=0 then
+     ans:=[op(ans),ToIns];
+    fi;
+   fi;
+  od;
+  for j to nops(s2) do
+   pos:=ListTools[Search](s2[j],map(x->x[2],shorterOnes[i]));
+   if pos=0 then
+    ToIns:=sort([op(shorterOnes[i]),[2,s2[j]]]);
+   else
+    ToIns:=shorterOnes[i];
+    ToIns[pos][1]:=ToIns[pos][1]+2;
+    ToIns:=sort(ToIns);
+   fi;
+   if ToInsTmS(ToIns,d)<=maxTmS and ListTools[Search](ToIns,shorterOnes)=0 then
+    ans:=[op(ans),ToIns];
+   fi;
+  od;
+  for j to nops(s3) do
+   pos:=ListTools[Search](s3[j],map(x->x[2],shorterOnes[i]));
+   if pos=0 then
+    ToIns:=sort([op(shorterOnes[i]),[1,s3[j]]]);
+   else
+    ToIns:=shorterOnes[i];
+    ToIns[pos][1]:=ToIns[pos][1]+1;
+    ToIns:=sort(ToIns);
+   fi;
+   if ToInsTmS(ToIns,d)<=maxTmS and ListTools[Search](ToIns,shorterOnes)=0 then
+    ans:=[op(ans),ToIns];
+   fi;
+  od;
+ od;
+ ans;
+end proc:
+
+
+
+
+
 
 
 
@@ -923,17 +974,30 @@ Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
 "S3ListLengths"=map(x->nops(x),S3Lists);
 
 for NnN from 1 to 3 do
- oldValue:=-1:
- print("calculating PR homology on length ",NnN," sequences");
- print("could be improved by feeding in the previous result");
- print("could be improved by cutting by t and s early");
- for i to 10 while oldValue<>nops(PRLists[NnN]) do
-  oldValue:=nops(PRLists[NnN]);
-  PRLists[NnN]:=PRHomologyIterator(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],PRLists[NnN],10):
-  PRLists[NnN]:=TrimPRHomologyListBYst(PRLists[NnN],sMax,tMax,dValue);
-  print(nops(%%)=nops(%));
+ unused:=[[]];current:=[];
+ for i to 20 while nops(unused)>0 do
+  print('PRLists'[NnN],"with",nops(current),"locked in",nops(unused),"in queue");
+  current:=[op(current),op(unused)]:
+  tempo:=PRHomologyIteratorExtraSmart(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],unused,calcToDimension,dValue):
+  tempo:=TrimPRHomologyListBYst(tempo,sMax,tMax,dValue);
+  unused:=[op({op(tempo)}minus{op(current)})];
  od:
-od:
+ PRLists[NnN]:=current:
+end do:
+
+
+#for NnN from 1 to 3 do
+# oldValue:=-1:
+# print("calculating PR homology on length ",NnN," sequences");
+# print("could be improved by feeding in the previous result");
+# print("could be improved by cutting by t and s early");
+# for i to 10 while oldValue<>nops(PRLists[NnN]) do
+#  oldValue:=nops(PRLists[NnN]);
+#  PRLists[NnN]:=PRHomologyIterator(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],PRLists[NnN],10):
+#  PRLists[NnN]:=TrimPRHomologyListBYst(PRLists[NnN],sMax,tMax,dValue);
+#  print(nops(%%)=nops(%));
+# od:
+#od:
 
 
 
@@ -970,6 +1034,6 @@ ALLND:=[funClassND,op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),o
 ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->[inp[3],(map(x->(E[op(x)]),(CollapseDimensions(inp[5]))))],ALLND):
-interface(rtablesize=20000):latex(Matrix(ALLNDbrief));
+interface(rtablesize=20000):latex(Matrix(ALLNDbrief),"C:/Users/Michael/Desktop/latexForTables/tableRawData.tex");
 
 
