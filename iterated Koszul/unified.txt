@@ -870,7 +870,9 @@ PRHomologyIteratorExtraSmart:=proc(s01,s2,s3,shorterOnes,maxTmS,d)
  ans;
 end proc:
 
-
+PromotePRList:=proc(PRList)
+ map(EG->map(EGr->[EGr[1],[[],op(EGr[2])]],EG),PRList);
+end proc:
 
 
 
@@ -975,8 +977,11 @@ Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
 
 for NnN from 1 to 3 do
  unused:=[[]];current:=[];
+ if NnN>1 then
+  unused:=PromotePRList(PRLists[NnN-1]);
+ fi;
  for i to 20 while nops(unused)>0 do
-  print('PRLists'[NnN],"with",nops(current),"locked in",nops(unused),"in queue");
+  print('PRLists'[NnN],"   ",nops(current),"done  ",nops(unused),"queued");
   current:=[op(current),op(unused)]:
   tempo:=PRHomologyIteratorExtraSmart(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],unused,calcToDimension,dValue):
   tempo:=TrimPRHomologyListBYst(tempo,sMax,tMax,dValue);
@@ -1035,5 +1040,11 @@ ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->[inp[3],(map(x->(E[op(x)]),(CollapseDimensions(inp[5]))))],ALLND):
 interface(rtablesize=20000):latex(Matrix(ALLNDbrief),"C:/Users/Michael/Desktop/latexForTables/tableRawData.tex");
+
+
+
+
+
+
 
 
