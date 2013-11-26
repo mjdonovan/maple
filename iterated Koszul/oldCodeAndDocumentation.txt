@@ -1,0 +1,90 @@
+#There are five categories:
+#"P"
+#"d"    (deltas with degrees +1)
+#"dNS"  (deltas with unshifted degree)
+#"u"    (opposite of lambda)
+#"Sq1+" (koszul dual of u)
+ 
+# AdemIndexPairs(i,j,algtype)
+#   will return a list of pairs after applying Adem relations
+# MakesSense(L,algtype)
+#   tests whether a given expression makes sense in said algebra
+# IsAdmissible(L,algtype)
+#   tests if a list is admissible
+#  AdemAtLocation(L,loc,algtype)
+#     performs a substitution of an adem relation into a string
+#  ListModTwo(L)
+#     removes pairs from a list
+#  AddListsModTwo(N1,N2,...)
+#     adds up to seven lists mod 2
+#  QueueAdem(seqn,algtype)
+#     puts an expression in admissible form
+#  MinDegree(L,algtype)
+#     calculates M
+#  InternalDegree(L,algtype)
+#     calcuates how much a sequence adds to internal degree (accepts "sum")
+#  AllSequences(s,l,algtype)
+#     calculates all (inadmissible) sequences using an internal function
+#  AllSequencesReinvented(SuM,LengtH,algtype)
+#     reinvents the previous wheel
+#  AllAdmissibleSequences(SuM,LengtH,algtype,prevEntry:=-1)
+#     produces all admissibles (modifies the heavy wheel - slow)
+#  BarCycle(II,uOrP)
+#     produces a representative in the Bar construction for an element of the Koszul Complex
+#  BarDifferentialOnMonomial(b,uOrP)
+#     accepts a monomial b=[[c_j],e] where c_j and e are P-admissible sequences
+#  BarDifferential(B,uOrP)
+#     accepts B=[b_i] where b_i=[[c_ij],e_i] where c_ij and e_i are P-admissible sequences
+#  MprecN(M,N)
+#     is M<N in an ordering on monomials in the bar construction: nastiest are less than
+#  LengthMinusHomDeg(M)
+#     given something in Bar, calculates the difference between u-length and hom degree.
+#  PhiHomotopy(B,uOrP)
+#     constructs Priddy's nullhomotopy Phi
+#  dPhi(B,uOrP)
+#     returns d(Phi(B))
+#  ADDdPhi(B,uOrP)
+#     returns B+d(PhI(B))
+#  RestrictionOfMuI(II,cDim)
+#     returns the restriction (in level 0) of 'mu(I) on a class of dimension cDim'
+#  RepeatedHomotopy(B,maxTries,uOrP)
+#     repeatedly homotopes the expression B
+#  MprecNalt(M,N)
+#     a sorting order that emphasises what has escaped the [.|.|.|.]
+
+
+#for NnN from 1 to 3 do
+# oldValue:=-1:
+# print("calculating PR homology on length ",NnN," sequences");
+# print("could be improved by feeding in the previous result");
+# print("could be improved by cutting by t and s early");
+# for i to 10 while oldValue<>nops(PRLists[NnN]) do
+#  oldValue:=nops(PRLists[NnN]);
+#  PRLists[NnN]:=PRHomologyIterator(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],PRLists[NnN],10):
+#  PRLists[NnN]:=TrimPRHomologyListBYst(PRLists[NnN],sMax,tMax,dValue);
+#  print(nops(%%)=nops(%));
+# od:
+#od:
+
+
+
+
+#for tMINUSs from 2 to 40 do
+# print("-%-%-%-%-%- t-s"=tMINUSs,"-%-%-%-%-%-");
+# listo:=TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue);#not by novelty-want fund class
+# if nops(listo)>0 then
+#  print("1Eoxx"=op(map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],listo)));
+# fi;
+# listo:=TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[1],tMINUSs,dValue);
+# if nops(listo)>0 then
+#  print("2Exoxx"=op(map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],listo)));
+# fi;
+# listo:=TrimSListBYtMINUSsAndNovelty(Indec[2],tMINUSs,dValue);
+# if nops(listo)>0 then
+#  print("2Eoxxx"=op(map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],listo)));
+# fi;
+# listo:=TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[2],tMINUSs,dValue);
+# if nops(listo)>0 then
+#  print("3Exoxxx"=op(map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],listo)));
+# fi;
+#od:

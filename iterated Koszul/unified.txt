@@ -1,56 +1,8 @@
-#There are five categories:
-#"P"
-#"d"    (deltas with degrees +1)
-#"dNS"  (deltas with unshifted degree)
-#"u"    (opposite of lambda)
-#"Sq1+" (koszul dual of u)
- 
-# AdemIndexPairs(i,j,algtype)
-#   will return a list of pairs after applying Adem relations
-# MakesSense(L,algtype)
-#   tests whether a given expression makes sense in said algebra
-# IsAdmissible(L,algtype)
-#   tests if a list is admissible
-#  AdemAtLocation(L,loc,algtype)
-#     performs a substitution of an adem relation into a string
-#  ListModTwo(L)
-#     removes pairs from a list
-#  AddListsModTwo(N1,N2,...)
-#     adds up to seven lists mod 2
-#  QueueAdem(seqn,algtype)
-#     puts an expression in admissible form
-#  MinDegree(L,algtype)
-#     calculates M
-#  InternalDegree(L,algtype)
-#     calcuates how much a sequence adds to internal degree (accepts "sum")
-#  AllSequences(s,l,algtype)
-#     calculates all (inadmissible) sequences using an internal function
-#  AllSequencesReinvented(SuM,LengtH,algtype)
-#     reinvents the previous wheel
-#  AllAdmissibleSequences(SuM,LengtH,algtype,prevEntry:=-1)
-#     produces all admissibles (modifies the heavy wheel - slow)
-#  BarCycle(II,uOrP)
-#     produces a representative in the Bar construction for an element of the Koszul Complex
-#  BarDifferentialOnMonomial(b,uOrP)
-#     accepts a monomial b=[[c_j],e] where c_j and e are P-admissible sequences
-#  BarDifferential(B,uOrP)
-#     accepts B=[b_i] where b_i=[[c_ij],e_i] where c_ij and e_i are P-admissible sequences
-#  MprecN(M,N)
-#     is M<N in an ordering on monomials in the bar construction: nastiest are less than
-#  LengthMinusHomDeg(M)
-#     given something in Bar, calculates the difference between u-length and hom degree.
-#  PhiHomotopy(B,uOrP)
-#     constructs Priddy's nullhomotopy Phi
-#  dPhi(B,uOrP)
-#     returns d(Phi(B))
-#  ADDdPhi(B,uOrP)
-#     returns B+d(PhI(B))
-#  RestrictionOfMuI(II,cDim)
-#     returns the restriction (in level 0) of 'mu(I) on a class of dimension cDim'
-#  RepeatedHomotopy(B,maxTries,uOrP)
-#     repeatedly homotopes the expression B
-#  MprecNalt(M,N)
-#     a sorting order that emphasises what has excaped the [.|.|.|.]
+dValue:=2;
+calcToDimension:=40;
+sMax:=floor(calcToDimension*4/5-1);
+tMax:=floor(calcToDimension*9/5-1);
+l1Max:=floor(log[2](tMax-dValue+1));
 
 AdemIndexPairs:=proc(i,j,algtype)
  local ans,s;
@@ -360,7 +312,6 @@ MprecN:=proc(M,N)
  ans;
 end proc:
 
-
 LengthMinusHomDeg:=proc(M)
  nops(ListTools[FlattenOnce](M[1]))-nops(M[1]);
 end proc:
@@ -449,9 +400,6 @@ MprecNalt:=proc(M,N)
  ans;
 end proc:
 
-
-
-
 SqCompsMLi:=proc(M,L,i1min)
   local shifter,i;
   shifter:=[i1min-1];
@@ -467,18 +415,12 @@ SqCompsMi:=proc(M,i1min)
   ans;
 end proc:
 
-
 SqCompM:=proc(comp)
  sum(comp[k],k=1..nops(comp));
 end proc:
 SqCompN:=proc(comp)
  sum((2^k-1)*comp[k],k=1..nops(comp));
 end proc:
-
-
-
-
-
 
 delAdmisExtensions:=proc(adm,d)
  local i,ans,strt;
@@ -510,14 +452,6 @@ delAdmissables:=proc(maxLength,d)
  ADMISlist;
 end proc:
 
-
-
-
-
-
-
-
-
 I1vulnerable:=proc(I1,d)
  local ans;
  ans:=0;
@@ -541,11 +475,6 @@ end proc:
 Esatisfied:=proc(I1,I2,d)
  I1vulnerable(I1,d)* I2vulnerable(I2);
 end proc:
-
-
-
-
-
 
 multiDimension:=proc(S,d)
  local i,ans,ellR,ennR,N,smr;
@@ -691,7 +620,6 @@ TrimPRHomologyListBYtMINUSsAndNovelty:=proc(sL,tMINUSs,d)
  ans;
 end proc:
 
-
 Is00:=proc(L)
  local ans;
  ans:=0;
@@ -712,8 +640,6 @@ IsX00or00X:=proc(L)
  fi;
  ans;
 end proc: 
-
-
 
 PRHomologyIterator:=proc(s01,s2,s3,shorterOnes,maxL)
  local ans,numShrt,i,j,ToIns,pos,r;
@@ -882,18 +808,8 @@ end proc:
 
 
 
-dValue:=2;
-calcToDimension:=40;
-sMax:=floor(calcToDimension*4/5-1);
-tMax:=floor(calcToDimension*9/5-1);
-l1Max:=floor(log[2](tMax-dValue+1));
 
 
-PRLists:=[[[]],[[]],[[]],[[]],[[]],
-[[]],[[]],[[]],[[]],[[]],
-[[]],[[]],[[]],[[]],[[]],
-[[]],[[]],[[]],[[]],[[]]]:
-Indec:=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
 
 
 SqList:=[[[]],[[0]]]:
@@ -907,10 +823,13 @@ od:
 I2ListByM:=x->I2SqList[x+2]:
 I3ListByM:=x->SqList[x+2]:
 
+print("calculating SLists[N]:=S^(N) where");
+print('N'=1);
 S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
 S1ListIgnoreE:=TrimSListBYst(S1ListIgnoreE,sMax,tMax,dValue):
 S1List:=remove(x->I1vulnerable(x[1],dValue)>0,S1ListIgnoreE):
 S1List:=TrimSListBYst(S1List,sMax,tMax,dValue):
+print('N'=2);
 S2List:=[]:
 for i from 1 to nops(S1ListIgnoreE) do
  for m2 from -1 to nops(S1ListIgnoreE[i][1])-1 do
@@ -922,6 +841,7 @@ for i from 1 to nops(S1ListIgnoreE) do
  od;
 od;
 S2List:=TrimSListBYst(S2List,sMax,tMax,dValue):
+print('N'=3);
 S3List:=[]:
 for i from 1 to nops(S2List) do
  for m3 from -1 to nops(S2List[i][1])-1 do
@@ -931,6 +851,7 @@ for i from 1 to nops(S2List) do
  od;
 od;
 S3List:=TrimSListBYst(S3List,sMax,tMax,dValue):
+print('N'=4);
 S4List:=[]:
 for i from 1 to nops(S3List) do
  for m3 from -1 to nops(S3List[i][1])-1 do
@@ -942,8 +863,10 @@ od;
 S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
 SLists:=[S1List,S2List,S3List,S4List,
  [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
+PRLists:=map(x->[[]],SLists);
+Indec:=map(x->[],SLists);
 for N from 5 to 20 do
- print("calculating SLists[N]:=S^(N) where N=",N);
+ print('N'=N);
  SNList:=[]:
  for i from 1 to nops(SLists[N-1]) do
   for m3 from -1 to nops(SLists[N-1][i][1])-1 do
@@ -954,14 +877,6 @@ for N from 5 to 20 do
  od;
  SLists[N]:=TrimSListBYst(SNList,sMax,tMax,dValue);
 end do:
-
-
-
-
-
-
-
-
 
 S01Lists:=map(y->remove(x->Swhat(x,dValue)>1,y),SLists):
 S1Lists:=map(y->remove(x->Swhat(x,dValue)=0,y),S01Lists):
@@ -975,6 +890,7 @@ Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
 "S2ListLengths"=map(x->nops(x),S2Lists);
 "S3ListLengths"=map(x->nops(x),S3Lists);
 
+print("calculating divided power algebra");
 for NnN from 1 to 3 do
  unused:=[[]];current:=[];
  if NnN>1 then
@@ -991,41 +907,7 @@ for NnN from 1 to 3 do
 end do:
 
 
-#for NnN from 1 to 3 do
-# oldValue:=-1:
-# print("calculating PR homology on length ",NnN," sequences");
-# print("could be improved by feeding in the previous result");
-# print("could be improved by cutting by t and s early");
-# for i to 10 while oldValue<>nops(PRLists[NnN]) do
-#  oldValue:=nops(PRLists[NnN]);
-#  PRLists[NnN]:=PRHomologyIterator(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],PRLists[NnN],10):
-#  PRLists[NnN]:=TrimPRHomologyListBYst(PRLists[NnN],sMax,tMax,dValue);
-#  print(nops(%%)=nops(%));
-# od:
-#od:
 
-
-
-
-#for tMINUSs from 2 to 40 do
-# print("-%-%-%-%-%- t-s"=tMINUSs,"-%-%-%-%-%-");
-# listo:=TrimSListBYtMINUSs(Indec[1],tMINUSs,dValue);#not by novelty-want fund class
-# if nops(listo)>0 then
-#  print("1Eoxx"=op(map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],listo)));
-# fi;
-# listo:=TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[1],tMINUSs,dValue);
-# if nops(listo)>0 then
-#  print("2Exoxx"=op(map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],listo)));
-# fi;
-# listo:=TrimSListBYtMINUSsAndNovelty(Indec[2],tMINUSs,dValue);
-# if nops(listo)>0 then
-#  print("2Eoxxx"=op(map(x->[PrettyPrintSequence(x)=E2DegreeIndecElt(x,dValue)],listo)));
-# fi;
-# listo:=TrimPRHomologyListBYtMINUSsAndNovelty(PRLists[2],tMINUSs,dValue);
-# if nops(listo)>0 then
-#  print("3Exoxxx"=op(map(x->[PrettyPrintPRelt(x)=E2DegreePRHomElt(x,dValue)],listo)));
-# fi;
-#od:
 
 ILND:=[IndecListNovelData(Indec[1],dValue),
        IndecListNovelData(Indec[2],dValue),
@@ -1039,7 +921,7 @@ ALLND:=[funClassND,op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),o
 ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->[inp[3],(map(x->(E[op(x)]),(CollapseDimensions(inp[5]))))],ALLND):
-interface(rtablesize=20000):latex(Matrix(ALLNDbrief),"C:/Users/Michael/Desktop/latexForTables/tableRawData.tex");
+interface(rtablesize=20000): latex(Matrix(ALLNDbrief),"C:/Users/Michael/Desktop/latexForTables/tableRawData.tex");
 
 
 
