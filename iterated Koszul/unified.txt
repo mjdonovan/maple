@@ -3,7 +3,7 @@ calcToDimension:=20:
 sMax:=floor(calcToDimension*4/5-1):
 tMax:=floor(calcToDimension*9/5-1):
 l1Max:=floor(log[2](tMax-dValue+1)):
-OutputFileSuffix:=10:
+OutputFileSuffix:=0:
 UserFeedback(["Calculating up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
 
 
@@ -688,16 +688,17 @@ end proc:
 
 PrettyPrintSequence:=proc(KE)
 local ANS,i,symbls;
- symbls:=[delta,QQ,QQQ,QQQQ,QQQQQ,QQQQQQ,QQQQQQQ,QQQQQQQQ,QQQQQQQQQ,QQQQQQQQQQ,QQQQQQQQQQQ,
-QQQQQQQQQQQQ,QQQQQQQQQQQQQ,QQQQQQQQQQQQQQ, QQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQQQ];
+ symbls:=[delta,SQa,SQb,SQc,SQd,SQe,SQf,SQg,SQh,SQi,SQj,SQk,SQl,SQm,
+                SQn,SQo,SQp,SQq,SQr,SQs,SQt,SQu,SQv,SQw,SQx,SQy,SQz];
  ANS:='e':
  for i from nops(KE) to 1 by -1 do 
   if nops(KE[i])>0 then 
-   ANS:=symbls[1+nops(KE)-i][op(KE[i])]*ANS;
+   ANS:=symbls[1+nops(KE)-i][op(ExcessFormatToStandard(KE[i],nops(KE)-i))]*ANS;
   fi;
  od;
  ANS; 
 end proc:
+
 PrettyPrintPRelt:=proc(PRelt)
  local ANSr,i;
  if nops(PRelt)>0 then
@@ -813,8 +814,19 @@ UserFeedback:=proc(Listo)
  NULL;
 end proc:
 
-
-
+ExcessFormatToStandard:=proc(Listo,AmIOn:=1)
+ local ans,i;
+ if AmIOn>0 then
+  ans:=[];
+  if nops(Listo)>0 then
+   ans:=[Listo[nops(Listo)]];
+   for i from nops(Listo)-1 to 1 by -1 do
+    ans:=[ans[1]*2+Listo[i],op(ans)];
+   od;
+  fi;
+ else ans:=Listo; fi;
+ ans;
+end proc:
 
 
 
