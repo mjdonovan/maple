@@ -4,9 +4,8 @@ sMax:=floor(calcToDimension*4/5-1):
 tMax:=floor(calcToDimension*9/5-1):
 l1Max:=floor(log[2](tMax-dValue+1)):
 OutputFileSuffix:=0:
-UserFeedback(["Calculating up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
 
-
+writeline(default,"reading function definitions"):
 AdemIndexPairs:=proc(i,j,algtype)
  local ans,s;
  if algtype="u" then
@@ -836,7 +835,7 @@ end proc:
 
 
 
-
+UserFeedback(["Calculating up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
 SqList:=[[[]],[[0]]]:
 for M from 1 to 11 do
  SqList:=[op(SqList),[op(SqCompsMi(M,0))]];
