@@ -3,6 +3,7 @@ calcToDimension:=20;
 sMax:=floor(calcToDimension*4/5-1);
 tMax:=floor(calcToDimension*9/5-1);
 l1Max:=floor(log[2](tMax-dValue+1));
+OutputToFileNumber:=0;
 
 AdemIndexPairs:=proc(i,j,algtype)
  local ans,s;
@@ -932,7 +933,11 @@ ALLND:=[funClassND,op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),o
 ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->[inp[3],(map(x->(E[op(x)]),(CollapseDimensions(inp[5]))))],ALLND):
-interface(rtablesize=20000): latex(Matrix(ALLNDbrief),"C:/Users/Michael/Desktop/latexForTables/tableRawData.tex");
+if OutputFileSuffix=0 then
+ interface(rtablesize=20000): print(Matrix(ALLNDbrief));
+else
+ latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
+fi:
 
 
 
