@@ -1,9 +1,11 @@
-dValue:=2;
-calcToDimension:=20;
-sMax:=floor(calcToDimension*4/5-1);
-tMax:=floor(calcToDimension*9/5-1);
-l1Max:=floor(log[2](tMax-dValue+1));
-OutputToFileNumber:=0;
+dValue:=2:
+calcToDimension:=20:
+sMax:=floor(calcToDimension*4/5-1):
+tMax:=floor(calcToDimension*9/5-1):
+l1Max:=floor(log[2](tMax-dValue+1)):
+OutputFileSuffix:=10:
+UserFeedback(["Calculating up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
+
 
 AdemIndexPairs:=proc(i,j,algtype)
  local ans,s;
