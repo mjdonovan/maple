@@ -1,5 +1,5 @@
 dValue:=2;
-calcToDimension:=40;
+calcToDimension:=20;
 sMax:=floor(calcToDimension*4/5-1);
 tMax:=floor(calcToDimension*9/5-1);
 l1Max:=floor(log[2](tMax-dValue+1));
@@ -685,7 +685,7 @@ end proc:
 
 PrettyPrintSequence:=proc(KE)
 local ANS,i,symbls;
- symbls:=[P,QQ,QQQ,QQQQ,QQQQQ,QQQQQQ,QQQQQQQ,QQQQQQQQ,QQQQQQQQQ,QQQQQQQQQQ,QQQQQQQQQQQ,
+ symbls:=[delta,QQ,QQQ,QQQQ,QQQQQ,QQQQQQ,QQQQQQQ,QQQQQQQQ,QQQQQQQQQ,QQQQQQQQQQ,QQQQQQQQQQQ,
 QQQQQQQQQQQQ,QQQQQQQQQQQQQ,QQQQQQQQQQQQQQ, QQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQQ,QQQQQQQQQQQQQQQQQQQ];
  ANS:='e':
  for i from nops(KE) to 1 by -1 do 
@@ -800,6 +800,16 @@ PromotePRList:=proc(PRList)
  map(EG->map(EGr->[EGr[1],[[],op(EGr[2])]],EG),PRList);
 end proc:
 
+UserFeedback:=proc(Listo)
+ local ans,i;
+ ans:="";
+ for i to nops(Listo) do
+  ans:=cat(ans,convert(Listo[i],'string'));
+ od;
+ writeline(default,ans);
+ NULL;
+end proc:
+
 
 
 
@@ -823,13 +833,13 @@ od:
 I2ListByM:=x->I2SqList[x+2]:
 I3ListByM:=x->SqList[x+2]:
 
-print("calculating SLists[N]:=S^(N) where");
-print('N'=1);
+UserFeedback(["calculating SLists[N]:=S^(N)"]);
+UserFeedback(['N'=1]);
 S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
 S1ListIgnoreE:=TrimSListBYst(S1ListIgnoreE,sMax,tMax,dValue):
 S1List:=remove(x->I1vulnerable(x[1],dValue)>0,S1ListIgnoreE):
 S1List:=TrimSListBYst(S1List,sMax,tMax,dValue):
-print('N'=2);
+UserFeedback(['N'=2]);
 S2List:=[]:
 for i from 1 to nops(S1ListIgnoreE) do
  for m2 from -1 to nops(S1ListIgnoreE[i][1])-1 do
@@ -841,7 +851,7 @@ for i from 1 to nops(S1ListIgnoreE) do
  od;
 od;
 S2List:=TrimSListBYst(S2List,sMax,tMax,dValue):
-print('N'=3);
+UserFeedback(['N'=3]);
 S3List:=[]:
 for i from 1 to nops(S2List) do
  for m3 from -1 to nops(S2List[i][1])-1 do
@@ -851,7 +861,7 @@ for i from 1 to nops(S2List) do
  od;
 od;
 S3List:=TrimSListBYst(S3List,sMax,tMax,dValue):
-print('N'=4);
+UserFeedback(['N'=4]);
 S4List:=[]:
 for i from 1 to nops(S3List) do
  for m3 from -1 to nops(S3List[i][1])-1 do
@@ -863,10 +873,10 @@ od;
 S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
 SLists:=[S1List,S2List,S3List,S4List,
  [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
-PRLists:=map(x->[[]],SLists);
-Indec:=map(x->[],SLists);
+PRLists:=map(x->[[]],SLists):
+Indec:=map(x->[],SLists):
 for N from 5 to 20 do
- print('N'=N);
+ UserFeedback(["N=",N]);
  SNList:=[]:
  for i from 1 to nops(SLists[N-1]) do
   for m3 from -1 to nops(SLists[N-1][i][1])-1 do
@@ -886,18 +896,19 @@ S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
 Indec:=map(y->remove(x->Swhat(x,dValue)=2,y),SLists):
 Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
 
-"S01ListLengths"=map(x->nops(x),S01Lists);
-"S2ListLengths"=map(x->nops(x),S2Lists);
-"S3ListLengths"=map(x->nops(x),S3Lists);
+UserFeedback(["cardinalities of S^N_01 =",map(x->nops(x),S01Lists)]);
+UserFeedback(["cardinalities of S^N_2  =",map(x->nops(x),S2Lists)]);
+UserFeedback(["cardinalities of S^N_3  =",map(x->nops(x),S3Lists)]);
 
-print("calculating divided power algebra");
+
+UserFeedback(["calculating Lie algebra (co)homology"]);
 for NnN from 1 to 3 do
  unused:=[[]];current:=[];
  if NnN>1 then
   unused:=PromotePRList(PRLists[NnN-1]);
  fi;
  for i to 20 while nops(unused)>0 do
-  print('PRLists'[NnN],"   ",nops(current),"done  ",nops(unused),"queued");
+  UserFeedback(['PRLists'[NnN],"   ",nops(current)," elements completed, with ",nops(unused)," elements queued"]);
   current:=[op(current),op(unused)]:
   tempo:=PRHomologyIteratorExtraSmart(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],unused,calcToDimension,dValue):
   tempo:=TrimPRHomologyListBYst(tempo,sMax,tMax,dValue);
@@ -927,6 +938,12 @@ interface(rtablesize=20000): latex(Matrix(ALLNDbrief),"C:/Users/Michael/Desktop/
 
 
 
+#update the gammas to powers.
+#tell me where the data has been saved to
+#introduce a toggle for whether it's outputted in maple or latex
+#move latex folder?
+#introduce differential calculator?
+#consider the kunneth...
 
 
 
