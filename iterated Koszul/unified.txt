@@ -960,9 +960,7 @@ UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimens
 
 
 
-#update the gammas to powers.
-#tell me where the data has been saved to
-#introduce a toggle for whether it's outputted in maple or latex
+
 #move latex folder?
 #introduce differential calculator?
 #consider the kunneth...
