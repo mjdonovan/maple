@@ -608,6 +608,7 @@ TrimPRHomologyListBYtMINUSs:=proc(sL,tMINUSs,d)
  od;
  ans;
 end proc:
+
 TrimPRHomologyListBYtMINUSsAndNovelty:=proc(sL,tMINUSs,d)
  local ans,i,j,Dm,S,T;
  ans:=[];
@@ -626,6 +627,15 @@ Is00:=proc(L)
  local ans;
  ans:=0;
  if nops(L)>1 and L[1]=0 and L[2]=0 then
+  ans:=1;
+ fi;
+ ans;
+end proc: 
+
+IsX00:=proc(L)
+ local ans;
+ ans:=0;
+ if nops(L)>2 and L[3]=0 and L[2]=0 then
   ans:=1;
  fi;
  ans;
@@ -723,6 +733,7 @@ PRHomologyListNovelData:=proc(sL,d)
  od;
  ans;
 end proc:
+
 IndecListNovelData:=proc(sL,d)
  local ans,i,j,Dm,S,T;
  ans:=[];
