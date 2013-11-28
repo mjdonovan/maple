@@ -1,10 +1,3 @@
-dValue:=2:
-calcToDimension:=20:
-sMax:=floor(calcToDimension*4/5-1):
-tMax:=floor(calcToDimension*9/5-1):
-l1Max:=floor(log[2](tMax-dValue+1)):
-OutputFileSuffix:=0:
-
 writeline(default,"reading function definitions"):
 AdemIndexPairs:=proc(i,j,algtype)
  local ans,s;
@@ -873,6 +866,13 @@ end proc:
 ###########################################################
 ###########################################################
 
+dValue:=2:
+calcToDimension:=20:
+sMax:=floor(calcToDimension*4/5-1):
+tMax:=floor(calcToDimension*9/5-1):
+l1Max:=floor(log[2](tMax-dValue+1)):
+OutputFileSuffix:=0:
+
 UserFeedback(["Calculating up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
 SqList:=[[[]],[[0]]]:
 for M from 1 to 11 do
@@ -949,7 +949,7 @@ S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
 UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
 
 ###########################################################
-###########################################################
+################## make modifications here ################
 ###########################################################
 
 UserFeedback(["calculating Lie algebra cohomology"]);
