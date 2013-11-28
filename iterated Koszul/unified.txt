@@ -838,7 +838,18 @@ ExcessFormatToStandard:=proc(Listo,AmIOn:=1)
  ans;
 end proc:
 
+RemoveFromList:=proc(e,L)
+ local s;
+ s:=remove(x->x=e,L);
+ if nops(L)=nops(s) then
+  error "didn't find the element to be removed";
+ fi;
+ s;
+end proc:
 
+AddToList:=proc(e,L)
+ [op(L),e]
+end proc:
 
 
 
