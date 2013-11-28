@@ -851,7 +851,19 @@ AddToList:=proc(e,L)
  [op(L),e]
 end proc:
 
-
+testIfObviouslyLivesToEinfty:=proc(PRE)
+#looks for things detecting divided powers of the fundamental class
+ local i,j,k,ans;
+ ans:=1;
+ for i in PRE while ans=1 do
+  if i[1]<>1 or nops(i[2])<>1 or 
+  i[2][1]<>[8192,4096,2048,1024,512,256,128,64,32,16,8,4,2][14-nops(i[2][1])..-1]
+  then
+   ans:=0
+  fi;
+ od;
+ ans;
+end proc:
 
 
 
@@ -949,11 +961,12 @@ for NnN from 1 to 3 do
  PRLists[NnN]:=current:
 end do:
 
+#funClassND:=["PR", [[]], omega[1](e), 2, [0, 2]]:
+PRLists[1]:=remove(x->testIfObviouslyLivesToEinfty(x)=1,PRLists[1]):
 PLND:=[PRHomologyListNovelData(PRLists[1],dValue),
        PRHomologyListNovelData(PRLists[2],dValue),
        PRHomologyListNovelData(PRLists[3],dValue)]:
-funClassND:=["PR", [[]], omega[1](e), 2, [0, 2]]:
-ALLND:=[funClassND,op(PLND[1]),op(PLND[2]),op(PLND[3])]:
+ALLND:=[op(PLND[1]),op(PLND[2]),op(PLND[3])]:
 ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->
@@ -967,14 +980,5 @@ else
                cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]);
 fi:
 UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
-
-
-
-
-
-#move latex folder?
-#introduce differential calculator?
-#consider the kunneth...
-
 
 
