@@ -727,7 +727,7 @@ PRHomologyListNovelData:=proc(sL,d)
   Dm:=E2DegreePRHomElt(sL[i],d);
   S:=add(Dm[j],j=1..nops(Dm)-1);
   T:=Dm[nops(Dm)];
-  if IsX00or00X(Dm)=0 and Dm[1]>-1 then
+  if IsX00(Dm)=0 and Dm[1]>-1 then
    ans:=[op(ans),["PR",sL[i],PrettyPrintPRelt(sL[i]),T-S,Dm]];
   fi;
  od;
@@ -918,14 +918,11 @@ S1Lists:=map(y->remove(x->Swhat(x,dValue)=0,y),S01Lists):
 S2Lists:=map(y->remove(x->Swhat(x,dValue)<>2,y),SLists):
 S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
 
-Indec:=map(y->remove(x->Swhat(x,dValue)=2,y),SLists):
-Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
-
 UserFeedback(["cardinalities of S^N_01: ",map(x->nops(x),S01Lists)]);
 UserFeedback(["cardinalities of S^N_2:  ",map(x->nops(x),S2Lists )]);
 UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
 
-UserFeedback(["calculating Lie algebra (co)homology"]);
+UserFeedback(["calculating Lie algebra cohomology"]);
 for NnN from 1 to 3 do
  unused:=[[]];current:=[];
  if NnN>1 then
@@ -941,18 +938,11 @@ for NnN from 1 to 3 do
  PRLists[NnN]:=current:
 end do:
 
-
-
-
-ILND:=[IndecListNovelData(Indec[1],dValue),
-       IndecListNovelData(Indec[2],dValue),
-       IndecListNovelData(Indec[3],dValue),
-       IndecListNovelData(Indec[4],dValue)]:
 PLND:=[PRHomologyListNovelData(PRLists[1],dValue),
        PRHomologyListNovelData(PRLists[2],dValue),
        PRHomologyListNovelData(PRLists[3],dValue)]:
-funClassND:=["Ind", [[]], e, 2, [0, 2]]:
-ALLND:=[funClassND,op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),op(PLND[2]),op(PLND[3])]:
+funClassND:=["PR", [[]], omega[1](e), 2, [0, 2]]:
+ALLND:=[funClassND,op(PLND[1]),op(PLND[2]),op(PLND[3])]:
 ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->
@@ -963,7 +953,7 @@ if OutputFileSuffix=0 then
 else
  latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
 fi:
-
+UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
 
 
 
