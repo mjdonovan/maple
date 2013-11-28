@@ -944,7 +944,9 @@ funClassND:=["Ind", [[]], e, 2, [0, 2]]:
 ALLND:=[funClassND,op(ILND[1]),op(ILND[2]),op(ILND[3]),op(ILND[4]),op(PLND[1]),op(PLND[2]),op(PLND[3])]:
 ALLND:=remove(x->x[4]>calcToDimension,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
-ALLNDbrief:=map(inp->[inp[3],(map(x->(E[op(x)]),(CollapseDimensions(inp[5]))))],ALLND):
+ALLNDbrief:=map(inp->
+                [inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),
+                             (CollapseDimensions(inp[5]))))],ALLND):
 if OutputFileSuffix=0 then
  interface(rtablesize=20000): print(Matrix(ALLNDbrief));
 else
