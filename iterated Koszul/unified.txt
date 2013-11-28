@@ -701,9 +701,9 @@ end proc:
 PrettyPrintPRelt:=proc(PRelt)
  local ANSr,i;
  if nops(PRelt)>0 then
-  ANSr:=gamma[PRelt[nops(PRelt)][1]](PrettyPrintSequence(PRelt[nops(PRelt)][2]));
+  ANSr:=omega[PRelt[nops(PRelt)][1]](PrettyPrintSequence(PRelt[nops(PRelt)][2]));
   for i from nops(PRelt)-1 to 1 by -1 do
-   ANSr:=gamma[PRelt[i][1]](PrettyPrintSequence(PRelt[i][2]))*ANSr;
+   ANSr:=omega[PRelt[i][1]](PrettyPrintSequence(PRelt[i][2]))*ANSr;
   od;
  else ANSr:=1;
  fi;
@@ -910,10 +910,9 @@ S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
 Indec:=map(y->remove(x->Swhat(x,dValue)=2,y),SLists):
 Indec[1]:=remove(x->I1DecomposableTest(x[1],dValue)>0,SLists[1]):
 
-UserFeedback(["cardinalities of S^N_01 =",map(x->nops(x),S01Lists)]);
-UserFeedback(["cardinalities of S^N_2  =",map(x->nops(x),S2Lists)]);
-UserFeedback(["cardinalities of S^N_3  =",map(x->nops(x),S3Lists)]);
-
+UserFeedback(["cardinalities of S^N_01: ",map(x->nops(x),S01Lists)]);
+UserFeedback(["cardinalities of S^N_2:  ",map(x->nops(x),S2Lists )]);
+UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
 
 UserFeedback(["calculating Lie algebra (co)homology"]);
 for NnN from 1 to 3 do
