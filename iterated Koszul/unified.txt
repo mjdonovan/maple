@@ -952,6 +952,8 @@ if OutputFileSuffix=0 then
  interface(rtablesize=20000): print(Matrix(ALLNDbrief));
 else
  latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
+ UserFeedback(["output saved to ",
+               cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]);
 fi:
 UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
 
