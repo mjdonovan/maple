@@ -941,13 +941,16 @@ for N from 5 to 20 do
 end do:
 
 S01Lists:=map(y->remove(x->Swhat(x,dValue)>1,y),SLists):
+UserFeedback(["cardinalities of S^N_01: ",map(x->nops(x),S01Lists)]);
 S1Lists:=map(y->remove(x->Swhat(x,dValue)=0,y),S01Lists):
 S2Lists:=map(y->remove(x->Swhat(x,dValue)<>2,y),SLists):
-S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
-
-UserFeedback(["cardinalities of S^N_01: ",map(x->nops(x),S01Lists)]);
 UserFeedback(["cardinalities of S^N_2:  ",map(x->nops(x),S2Lists )]);
+S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
 UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
+
+###########################################################
+###########################################################
+###########################################################
 
 UserFeedback(["calculating Lie algebra cohomology"]);
 for NnN from 1 to 3 do
