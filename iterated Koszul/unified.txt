@@ -841,7 +841,11 @@ RemoveFromList:=proc(e,L)
 end proc:
 
 AddToList:=proc(e,L)
- [op(L),e]
+ if ListTools[Search](e,L)<>0 then
+  error "element already in list";
+ else
+  [op(L),e];
+ fi;
 end proc:
 
 testIfObviouslyLivesToEinfty:=proc(PRE)
