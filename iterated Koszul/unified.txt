@@ -502,7 +502,7 @@ end proc:
 tMINUSsAdjusted:=proc(S,d)
  multiDimensionAdjusted(S,d);
  %[nops(%)]-add(%[j],j=1..nops(%)-1);
-end proc;
+end proc:
 
 E2DegreeIndecElt:=proc(S,d)
  [0,op(multiDimensionAdjusted(S,d))];
