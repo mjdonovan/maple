@@ -499,7 +499,7 @@ multiDimensionAdjusted:=proc(S,d)
  ans;
 end proc:
 
-sMINUStAdjusted:=proc(S,d)
+tMINUSsAdjusted:=proc(S,d)
  multiDimensionAdjusted(S,d);
  %[nops(%)]-add(%[j],j=1..nops(%)-1);
 end proc;
