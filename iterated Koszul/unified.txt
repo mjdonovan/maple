@@ -867,6 +867,22 @@ testIfObviouslyLivesToEinfty:=proc(PRE)
  ans;
 end proc:
 
+PRIter:=proc(STATZ,maxTmS)
+ local ans, newbs, stat, base, olCount, i, j;
+ ans:=[[[],0]];
+ for j to nops(STATZ) do
+  stat:=STATZ[j];
+  newbs:=[];
+  for base in ans while base[2]+stat[2]*stat[3]<=maxTmS do
+   for i to `if`(stat[1]="poly",floor((maxTmS-base[2])/(stat[2]*stat[3])),1) do
+    newbs:=[op(newbs),[[op(base[1]),[i*stat[2],j]],base[2]+i*stat[2]*stat[3]]];
+   od;
+  od;
+  ans:=sort([op(ans),op(newbs)],(x,y)->x[2]<y[2]);
+ od;
+ subsop(1=NULL,ans);
+end proc:
+
 ###########################################################
 ###########################################################
 ###########################################################
@@ -1009,29 +1025,23 @@ UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
 ###########################################################
 ###########################################################
 
-UserFeedback(["calculating Lie algebra cohomology"]);
-for NnN from 1 to 3 do
- unused:=[[]];current:=[];
- if NnN>1 then
-  unused:=PromotePRList(PRLists[NnN-1]);
+statz:=[]:
+for LL in S4List do
+ TEMPS:=Swhat(LL,dValue);
+ if TEMPS<2 then
+  statz:=[op(statz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
+ elif TEMPS=2 then
+  statz:=[op(statz),["poly",2,tMINUSsAdjusted(LL,dValue)]];
+ elif TEMPS=3 then
+  statz:=[op(statz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
  fi;
- for i to 20 while nops(unused)>0 do
-  UserFeedback(['PRLists'[NnN],"   ",nops(current)," elements completed, with ",nops(unused)," elements queued"]);
-  current:=[op(current),op(unused)]:
-  tempo:=PRHomologyIteratorExtraSmart(S01Lists[NnN],S2Lists[NnN],S3Lists[NnN],unused,calcToDimension,dValue):
-  tempo:=TrimPRHomologyListBYst(tempo,sMax,tMax,dValue);
-  unused:=[op({op(tempo)}minus{op(current)})];
- od:
- PRLists[NnN]:=current:
-end do:
+od:
+statz:
 
-#funClassND:=["PR", [[]], omega[1](e), 2, [0, 2]]:
-PRLists[1]:=remove(x->testIfObviouslyLivesToEinfty(x)=1,PRLists[1]):
-PLND:=[PRHomologyListNovelData(PRLists[1],dValue),
-       PRHomologyListNovelData(PRLists[2],dValue),
-       PRHomologyListNovelData(PRLists[3],dValue)]:
-ALLND:=[op(PLND[1]),op(PLND[2]),op(PLND[3])]:
-ALLND:=remove(x->x[4]>calcToDimension,ALLND):
+PRITs:=PRIter(statz,calcToDimension):
+subinseqs:=map(x->[map(y->[y[1],S4List[y[2]]],x[1]),x[2]],PRITs):
+ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomElt(XXX[1],dValue)],subinseqs):
+ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):
 ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):
 ALLNDbrief:=map(inp->
                 [inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),
@@ -1044,5 +1054,4 @@ else
                cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]);
 fi:
 UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
-
 
