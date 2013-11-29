@@ -858,8 +858,8 @@ testIfObviouslyLivesToEinfty:=proc(PRE)
  local i,j,k,ans;
  ans:=1;
  for i in PRE while ans=1 do
-  if i[1]<>1 or nops(i[2])<>1 or 
-  i[2][1]<>[8192,4096,2048,1024,512,256,128,64,32,16,8,4,2][14-nops(i[2][1])..-1]
+  if i[1]<>1 or nops(remove(x->x=[],i[2]))>1 or 
+  i[2][nops(i[2])]<>[8192,4096,2048,1024,512,256,128,64,32,16,8,4,2][14-nops(i[2][nops(i[2])])..-1]
   then
    ans:=0
   fi;
