@@ -886,6 +886,30 @@ PRIter:=proc(STATZ,maxTmS)
  subsop(1=NULL,ans);
 end proc:
 
+Finder:=proc(elt,S4L)
+#searches S4List to find the number of a given element
+ local i,E;
+ E:=elt;
+ for i to 4 while nops(E)<4 do
+  E:=[[],op(E)]
+ od;
+ i:=ListTools[Search](E,S4L);
+ if i=0 then 
+  error "not found"
+ fi;
+ i;
+end proc:
+
+Replacer:=proc(seq,newstats,S4L,statz)
+ local ans,i;
+ ans:=statz;
+ i:=Finder(seq,S4L);
+ ans[i]:=[newstats[1],newstats[2],statz[i][3]];
+ UserFeedback(["Replaced stats for ",seq,", so that ",statz[i],"~~>",ans[i]]);
+ ans;
+end proc:
+
+
 ###########################################################
 ###########################################################
 ###########################################################
@@ -927,7 +951,7 @@ end proc:
 ###########################################################
 
 dValue:=2:
-calcToDimension:=20:
+calcToDimension:=40:
 sMax:=floor(calcToDimension*4/5-1):
 tMax:=floor(calcToDimension*9/5-1):
 l1Max:=floor(log[2](tMax-dValue+1)):
@@ -945,13 +969,12 @@ od:
 I2ListByM:=x->I2SqList[x+2]:
 I3ListByM:=x->SqList[x+2]:
 
-UserFeedback(["calculating SLists[N]:=S^(N)"]);
-UserFeedback(['N'=1]);
+UserFeedback(["calculating SNList:=S^(N)"]);
 S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
 S1ListIgnoreE:=TrimSListBYst(S1ListIgnoreE,sMax,tMax,dValue):
 S1List:=remove(x->I1vulnerable(x[1],dValue)>0,S1ListIgnoreE):
 S1List:=TrimSListBYst(S1List,sMax,tMax,dValue):
-UserFeedback(['N'=2]);
+UserFeedback(["S1List has ",nops(S1List)," elements"]);
 S2List:=[]:
 for i from 1 to nops(S1ListIgnoreE) do
  for m2 from -1 to nops(S1ListIgnoreE[i][1])-1 do
@@ -963,7 +986,7 @@ for i from 1 to nops(S1ListIgnoreE) do
  od;
 od;
 S2List:=TrimSListBYst(S2List,sMax,tMax,dValue):
-UserFeedback(['N'=3]);
+UserFeedback(["S2List has ",nops(S2List)," elements"]);
 S3List:=[]:
 for i from 1 to nops(S2List) do
  for m3 from -1 to nops(S2List[i][1])-1 do
@@ -973,7 +996,7 @@ for i from 1 to nops(S2List) do
  od;
 od;
 S3List:=TrimSListBYst(S3List,sMax,tMax,dValue):
-UserFeedback(['N'=4]);
+UserFeedback(["S3List has ",nops(S3List)," elements"]);
 S4List:=[]:
 for i from 1 to nops(S3List) do
  for m3 from -1 to nops(S3List[i][1])-1 do
@@ -983,30 +1006,48 @@ for i from 1 to nops(S3List) do
  od;
 od;
 S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
-SLists:=[S1List,S2List,S3List,S4List,
- [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
-PRLists:=map(x->[[]],SLists):
-Indec:=map(x->[],SLists):
-for N from 5 to 20 do
- UserFeedback(["N=",N]);
- SNList:=[]:
- for i from 1 to nops(SLists[N-1]) do
-  for m3 from -1 to nops(SLists[N-1][i][1])-1 do
-   for j from 1 to nops(I3ListByM(m3)) do
-    SNList:=[op(SNList), [I3ListByM(m3)[j], op(SLists[N-1][i])]];
-   od;
-  od;
- od;
- SLists[N]:=TrimSListBYst(SNList,sMax,tMax,dValue);
-end do:
+UserFeedback(["S4List has ",nops(S4List)," elements"]);
+if nops(S3List)<>nops(S4List) then
+ error "the last two lengths don't match!";
+else
+ UserFeedback(["sequence of S^(N) has stabilised"]);
+fi;
+#SLists:=[S1List,S2List,S3List,S4List,
+# [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
+#PRLists:=map(x->[[]],SLists):
+#Indec:=map(x->[],SLists):
+#for N from 5 to 20 do
+# UserFeedback(["N=",N]);
+# SNList:=[]:
+# for i from 1 to nops(SLists[N-1]) do
+#  for m3 from -1 to nops(SLists[N-1][i][1])-1 do
+#   for j from 1 to nops(I3ListByM(m3)) do
+#    SNList:=[op(SNList), [I3ListByM(m3)[j], op(SLists[N-1][i])]];
+#   od;
+#  od;
+# od;
+# SLists[N]:=TrimSListBYst(SNList,sMax,tMax,dValue);
+#end do:
 
-S01Lists:=map(y->remove(x->Swhat(x,dValue)>1,y),SLists):
-UserFeedback(["cardinalities of S^N_01: ",map(x->nops(x),S01Lists)]);
-S1Lists:=map(y->remove(x->Swhat(x,dValue)=0,y),S01Lists):
-S2Lists:=map(y->remove(x->Swhat(x,dValue)<>2,y),SLists):
-UserFeedback(["cardinalities of S^N_2:  ",map(x->nops(x),S2Lists )]);
-S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
-UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
+#S01Lists:=map(y->remove(x->Swhat(x,dValue)>1,y),SLists):
+#UserFeedback(["cardinalities of S^N_01: ",map(x->nops(x),S01Lists)]);
+#S1Lists:=map(y->remove(x->Swhat(x,dValue)=0,y),S01Lists):
+#S2Lists:=map(y->remove(x->Swhat(x,dValue)<>2,y),SLists):
+#UserFeedback(["cardinalities of S^N_2:  ",map(x->nops(x),S2Lists )]);
+#S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
+#UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
+
+istatz:=[]:
+for LL in S4List do
+ TEMPS:=Swhat(LL,dValue);
+ if TEMPS<2 then
+  istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
+ elif TEMPS=2 then
+  istatz:=[op(istatz),["poly",2,tMINUSsAdjusted(LL,dValue)]];
+ elif TEMPS=3 then
+  istatz:=[op(istatz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
+ fi;
+od:
 
 ###########################################################
 ###########################################################
@@ -1018,28 +1059,24 @@ UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
 ###########################################################
 ###########################################################
 ################## make modifications here ################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
 
-statz:=[]:
-for LL in S4List do
- TEMPS:=Swhat(LL,dValue);
- if TEMPS<2 then
-  statz:=[op(statz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
- elif TEMPS=2 then
-  statz:=[op(statz),["poly",2,tMINUSsAdjusted(LL,dValue)]];
- elif TEMPS=3 then
-  statz:=[op(statz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
- fi;
-od:
-statz:
+statz:=istatz:
+
+#statz:=Replacer([[9,4,2]],["poly",2],S4List,statz):
+#statz:=Replacer([[4,2]],["ext",1],S4List,statz):
+
+#statz:=Replacer([[17,8,4,2]],["poly",2],S4List,statz):
+#statz:=Replacer([[8,4,2]],["ext",1],S4List,statz):
+
+###########################################################
+###########################################################
+###########################################################
+###########################################################
+###########################################################
+###########################################################
+###########################################################
+###########################################################
+###########################################################
 
 PRITs:=PRIter(statz,calcToDimension):
 subinseqs:=map(x->[map(y->[y[1],S4List[y[2]]],x[1]),x[2]],PRITs):
