@@ -904,7 +904,7 @@ Replacer:=proc(seq,newstats,S4L,statz)
  local ans,i;
  ans:=statz;
  i:=Finder(seq,S4L);
- ans[i]:=[newstats[1],newstats[2],statz[i][3]];
+ ans:=subsop(i=[newstats[1],newstats[2],statz[i][3]],ans);
  UserFeedback(["Replaced stats for ",seq,", so that ",statz[i],"~~>",ans[i]]);
  ans;
 end proc:
