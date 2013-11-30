@@ -48,7 +48,13 @@ statz:=Replacer([[34,16,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[3],[16,8,4,2]],["ext",1000],S4List,statz):
 #12: adams d3 (3416080402)->(3,16080402)
 
+statz:=Replacer([[35,16,8,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[2],[16,8,4,2]],["ext",1000],S4List,statz):
+#13: adams d2 (3516080402)->(2,16080402)
 
+statz:=Replacer([[34,17,8,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[17,8,4,2]],["ext",1000],S4List,statz):
+#14: adams d4 (3417080402)->(17080402)^2
 
 
 
