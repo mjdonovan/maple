@@ -100,6 +100,10 @@ statz:=Replacer([[38,19,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[3],[19,9,4,2]],["ext",1000],S4List,statz):
 #25: adams d2 (3819090402)->(03,19090402)
 
+statz:=Replacer([[39,19,9,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[2],[19,9,4,2]],["ext",1000],S4List,statz):
+#26: adams d2 (3919090402)->(02,19090402)
+
 PRITs:=PRIter(statz,calcToDimension):subinseqs:=map(x->[map(y->[y[1],S4List[y[2]]],x[1]),x[2]],PRITs):ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))): ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): print(Matrix(ALLNDbrief));
 
 
