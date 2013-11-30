@@ -1,0 +1,37 @@
+statz:=istatz:
+
+statz:=Replacer([[9,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[4,2]],["ext",1],S4List,statz):
+#1: adams d2 (942)->(42)^2
+
+statz:=Replacer([[10,5,2]],["poly",2],S4List,statz):
+statz:=Replacer([[5,2]],["ext",1000],S4List,statz):
+#2: adams d2 (1052)->(52)^2
+
+statz:=Replacer([[17,8,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[8,4,2]],["ext",1],S4List,statz):
+#3: adams d3 (17842)->(842)^2
+
+statz:=Replacer([[18,8,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[2],[8,4,2]],["ext",1000],S4List,statz):
+#4: Adams d2 (18842)->(2,842)
+
+statz:=Replacer([[18,9,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[9,4,2]],["ext",1000],S4List,statz):
+#5: Adams d3 (18942)->(942)^2
+
+statz:=Replacer([[19,9,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[2],[9,4,2]],["ext",1000],S4List,statz):
+#6: Adams d2 (19942)->(2,942)
+
+statz:=Replacer([[20,10,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[2],[10,4,2]],["ext",1000],S4List,statz):
+#7: Adams d2 (201042)->(2,1042)
+
+statz:=Replacer([[20,10,5,2]],["poly",2],S4List,statz):
+statz:=Replacer([[10,5,2]],["ext",1000],S4List,statz):
+#8: Adams d3 (201052)->(1052)^2
+
+statz:=Replacer([[21,10,5,2]],["poly",2],S4List,statz):
+statz:=Replacer([[2],[10,5,2]],["ext",1000],S4List,statz):
+#9: Adams d2 (211052)->(2,1052)
