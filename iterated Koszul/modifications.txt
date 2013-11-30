@@ -38,4 +38,4 @@ statz:=Replacer([[2],[10,5,2]],["ext",1000],S4List,statz):
 
 statz:=Replacer([[22,11,5,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[11,5,2]],["ext",1000],S4List,statz):
-#10: Adams d2 (221152)->(2,1152)
+#10: Adams d2 (221152)->(2,1152) n
