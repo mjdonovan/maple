@@ -56,6 +56,19 @@ statz:=Replacer([[34,17,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[17,8,4,2]],["ext",1000],S4List,statz):
 #14: adams d4 (3417080402)->(17080402)^2
 
+statz:=Replacer([[35,17,8,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[3],[17,8,4,2]],["ext",1000],S4List,statz):
+#15: adams d3 (3517080402)->(3,17080402)
+
+statz:=Replacer([[2],[17,8,4,2]],["poly",2],S4List,statz):
+statz:=Replacer([[0],[2],[8,4,2]],["ext",1000],S4List,statz):
+#16: adams d5 (02,17080402)->(00,02,080402)
+
+
+
+
+
+PRITs:=PRIter(statz,calcToDimension):subinseqs:=map(x->[map(y->[y[1],S4List[y[2]]],x[1]),x[2]],PRITs):ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):ALLND:=sort(ALLND,(x,y)->x[4]<y[4]):ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND):print(Matrix(ALLNDbrief));
 
 
 
