@@ -938,7 +938,7 @@ difl:=proc(ctr,diffName,sSeq,sPow,tSeq,tPow,L,S,ctrMax)
  fi;
 end proc:
 
-OutputMatrix:=proc(S,L,calcToDimension)
+OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix)
  local PRITs,subinseqs,ALLND,ALLNDbrief;
  PRITs:=PRIter(S,calcToDimension):
  subinseqs:=map(x->[map(y->[y[1],L[y[2]]],x[1]),x[2]],PRITs):
@@ -946,191 +946,95 @@ OutputMatrix:=proc(S,L,calcToDimension)
  ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):
  ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))):
  ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): 
- print(Matrix(ALLNDbrief));
+ if OutputFileSuffix=0 or OutputFileSuffix="FileSuffixHere" then
+  print(Matrix(ALLNDbrief));
+ else
+  latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
+ UserFeedback(["output saved to ",
+              cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]);
+ fi:
+ UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
 end proc:
 
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
+constructSandL:=proc(calcToDimension,dValue)
+ local sMax,tMax,l1Max,SqList,I2SqList,M,I2ListByM,I3ListByM,S1ListIgnoreE,S1List,S2List,S3List,i,j,m2,m3,S4List,istatz,LL,TEMPS;
+ sMax:=floor(calcToDimension*4/5-1):
+ tMax:=floor(calcToDimension*9/5-1):
+ l1Max:=floor(log[2](tMax-dValue+1)):
 
-dValue:=2:
-calcToDimension:=40:
-sMax:=floor(calcToDimension*4/5-1):
-tMax:=floor(calcToDimension*9/5-1):
-l1Max:=floor(log[2](tMax-dValue+1)):
-OutputFileSuffix:=0:
-
-UserFeedback(["Calculating up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
-SqList:=[[[]],[[0]]]:
-for M from 1 to 11 do
- SqList:=[op(SqList),[op(SqCompsMi(M,0))]];
-od:
-I2SqList:=[[[]],[]]:
-for M from 1 to 11 do
- I2SqList:=[op(I2SqList),[op(SqCompsMi(M,2))]];
-od:
-I2ListByM:=x->I2SqList[x+2]:
-I3ListByM:=x->SqList[x+2]:
-
-UserFeedback(["calculating SNList:=S^(N)"]);
-S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
-S1ListIgnoreE:=TrimSListBYst(S1ListIgnoreE,sMax,tMax,dValue):
-S1List:=remove(x->I1vulnerable(x[1],dValue)>0,S1ListIgnoreE):
-S1List:=TrimSListBYst(S1List,sMax,tMax,dValue):
-UserFeedback(["S1List has ",nops(S1List)," elements"]);
-S2List:=[]:
-for i from 1 to nops(S1ListIgnoreE) do
- for m2 from -1 to nops(S1ListIgnoreE[i][1])-1 do
-  for j from 1 to nops(I2ListByM(m2)) do
-   if Esatisfied(S1ListIgnoreE[i][1],I2ListByM(m2)[j],dValue)=0 then 
-    S2List:=[op(S2List),[I2ListByM(m2)[j],op(S1ListIgnoreE[i])]];
-   fi;
+ UserFeedback(["Calculating initial S and L, up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
+ SqList:=[[[]],[[0]]]:
+ for M from 1 to 11 do
+  SqList:=[op(SqList),[op(SqCompsMi(M,0))]];
+ od:
+ I2SqList:=[[[]],[]]:
+ for M from 1 to 11 do
+  I2SqList:=[op(I2SqList),[op(SqCompsMi(M,2))]];
+ od:
+ I2ListByM:=x->I2SqList[x+2]:
+ I3ListByM:=x->SqList[x+2]:
+ 
+ UserFeedback(["calculating SNList:=S^(N)"]);
+ S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
+ S1ListIgnoreE:=TrimSListBYst(S1ListIgnoreE,sMax,tMax,dValue):
+ S1List:=remove(x->I1vulnerable(x[1],dValue)>0,S1ListIgnoreE):
+ S1List:=TrimSListBYst(S1List,sMax,tMax,dValue):
+ UserFeedback(["S1List has ",nops(S1List)," elements"]);
+ S2List:=[]:
+ for i from 1 to nops(S1ListIgnoreE) do
+  for m2 from -1 to nops(S1ListIgnoreE[i][1])-1 do
+   for j from 1 to nops(I2ListByM(m2)) do
+    if Esatisfied(S1ListIgnoreE[i][1],I2ListByM(m2)[j],dValue)=0 then 
+     S2List:=[op(S2List),[I2ListByM(m2)[j],op(S1ListIgnoreE[i])]];
+    fi;
+   od;
   od;
  od;
-od;
-S2List:=TrimSListBYst(S2List,sMax,tMax,dValue):
-UserFeedback(["S2List has ",nops(S2List)," elements"]);
-S3List:=[]:
-for i from 1 to nops(S2List) do
- for m3 from -1 to nops(S2List[i][1])-1 do
-  for j from 1 to nops(I3ListByM(m3)) do
-   S3List:=[op(S3List),[I3ListByM(m3)[j],op(S2List[i])]];
+ S2List:=TrimSListBYst(S2List,sMax,tMax,dValue):
+ UserFeedback(["S2List has ",nops(S2List)," elements"]);
+ S3List:=[]:
+ for i from 1 to nops(S2List) do
+  for m3 from -1 to nops(S2List[i][1])-1 do
+   for j from 1 to nops(I3ListByM(m3)) do
+    S3List:=[op(S3List),[I3ListByM(m3)[j],op(S2List[i])]];
+   od;
   od;
  od;
-od;
-S3List:=TrimSListBYst(S3List,sMax,tMax,dValue):
-UserFeedback(["S3List has ",nops(S3List)," elements"]);
-S4List:=[]:
-for i from 1 to nops(S3List) do
- for m3 from -1 to nops(S3List[i][1])-1 do
-  for j from 1 to nops(I3ListByM(m3)) do
-   S4List:=[op(S4List),[I3ListByM(m3)[j],op(S3List[i])]];
+ S3List:=TrimSListBYst(S3List,sMax,tMax,dValue):
+ UserFeedback(["S3List has ",nops(S3List)," elements"]);
+ S4List:=[]:
+ for i from 1 to nops(S3List) do
+  for m3 from -1 to nops(S3List[i][1])-1 do
+   for j from 1 to nops(I3ListByM(m3)) do
+    S4List:=[op(S4List),[I3ListByM(m3)[j],op(S3List[i])]];
+   od;
   od;
  od;
-od;
-S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
-UserFeedback(["S4List has ",nops(S4List)," elements"]);
-if nops(S3List)<>nops(S4List) then
- error "the last two lengths don't match!";
-else
- UserFeedback(["sequence of S^(N) has stabilised"]);
-fi;
-#SLists:=[S1List,S2List,S3List,S4List,
-# [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]:
-#PRLists:=map(x->[[]],SLists):
-#Indec:=map(x->[],SLists):
-#for N from 5 to 20 do
-# UserFeedback(["N=",N]);
-# SNList:=[]:
-# for i from 1 to nops(SLists[N-1]) do
-#  for m3 from -1 to nops(SLists[N-1][i][1])-1 do
-#   for j from 1 to nops(I3ListByM(m3)) do
-#    SNList:=[op(SNList), [I3ListByM(m3)[j], op(SLists[N-1][i])]];
-#   od;
-#  od;
-# od;
-# SLists[N]:=TrimSListBYst(SNList,sMax,tMax,dValue);
-#end do:
-
-#S01Lists:=map(y->remove(x->Swhat(x,dValue)>1,y),SLists):
-#UserFeedback(["cardinalities of S^N_01: ",map(x->nops(x),S01Lists)]);
-#S1Lists:=map(y->remove(x->Swhat(x,dValue)=0,y),S01Lists):
-#S2Lists:=map(y->remove(x->Swhat(x,dValue)<>2,y),SLists):
-#UserFeedback(["cardinalities of S^N_2:  ",map(x->nops(x),S2Lists )]);
-#S3Lists:=map(y->remove(x->Swhat(x,dValue)<3,y),SLists):
-#UserFeedback(["cardinalities of S^N_3:  ",map(x->nops(x),S3Lists )]);
-
-istatz:=[]:
-for LL in S4List do
- TEMPS:=Swhat(LL,dValue);
- if TEMPS<2 then
-  istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
- elif TEMPS=2 then
-  istatz:=[op(istatz),["poly",2,tMINUSsAdjusted(LL,dValue)]];
- elif TEMPS=3 then
-  istatz:=[op(istatz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
+ S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
+ UserFeedback(["S4List has ",nops(S4List)," elements"]);
+ if nops(S3List)<>nops(S4List) then
+  error "the last two lengths don't match!";
+ else
+  UserFeedback(["sequence of S^(N) has stabilised"]);
  fi;
-od:
+ istatz:=[]:
+ for LL in S4List do
+  TEMPS:=Swhat(LL,dValue);
+  if TEMPS<2 then
+   istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
+  elif TEMPS=2 then
+   istatz:=[op(istatz),["poly",2,tMINUSsAdjusted(LL,dValue)]];
+  elif TEMPS=3 then
+   istatz:=[op(istatz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
+  fi;
+ od:
+ return [istatz,S4List];
+end proc:
 
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
+######################## begin program ####################
+dValue:=2: calcToDimension:=40:
+constructSandL(calcToDimension,dValue):iS:=%[1]:iL:=%%[2]:
 ################## make modifications here ################
-
-statz:=istatz:
-
-#statz:=Replacer([[9,4,2]],["poly",2],S4List,statz):
-#statz:=Replacer([[4,2]],["ext",1],S4List,statz):
-
-#statz:=Replacer([[17,8,4,2]],["poly",2],S4List,statz):
-#statz:=Replacer([[8,4,2]],["ext",1],S4List,statz):
-
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-###########################################################
-
-PRITs:=PRIter(statz,calcToDimension):
-subinseqs:=map(x->[map(y->[y[1],S4List[y[2]]],x[1]),x[2]],PRITs):
-ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):
-ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):
-ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))):
-ALLNDbrief:=map(inp->
-                [inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),
-                             (CollapseDimensions(inp[5]))))],ALLND):
-if OutputFileSuffix=0 then
- interface(rtablesize=20000): print(Matrix(ALLNDbrief));
-else
- latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
- UserFeedback(["output saved to ",
-               cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]);
-fi:
-UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
-
+S:=iS: L:=iL: Mctr:=10000:
+##################### output the results ##################
+OutputMatrix(S,L,calcToDimension,"FileSuffixHere");
