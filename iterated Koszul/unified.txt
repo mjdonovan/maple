@@ -1,4 +1,6 @@
 writeline(default,"reading function definitions"):
+interface(rtablesize=20000):
+
 AdemIndexPairs:=proc(i,j,algtype)
  local ans,s;
  if algtype="u" then
@@ -907,6 +909,33 @@ Replacer:=proc(seq,newstats,S4L,statz)
  ans:=subsop(i=[newstats[1],newstats[2],statz[i][3]],ans);
  UserFeedback(["Replaced stats for ",seq,", so that ",statz[i],"~~>",ans[i]]);
  ans;
+end proc:
+
+difl:=proc(ctr,diffName,sSeq,sPow,tSeq,tPow,L,S,ctrMax)
+#S:=difl(n,"dwhat",sSeq,sPow,tSeq,tPow,L,S,Mctr):
+#input: 3-6: a source and target sequence and their powers
+#       7-8: sequence and stats lists
+#       1-2: a number and differential name identifying the diff
+#         9: maximum number we'll evaluate on
+#output: the stats list after implementing the differential
+ local sPos,tPos,i,j,k,sIS,tIS,sFS,tFS,ansS;
+ if diffName<>"dwhat" and ctr<=ctrMax then
+  sPos:=Finder(sSeq,L):
+  sIS:=S[sPos];
+  tPos:=Finder(tSeq,L):
+  tIS:=S[tPos];
+  if sIS[1..2]<>["poly",sPow] then
+   error "can't deal with this kind of source";
+  fi;
+  if tIS[1..2]<>["poly",tPow] and tIS[1..2]<>["poly",tPow/2] then
+   error "can't deal with this kind of target";
+  fi;
+  sFS:=["poly",2*sIS[2],sIS[3]];
+  tFS:=["ext",`if`(tPow=tIS[2],1000,tIS[2]),tIS[3]];
+  UserFeedback([ctr,". ",diffName,":",sSeq,"^",sPow,"~~>",tSeq,"^",tPow," (stem ",sIS[2]*sIS[3],"~~>",tIS[3]*tPow,", src:poly",sIS[2],"->poly",sFS[2],", trg:poly",tIS[2],"->ext",tFS[2],")."]);
+  return subsop(sPos=sFS,tPos=tFS,S);
+ else return S;
+ fi;
 end proc:
 
 
