@@ -159,15 +159,5 @@ evalb(S=statz);
 
 
 
-
-#new system:
-S:=istatz:L:=S4List:Mctr:=4000;
-
-S:=difl(1,"d2",[[9,4,2]],1,[[4,2]],2,L,S,Mctr):
-S:=difl(2,"d2",[[10,5,2]],1,[[5,2]],2,L,S,Mctr):
-S:=difl(3,"d3",[[17,8,4,2]],1,[[8,4,2]],2,L,S,Mctr):
-S:=difl(4,"d2",[[18,8,4,2]],1,[[2],[8,4,2]],1,L,S,Mctr):
-
-
 PRITs:=PRIter(S,calcToDimension):subinseqs:=map(x->[map(y->[y[1],L[y[2]]],x[1]),x[2]],PRITs):ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))): ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): print(Matrix(ALLNDbrief));
 
