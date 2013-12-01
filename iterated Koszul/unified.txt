@@ -1031,6 +1031,25 @@ constructSandL:=proc(calcToDimension,dValue)
  return [istatz,S4List];
 end proc:
 
+BDimFind:=proc(S,L)
+ local i,j,mindim,K;
+ mindim:=1000;
+ for i to nops(S) do
+  K:=L[i];
+  if (nops(remove(x->x=[],K))<=1 and K[nops(K)]=[8192,4096,2048,1024,512,256,128,64,32,16,8,4,2][14-nops(K[nops(K)])..-1]) then
+   if S[i][1]="poly" then
+    mindim:=min(mindim,max(2,S[i][2])*S[i][3]);
+   fi;
+   if S[i][1]="ext" then
+    #mindim:=min(mindim,max(2,S[i][2])*S[i][3]);
+   fi;
+  else
+   mindim:=min(mindim,S[i][2]*S[i][3]);
+  fi;
+ od;
+ mindim;
+end proc:
+
 ######################## begin program ####################
 dValue:=2: calcToDimension:=40:
 constructSandL(calcToDimension,dValue):iS:=%[1]:iL:=%%[2]:
