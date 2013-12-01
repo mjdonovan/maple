@@ -1,115 +1,173 @@
 statz:=istatz:
+S:=istatz: L:=S4List: Mctr:=10000:
 
 statz:=Replacer([[9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[4,2]],["ext",1],S4List,statz):
 #1: adams d2 (942)->(42)^2
+S:=difl(1,"d2",[[9,4,2]],1,[[4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[10,5,2]],["poly",2],S4List,statz):
 statz:=Replacer([[5,2]],["ext",1000],S4List,statz):
 #2: adams d2 (1052)->(52)^2
+S:=difl(2,"d2",[[10,5,2]],1,[[5,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[17,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[8,4,2]],["ext",1],S4List,statz):
 #3: adams d3 (17842)->(842)^2
+S:=difl(3,"d3",[[17,8,4,2]],1,[[8,4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[18,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[8,4,2]],["ext",1000],S4List,statz):
 #4: Adams d2 (18842)->(2,842)
+S:=difl(4,"d2",[[18,8,4,2]],1,[[2],[8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[18,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[9,4,2]],["ext",1000],S4List,statz):
 #5: Adams d3 (18942)->(942)^2
+S:=difl(5,"d3",[[18,9,4,2]],1,[[9,4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[19,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[9,4,2]],["ext",1000],S4List,statz):
 #6: Adams d2 (19942)->(2,942)
+S:=difl(6,"d2",[[19,9,4,2]],1,[[2],[9,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[20,10,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[10,4,2]],["ext",1000],S4List,statz):
 #7: Adams d2 (201042)->(2,1042)
+S:=difl(7,"d2",[[20,10,4,2]],1,[[2],[10,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[20,10,5,2]],["poly",2],S4List,statz):
 statz:=Replacer([[10,5,2]],["ext",1000],S4List,statz):
 #8: Adams d3 (201052)->(1052)^2
+S:=difl(8,"d3",[[20,10,5,2]],1,[[10,5,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[21,10,5,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[10,5,2]],["ext",1000],S4List,statz):
 #9: Adams d2 (211052)->(2,1052)
+S:=difl(9,"d2",[[21,10,5,2]],1,[[2],[10,5,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[22,11,5,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[11,5,2]],["ext",1000],S4List,statz):
 #10: Adams d2 (221152)->(2,1152)
+S:=difl(10,"d2",[[22,11,5,2]],1,[[2],[11,5,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[33,16,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[16,8,4,2]],["ext",1],S4List,statz):
 #11: adams d4 (3316080402)->(16080402)^2
+S:=difl(11,"d4",[[33,16,8,4,2]],1,[[16,8,4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[34,16,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[3],[16,8,4,2]],["ext",1000],S4List,statz):
 #12: adams d3 (3416080402)->(3,16080402)
+S:=difl(12,"d3",[[34,16,8,4,2]],1,[[3],[16,8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[35,16,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[16,8,4,2]],["ext",1000],S4List,statz):
 #13: adams d2 (3516080402)->(2,16080402)
+S:=difl(13,"d2",[[35,16,8,4,2]],1,[[2],[16,8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[34,17,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[17,8,4,2]],["ext",1000],S4List,statz):
 #14: adams d4 (3417080402)->(17080402)^2
+S:=difl(14,"d4",[[34,17,8,4,2]],1,[[17,8,4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[35,17,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[3],[17,8,4,2]],["ext",1000],S4List,statz):
 #15: adams d3 (3517080402)->(3,17080402)
+S:=difl(15,"d3",[[35,17,8,4,2]],1,[[3],[17,8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[2],[17,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[0],[2],[8,4,2]],["ext",1000],S4List,statz):
 #16: adams d5 (02,17080402)->(00,02,080402)
+S:=difl(16,"d5",[[2],[17,8,4,2]],1,[[0],[2],[8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[36,17,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[18,8,4,2]],["ext",1000],S4List,statz):
 #17: adams d4 (3617080402)->(18080402)^2 (wow!)
+S:=difl(17,"d4!",[[36,17,8,4,2]],1,[[18,8,4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[36,18,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[3],[18,8,4,2]],["ext",1000],S4List,statz):
 #18: adams d3 (3618080402)->(03,18080402)
+S:=difl(18,"d3",[[36,18,8,4,2]],1,[[3],[18,8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[37,18,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[18,8,4,2]],["ext",1000],S4List,statz):
 #19: adams d2 (3718080402)->(02,18080402)
+S:=difl(19,"d2",[[37,18,8,4,2]],1,[[2],[18,8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[36,18,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[18,9,4,2]],["ext",1000],S4List,statz):
 #20: adams d4 (3618090402)->(18090402)^2
+S:=difl(20,"d4",[[36,18,9,4,2]],1,[[18,9,4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[37,18,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[3],[18,9,4,2]],["ext",1000],S4List,statz):
 #21: adams d3 (3718090402)->(03,18090402)
+S:=difl(21,"d3",[[37,18,9,4,2]],1,[[3],[18,9,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[2],[18,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[0],[2],[9,4,2]],["ext",1000],S4List,statz):
 #22: adams d5 (02,18090402)->(00,02,090402)
+S:=difl(22,"d5",[[2],[18,9,4,2]],1,[[0],[2],[9,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[38,19,8,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[19,8,4,2]],["ext",1000],S4List,statz):
 #23: adams d2 (3819080402)->(02,19080402)
+S:=difl(23,"d2",[[38,19,8,4,2]],1,[[2],[19,8,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[38,18,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[19,9,4,2]],["ext",1000],S4List,statz):
 #24: adams d4 (3818090402)->(19090402)^2 (wow!)
+S:=difl(24,"d4",[[38,18,9,4,2]],1,[[19,9,4,2]],2,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[38,19,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[3],[19,9,4,2]],["ext",1000],S4List,statz):
 #25: adams d2 (3819090402)->(03,19090402)
+S:=difl(25,"d2",[[38,19,9,4,2]],1,[[3],[19,9,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 statz:=Replacer([[39,19,9,4,2]],["poly",2],S4List,statz):
 statz:=Replacer([[2],[19,9,4,2]],["ext",1000],S4List,statz):
 #26: adams d2 (3919090402)->(02,19090402)
-
-PRITs:=PRIter(statz,calcToDimension):subinseqs:=map(x->[map(y->[y[1],S4List[y[2]]],x[1]),x[2]],PRITs):ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))): ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): print(Matrix(ALLNDbrief));
-
-
+S:=difl(26,"d2",[[39,19,9,4,2]],1,[[2],[19,9,4,2]],1,L,S,Mctr):
+evalb(S=statz);
 
 
 
 
+#new system:
+S:=istatz:L:=S4List:Mctr:=4000;
 
+S:=difl(1,"d2",[[9,4,2]],1,[[4,2]],2,L,S,Mctr):
+S:=difl(2,"d2",[[10,5,2]],1,[[5,2]],2,L,S,Mctr):
+S:=difl(3,"d3",[[17,8,4,2]],1,[[8,4,2]],2,L,S,Mctr):
+S:=difl(4,"d2",[[18,8,4,2]],1,[[2],[8,4,2]],1,L,S,Mctr):
+
+
+PRITs:=PRIter(S,calcToDimension):subinseqs:=map(x->[map(y->[y[1],L[y[2]]],x[1]),x[2]],PRITs):ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))): ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): print(Matrix(ALLNDbrief));
 
