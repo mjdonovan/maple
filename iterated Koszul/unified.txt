@@ -938,7 +938,7 @@ difl:=proc(ctr,diffName,sSeq,sPow,tSeq,tPow,L,S,ctrMax)
  fi;
 end proc:
 
-OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix)
+OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
  local PRITs,subinseqs,ALLND,ALLNDbrief;
  PRITs:=PRIter(S,calcToDimension):
  subinseqs:=map(x->[map(y->[y[1],L[y[2]]],x[1]),x[2]],PRITs):
@@ -950,10 +950,12 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix)
   print(Matrix(ALLNDbrief));
  else
   latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
- UserFeedback(["output saved to ",
-              cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]);
+ if voLume="loud" then UserFeedback(["output saved to ",
+              cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]); fi;
  fi:
- UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
+ if voLume="loud" then 
+  UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
+ fi:
 end proc:
 
 constructSandL:=proc(calcToDimension,dValue)
