@@ -941,23 +941,39 @@ difl:=proc(ctr,diffName,sSeq,sPow,tSeq,tPow,L,S,ctrMax,PostMessage:=".")
 end proc:
 
 OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
- local PRITs,subinseqs,ALLND,ALLNDbrief;
+ local PRITs,subinseqs,ALLND,ALLNDbrief,i;
  PRITs:=PRIter(S,calcToDimension):
  subinseqs:=map(x->[map(y->[y[1],L[y[2]]],x[1]),x[2]],PRITs):
  ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):
  ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):
  ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))):
- ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): 
+ if voLume="3col" or voLume="3colLoud" then
+  ALLNDbrief:=map(inp->[`if`(nops(inp[2])=1,[remove(x->x=[],inp[2][1][2]),inp[2][1][1]],""),inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): 
+  if nops(ALLNDbrief)<99 then 
+   for i to nops(ALLNDbrief) do
+    ALLNDbrief[i]:=[i,op(ALLNDbrief[i]),add(ALLND[i][5][j],j=1..nops(ALLND[i][5])-1)]
+   od;
+  fi;
+ else
+  ALLNDbrief:=map(inp->[inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): 
+ fi;
  if OutputFileSuffix=0 or OutputFileSuffix="FileSuffixHere" then
   print(Matrix(ALLNDbrief));
  else
   latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
- if voLume="loud" then UserFeedback(["output saved to ",
+ if voLume="loud" or voLume="3colLoud" then UserFeedback(["output saved to ",
               cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]); fi;
  fi:
- if voLume="loud" then 
+ if voLume="loud" or voLume="3colLoud" then 
   UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
  fi:
+ if voLume="3col" or voLume="3colLoud" then
+  return Matrix(ALLNDbrief);
+ fi;
+end proc:
+
+diffExtractor:=proc(TR,SR,OM,Mods)
+ [nops(Mods)+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
 end proc:
 
 constructSandL:=proc(calcToDimension,dValue)
@@ -1048,7 +1064,7 @@ end proc:
 ######################## begin program ####################
 dValue:=2: calcToDimension:=90:
 constructSandL(calcToDimension,dValue):iS:=%[1]:iL:=%%[2]:
-################## make modifications here ################
+############## make modifications, get results ############
 Mods:=[
 [1,"d2",[[9,4,2]],1,[[4,2]],2],
 [2,"d2",[[10,5,2]],1,[[5,2]],2],
@@ -1089,13 +1105,13 @@ Mods:=[
 [37,"d2",[[43,21,10,5,2]],1,[[2],[21,10,5,2]],1],
 [38,"d3",[[22,11,5,2]],2,[[0],[2],[11,5,2]],1]
 ]:
-
-##################### output the results ##################
-S:=iS: L:=iL: MctrMax:=10000: MctrMin:=min(MctrMax,nops(Mods))-3:
+S:=iS: L:=iL: MctrMax:=10000: MctrMin:=min(MctrMax,nops(Mods))-1:
 for MM in Mods while MM[1]<=MctrMax do
  if MM[1]>=MctrMin then OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","quiet"): fi:
  S:=difl(op(MM),L,S,MctrMax," leads to...\n"):
 od:
-OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","quiet"):
+OM:=OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","3colLoud"):
 if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:
-
+################### extract a differential ################
+diffExtractor(1,2,OM,Mods);
+######################## add to Mods ######################
