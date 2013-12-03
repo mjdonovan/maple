@@ -1062,7 +1062,7 @@ BDimFind:=proc(S,L)
 end proc:
 
 ######################## begin program ####################
-dValue:=2: calcToDimension:=90:
+dValue:=2: calcToDimension:=150:
 constructSandL(calcToDimension,dValue):iS:=%[1]:iL:=%%[2]:
 ############## make modifications, get results ############
 Mods:=[
