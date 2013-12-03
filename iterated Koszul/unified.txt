@@ -961,7 +961,9 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
 end proc:
 
 constructSandL:=proc(calcToDimension,dValue)
- local sMax,tMax,l1Max,SqList,I2SqList,M,I2ListByM,I3ListByM,S1ListIgnoreE,S1List,S2List,S3List,i,j,m2,m3,S4List,istatz,LL,TEMPS;
+ local sMax,tMax,l1Max,SqList,I2SqList,M,I2ListByM,I3ListByM,
+       S1ListIgnoreE,S1List,S2List,S3List,i,j,m2,m,S4List,
+       istatz,LL,TEMPS,IT,oldList,newList;
  sMax:=floor(calcToDimension*4/5-1):
  tMax:=floor(calcToDimension*9/5-1):
  l1Max:=floor(log[2](tMax-dValue+1)):
@@ -996,34 +998,22 @@ constructSandL:=proc(calcToDimension,dValue)
  od;
  S2List:=TrimSListBYst(S2List,sMax,tMax,dValue):
  UserFeedback(["S2List has ",nops(S2List)," elements"]);
- S3List:=[]:
- for i from 1 to nops(S2List) do
-  for m3 from -1 to nops(S2List[i][1])-1 do
-   for j from 1 to nops(I3ListByM(m3)) do
-    S3List:=[op(S3List),[I3ListByM(m3)[j],op(S2List[i])]];
+ oldList:=[];newList:=S2List; 
+ for IT from 3 to 20 while nops(oldList)<>nops(newList) do
+  oldList:=newList;newList:=[];
+  for i in oldList do
+   for m from -1 to nops(i[1])-1 do
+    for j in I3ListByM(m) do
+     newList:=[op(newList),[j,op(i)]];
+    od;
    od;
   od;
+  newList:=TrimSListBYst(newList,sMax,tMax,dValue):
+  UserFeedback(["S",IT,"List has ",nops(newList)," elements"]);
  od;
- S3List:=TrimSListBYst(S3List,sMax,tMax,dValue):
- UserFeedback(["S3List has ",nops(S3List)," elements"]);
- S4List:=[]:
- for i from 1 to nops(S3List) do
-  for m3 from -1 to nops(S3List[i][1])-1 do
-   for j from 1 to nops(I3ListByM(m3)) do
-    S4List:=[op(S4List),[I3ListByM(m3)[j],op(S3List[i])]];
-   od;
-  od;
- od;
- S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
- UserFeedback(["S4List has ",nops(S4List)," elements"]);
- if nops(S3List)<>nops(S4List) then
-  print(S3List,S4List);
-  error "the last two lengths don't match!";
- else
-  UserFeedback(["sequence of S^(N) has stabilised"]);
- fi;
+
  istatz:=[]:
- for LL in S4List do
+ for LL in oldList do
   TEMPS:=Swhat(LL,dValue);
   if TEMPS<2 then
    istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
@@ -1033,7 +1023,7 @@ constructSandL:=proc(calcToDimension,dValue)
    istatz:=[op(istatz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
   fi;
  od:
- return [istatz,S4List];
+ return [istatz,oldList];
 end proc:
 
 BDimFind:=proc(S,L)
