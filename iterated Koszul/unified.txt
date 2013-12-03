@@ -892,7 +892,7 @@ Finder:=proc(elt,S4L)
 #searches S4List to find the number of a given element
  local i,E;
  E:=elt;
- for i to 4 while nops(E)<4 do
+ for i to nops(S4L[1]) while nops(E)<nops(S4L[1]) do
   E:=[[],op(E)]
  od;
  i:=ListTools[Search](E,S4L);
