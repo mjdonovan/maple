@@ -1017,6 +1017,7 @@ constructSandL:=proc(calcToDimension,dValue)
  S4List:=TrimSListBYst(S4List,sMax,tMax,dValue):
  UserFeedback(["S4List has ",nops(S4List)," elements"]);
  if nops(S3List)<>nops(S4List) then
+  print(S3List,S4List);
   error "the last two lengths don't match!";
  else
   UserFeedback(["sequence of S^(N) has stabilised"]);
@@ -1091,7 +1092,7 @@ Mods:=[
 S:=iS: L:=iL: MctrMax:=10000: MctrMin:=min(MctrMax,nops(Mods))-3:
 for MM in Mods while MM[1]<=MctrMax do
  if MM[1]>=MctrMin then OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","quiet"): fi:
- S:=difl(op(MM),L,S,Mctr," leads to...\n\n"):
+ S:=difl(op(MM),L,S,MctrMax," leads to...\n\n"):
 od:
 OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","quiet"):
 
