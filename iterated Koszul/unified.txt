@@ -942,9 +942,11 @@ difl:=proc(ctr,diffName,sSeq,sPow,tSeq,tPow,L,S,ctrMax,PostMessage:=".")
   fi;
   sFS:=["poly",2*sIS[2],sIS[3]];
   tFS:=["ext",`if`(tPow=tIS[2],1000,tIS[2]),tIS[3]];
-  UserFeedback([ctr,". ",diffName,":",sSeq,"^",sPow,"~~>",tSeq,"^",tPow,
-  " (stem:",sIS[2]*sIS[3],"~~>",tIS[3]*tPow,", src:poly",sIS[2],"->poly",
-  sFS[2],", trg:poly",tIS[2],"->ext",tFS[2],")",PostMessage]);
+  if PostMessage<>"quiet" then
+   UserFeedback([ctr,". ",diffName,":",sSeq,"^",sPow,"~~>",tSeq,"^",tPow,
+   " (stem:",sIS[2]*sIS[3],"~~>",tIS[3]*tPow,", src:poly",sIS[2],"->poly",
+   sFS[2],", trg:poly",tIS[2],"->ext",tFS[2],")",PostMessage]);
+  fi;
   return subsop(sPos=sFS,tPos=tFS,S);
  else return S;
  fi;
@@ -1117,7 +1119,7 @@ easyS:=iS:easyL:=iL:
 EasyMods:=`if`(applyEasyMods,EasyModsLister(iS,iL,dValue),[]):
 nops(%);
 for MM in EasyMods do
- easyS:=difl(op(MM),easyL,easyS,10000," leads to...\n"):
+ easyS:=difl(op(MM),easyL,easyS,10000,"quiet"):
 od:
 
 ############# manual modifications, get results ###########
