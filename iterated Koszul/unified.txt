@@ -1207,7 +1207,7 @@ AllMods:=[
 ]:
 Mods:=ModsTrimmer(AllMods,EasyMods):
 
-S:=easyS: L:=easyL: MctrMax:=10000: MctrMin:=min(MctrMax,nops(Mods))-1:
+S:=easyS: L:=easyL: MctrMax:=10000: MctrMin:=min(MctrMax,nops(AllMods))-1:
 for MM in Mods while MM[1]<=MctrMax do
  if MM[1]>=MctrMin then OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","quiet"): fi:
  S:=difl(op(MM),L,S,MctrMax," leads to...\n"):
