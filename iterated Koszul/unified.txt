@@ -817,8 +817,8 @@ PromotePRList:=proc(PRList)
  map(EG->map(EGr->[EGr[1],[[],op(EGr[2])]],EG),PRList);
 end proc:
 
-UserFeedback:=proc(Listo)
- local ans,i;
+UserFeedback:=proc()
+ local ans,i,Listo;Listo:=[args];
  ans:="";
  for i to nops(Listo) do
   ans:=cat(ans,convert(Listo[i],'string'));
@@ -917,7 +917,7 @@ Replacer:=proc(seq,newstats,S4L,statz)
  ans:=statz;
  i:=Finder(seq,S4L);
  ans:=subsop(i=[newstats[1],newstats[2],statz[i][3]],ans);
- UserFeedback(["Replaced stats for ",seq,", so that ",statz[i],"~~>",ans[i]]);
+ UserFeedback("Replaced stats for ",seq,", so that ",statz[i],"~~>",ans[i]);
  ans;
 end proc:
 
@@ -943,9 +943,9 @@ difl:=proc(ctr,diffName,sSeq,sPow,tSeq,tPow,L,S,ctrMax,PostMessage:=".")
   sFS:=["poly",2*sIS[2],sIS[3]];
   tFS:=["ext",`if`(tPow=tIS[2],1000,tIS[2]),tIS[3]];
   if PostMessage<>"quiet" then
-   UserFeedback([ctr,". ",diffName,":",sSeq,"^",sPow,"~~>",tSeq,"^",tPow,
+   UserFeedback(ctr,". ",diffName,":",sSeq,"^",sPow,"~~>",tSeq,"^",tPow,
    " (stem:",sIS[2]*sIS[3],"~~>",tIS[3]*tPow,", src:poly",sIS[2],"->poly",
-   sFS[2],", trg:poly",tIS[2],"->ext",tFS[2],")",PostMessage]);
+   sFS[2],", trg:poly",tIS[2],"->ext",tFS[2],")",PostMessage);
   fi;
   return subsop(sPos=sFS,tPos=tFS,S);
  else return S;
@@ -973,11 +973,11 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
   print(Matrix(ALLNDbrief));
  else
   latex(Matrix(ALLNDbrief),cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex"));
- if voLume="loud" or voLume="3colLoud" then UserFeedback(["output saved to ",
-              cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")]); fi;
+ if voLume="loud" or voLume="3colLoud" then UserFeedback("output saved to ",
+              cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")); fi;
  fi:
  if voLume="loud" or voLume="3colLoud" then 
-  UserFeedback(["calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem"]);
+  UserFeedback("calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem");
  fi:
  if voLume="3col" or voLume="3colLoud" then
   return Matrix(ALLNDbrief);
@@ -996,7 +996,7 @@ constructSandL:=proc(calcToDimension,dValue)
  tMax:=floor(calcToDimension*9/5-1):
  l1Max:=floor(log[2](tMax-dValue+1)):
 
- UserFeedback(["Calculating initial S and L, up to the ",calcToDimension,"-stem on the ",dValue,"-sphere"]);
+ UserFeedback("Calculating initial S and L, up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
  SqList:=[[[]],[[0]]]:
  for M from 1 to 11 do
   SqList:=[op(SqList),[op(SqCompsMi(M,0))]];
@@ -1008,12 +1008,12 @@ constructSandL:=proc(calcToDimension,dValue)
  I2ListByM:=x->I2SqList[x+2]:
  I3ListByM:=x->SqList[x+2]:
  
- UserFeedback(["calculating SNList:=S^(N)"]);
+ UserFeedback("calculating SNList:=S^(N)");
  S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
  S1ListIgnoreE:=TrimSListBYst(S1ListIgnoreE,sMax,tMax,dValue):
  S1List:=remove(x->I1vulnerable(x[1],dValue)>0,S1ListIgnoreE):
  S1List:=TrimSListBYst(S1List,sMax,tMax,dValue):
- UserFeedback(["S1List has ",nops(S1List)," elements"]);
+ UserFeedback("S1List has ",nops(S1List)," elements");
  S2List:=[]:
  for i from 1 to nops(S1ListIgnoreE) do
   for m2 from -1 to nops(S1ListIgnoreE[i][1])-1 do
@@ -1025,7 +1025,7 @@ constructSandL:=proc(calcToDimension,dValue)
   od;
  od;
  S2List:=TrimSListBYst(S2List,sMax,tMax,dValue):
- UserFeedback(["S2List has ",nops(S2List)," elements"]);
+ UserFeedback("S2List has ",nops(S2List)," elements");
  oldList:=[];newList:=S2List; 
  for IT from 3 to 20 while nops(oldList)<>nops(newList) do
   oldList:=newList;newList:=[];
@@ -1037,7 +1037,7 @@ constructSandL:=proc(calcToDimension,dValue)
    od;
   od;
   newList:=TrimSListBYst(newList,sMax,tMax,dValue):
-  UserFeedback(["S",IT,"List has ",nops(newList)," elements"]);
+  UserFeedback("S",IT,"List has ",nops(newList)," elements");
  od;
 
  istatz:=[]:
