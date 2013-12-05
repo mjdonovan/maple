@@ -1117,10 +1117,13 @@ iS:=%[1]:iL:=%%[2]:
 
 easyS:=iS:easyL:=iL:
 EasyMods:=`if`(applyEasyMods,EasyModsLister(iS,iL,dValue),[]):
-nops(%);
+if applyEasyMods then
+ UserFeedback("there are ",nops(EasyMods)," simple modifications")
+fi;
 for MM in EasyMods do
  easyS:=difl(op(MM),easyL,easyS,10000,"quiet"):
 od:
+
 
 ############# manual modifications, get results ###########
 AllMods:=[
