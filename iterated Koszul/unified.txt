@@ -1043,11 +1043,19 @@ constructSandL:=proc(calcToDimension,dValue)
  istatz:=[]:
  for LL in oldList do
   TEMPS:=Swhat(LL,dValue);
-  if TEMPS<2 then
+#  if TEMPS<2 then
+#   istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
+#  elif TEMPS=2 then
+#   istatz:=[op(istatz),["poly",2,tMINUSsAdjusted(LL,dValue)]];
+#  elif TEMPS=3 then
+#   istatz:=[op(istatz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
+#  fi;
+#IMPORTANT VARIATION HERE - I've allowed S_1 and S_2 to fold in to
+#S_3, so that all generators start out polynomial. Then the generators
+#involved get an easy differential thereupon which does the job.
+  if TEMPS=0 then
    istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
-  elif TEMPS=2 then
-   istatz:=[op(istatz),["poly",2,tMINUSsAdjusted(LL,dValue)]];
-  elif TEMPS=3 then
+  else
    istatz:=[op(istatz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
   fi;
  od:
