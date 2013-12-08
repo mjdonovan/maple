@@ -1096,12 +1096,17 @@ SimpleDiffBuilder:=proc(src,SS,dValue)
 end proc:
 
 EasyModsLister:=proc(iS,iL,dValue)
- local EasyMods, i, SDBt;
+ local EasyMods, i, j, SDBt;
  EasyMods:=[]:
  for i to nops(iS) do
   SDBt:=SimpleDiffBuilder(iL[i],iS[i],dValue);
   if SDBt<>0 and FinderNoErrors(SDBt[5],iL)<>0 then
-   EasyMods:=[op(EasyMods),SDBt]:
+   for j to 100 while FinderNoErrors(SDBt[5],iL)<>0 do
+    EasyMods:=[op(EasyMods),SDBt]:
+    if SDBt[6]<>1 then j:=10000; fi;
+    SDBt[4]:=SDBt[4]*2;
+    SDBt[5]:=[[0],op(SDBt[5])];
+   od;
   fi;
  od:
  EasyMods;
