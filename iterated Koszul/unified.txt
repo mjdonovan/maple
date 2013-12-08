@@ -985,7 +985,7 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
 end proc:
 
 diffExtractor:=proc(TR,SR,OM,Mods)
- [nops(Mods)+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
+ [Mods[-1][1]+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
 end proc:
 
 constructSandL:=proc(calcToDimension,dValue)
