@@ -977,7 +977,7 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
               cat("C:/Users/Michael/Desktop/latexForTables/tableRawData",OutputFileSuffix,".tex")); fi;
  fi:
  if voLume="loud" or voLume="3colLoud" then 
-  UserFeedback("calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem");
+  UserFeedback(time(),"s: calculated ",nops(ALLNDbrief)," elements up to the ",calcToDimension,"-stem");
  fi:
  if voLume="3col" or voLume="3colLoud" then
   return Matrix(ALLNDbrief);
@@ -1347,9 +1347,11 @@ OM:=OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","3colLoud"):
 if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:
 ################### extract a differential ################
 SrcTarA:=[1,2]:
+UserFeedback(time(),"s: proposed a differential:");
 diffExtractor(op(SrcTarA),OM,AllMods);
 ################## extract two differentials ##############
 SrcTarA:=[1,4]: SrcTarB:=[2,3]:
+UserFeedback(time(),"s: proposed two differentials:");
 print(((diffExtractor(op(SrcTarA),OM,AllMods))),(diffExtractor(op(SrcTarB),OM,[[AllMods[-1][1]+1]])));
 ########### list all interesting differentials ############
 for j in Mods do
