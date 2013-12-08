@@ -985,7 +985,8 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
 end proc:
 
 diffExtractor:=proc(TR,SR,OM,Mods)
- [Mods[-1][1]+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
+ print(LinearAlgebra[SubMatrix](OM,[TR,SR],[1..-1]));
+ [nops(Mods)+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
 end proc:
 
 constructSandL:=proc(calcToDimension,dValue)
@@ -1319,7 +1320,17 @@ AllMods:=[
 [178, "d3", [[4], [74, 36, 18, 8, 4, 2]], 1, [[1, 2], [36, 18, 8, 4, 2]], 1],
 [179, "d5", [[74, 37, 18, 8, 4, 2]], 2, [[0], [3], [37, 18, 8, 4, 2]], 1],
 [180, "d5", [[74, 36, 18, 9, 4, 2]], 2, [[0], [3], [36, 18, 9, 4, 2]], 1],
-[181, "d5", [[5], [74, 37, 18, 8, 4, 2]], 1, [[1, 3], [37, 18, 8, 4, 2]], 1]
+[181, "d5", [[5], [74, 37, 18, 8, 4, 2]], 1, [[1, 3], [37, 18, 8, 4, 2]], 1],
+[182, "d5", [[5], [74, 36, 18, 9, 4, 2]], 1, [[1, 3], [36, 18, 9, 4, 2]], 1],
+[183, "d3", [[5], [75, 37, 18, 8, 4, 2]], 1, [[2, 2], [37, 18, 8, 4, 2]], 1],
+[184, "d3", [[5], [75, 36, 18, 9, 4, 2]], 1, [[2, 2], [36, 18, 9, 4, 2]], 1],
+[185, "d3", [[4], [75, 37, 18, 8, 4, 2]], 1, [[1, 2], [37, 18, 8, 4, 2]], 1],
+[186, "d3", [[4], [75, 36, 18, 9, 4, 2]], 1, [[1, 2], [36, 18, 9, 4, 2]], 1],
+[187, "d5", [[5], [75, 37, 18, 9, 4, 2]], 1, [[1, 3], [37, 18, 9, 4, 2]], 1],
+[188, "d5", [[4], [38, 18, 9, 4, 2]], 2, [[1], [1, 2], [18, 9, 4, 2]], 1],
+[189, "d5", [[4], [38, 19, 8, 4, 2]], 2, [[1], [1, 2], [19, 8, 4, 2]], 1],
+[190, "d5", [[0], [4], [38, 19, 8, 4, 2]], 1, [[0], [1, 2], [19, 8, 4, 2]], 1],
+[191, "d5", [[0], [4], [38, 18, 9, 4, 2]], 1, [[0], [1, 2], [18, 9, 4, 2]], 1]
 ]:
 Mods:=ModsTrimmer(AllMods,EasyMods):
 
@@ -1335,8 +1346,17 @@ od:
 OM:=OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","3colLoud"):
 if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:
 ################### extract a differential ################
-diffExtractor(1,2,OM,AllMods);
-########### List all interesting differentials ############
+SrcTarA:=[1,2]:
+diffExtractor(op(SrcTarA),OM,AllMods);
+################## extract two differentials ##############
+SrcTarA:=[1,4]: SrcTarB:=[2,3]:
+print(((diffExtractor(op(SrcTarA),OM,AllMods))),(diffExtractor(op(SrcTarB),OM,[[AllMods[-1][1]+1]])));
+########### list all interesting differentials ############
 for j in Mods do
  UserFeedback(j,",");
 od;
+
+
+
+
+
