@@ -1039,10 +1039,10 @@ constructSandL:=proc(calcToDimension,dValue)
   newList:=TrimSListBYst(newList,sMax,tMax,dValue):
   UserFeedback("S",IT,"List has ",nops(newList)," elements");
  od;
-
- istatz:=[]:
- for LL in oldList do
-  TEMPS:=Swhat(LL,dValue);
+ oldList:=map(x->[x,tMINUSsAdjusted(x,dValue)],oldList);
+ oldList:=sort(oldList,(x,y)->x[2]<y[2]);
+ istatz:=map(x->["poly",1,x[2]],oldList):
+#USED TO HAVE SOMETHING LIKE
 #  if TEMPS<2 then
 #   istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
 #  elif TEMPS=2 then
@@ -1053,13 +1053,11 @@ constructSandL:=proc(calcToDimension,dValue)
 #IMPORTANT VARIATION HERE - I've allowed S_1 and S_2 to fold in to
 #S_3, so that all generators start out polynomial. Then the generators
 #involved get an easy differential thereupon which does the job.
-  if TEMPS=0 then
-   istatz:=[op(istatz),["ext",1,tMINUSsAdjusted(LL,dValue)]];
-  else
-   istatz:=[op(istatz),["poly",1,tMINUSsAdjusted(LL,dValue)]];
-  fi;
- od:
- return [istatz,oldList];
+ oldList:=map(x->x[1],oldList):
+ if remove(x->x=[],oldList[1])<>[] then
+  error cat("oldlist[1] isn't the fundamental class: ",oldList[1]);
+ fi;
+ return [subsop(1=["ext",1,dValue],istatz),oldList];
 end proc:
 
 BDimFind:=proc(S,L)
