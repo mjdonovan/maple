@@ -984,9 +984,9 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
  fi;
 end proc:
 
-diffExtractor:=proc(TR,SR,OM,Mods)
+diffExtractor:=proc(TR,SR,OM,AllMods)
  print(LinearAlgebra[SubMatrix](OM,[TR,SR],[1..-1]));
- [nops(Mods)+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
+ [AllMods[-1][1]+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
 end proc:
 
 constructSandL:=proc(calcToDimension,dValue)
