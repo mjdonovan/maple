@@ -1350,7 +1350,7 @@ for MM in Mods while MM[1]<=MctrMax do
   S:=difl(op(MM),L,S,MctrMax,"quiet"):
  fi:
 od:
-OM:=OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","3colLoud"):
+OM:=OutputMatrix(S,L,BDimFind(S,L)+1,"FileSuffixHere","3colLoud"):
 if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:
 ################### extract a differential ################
 SrcTarA:=[1,2]:
