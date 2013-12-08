@@ -1318,7 +1318,8 @@ AllMods:=[
 [177, "d3", [[4], [74, 37, 17, 8, 4, 2]], 1, [[1, 2], [37, 17, 8, 4, 2]], 1],
 [178, "d3", [[4], [74, 36, 18, 8, 4, 2]], 1, [[1, 2], [36, 18, 8, 4, 2]], 1],
 [179, "d5", [[74, 37, 18, 8, 4, 2]], 2, [[0], [3], [37, 18, 8, 4, 2]], 1],
-[180, "d5", [[74, 36, 18, 9, 4, 2]], 2, [[0], [3], [36, 18, 9, 4, 2]], 1]
+[180, "d5", [[74, 36, 18, 9, 4, 2]], 2, [[0], [3], [36, 18, 9, 4, 2]], 1],
+[181, "d5", [[5], [74, 37, 18, 8, 4, 2]], 1, [[1, 3], [37, 18, 8, 4, 2]], 1]
 ]:
 Mods:=ModsTrimmer(AllMods,EasyMods):
 
@@ -1335,4 +1336,7 @@ OM:=OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","3colLoud"):
 if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:
 ################### extract a differential ################
 diffExtractor(1,2,OM,AllMods);
-######################## add to Mods ######################
+########### List all interesting differentials ############
+for j in Mods do
+ UserFeedback(j,",");
+od;
