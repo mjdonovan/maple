@@ -1115,6 +1115,7 @@ ExcessFormatSingle:=y->`if`(y=[],[],
   [seq(y[i-1]-2*y[i],i=2..nops(y)),y[-1]]):
 ExcessFormatSeq:=y->`if`(y=[[]] or y=[],y,
   [op(y[1..-2]),ExcessFormatSingle(y[-1])]):
+ExcessFormatPR:=y->map(x->[x[1],ExcessFormatSeq(x[2])],y):
 unExcessFormatSingle:=proc(y)
  local j,ans;
  ans:=y;
@@ -1125,6 +1126,8 @@ unExcessFormatSingle:=proc(y)
 end proc:
 unExcessFormatSeq:=y->`if`(y=[[]] or y=[],y,
   [op(y[1..-2]),unExcessFormatSingle(y[-1])]):
+unExcessFormatPR:=y->map(x->[x[1],unExcessFormatSeq(x[2])],y):
+
 
 ######################## begin program ####################
 dValue:=2: calcToDimension:=340:
