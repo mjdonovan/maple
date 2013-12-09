@@ -1111,6 +1111,8 @@ ModsTrimmer:=proc(Mods,EasyMods)
  remove(x->0<>ListTools[Search](x[3..6],EM),Mods);
 end proc:
 
+ExcessFormat:=y->`if`(y=[],[],[seq(y[i-1]-2*y[i],i=2..nops(y)),y[-1]]):
+
 ######################## begin program ####################
 dValue:=2: calcToDimension:=340:
 applyEasyMods:=true:
