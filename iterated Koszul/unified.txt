@@ -1138,6 +1138,10 @@ unExcessFormatPR:=y->map(x->[x[1],unExcessFormatSeq(x[2])],y):
 dValue:=2: calcToDimension:=600:
 applyEasyMods:=true:
 constructSandL(calcToDimension,dValue):
+#I bet the calculation of l1max in here is wrong... the 5/9 numbers
+#are a global bound on ratios, but once you know that t is some size in
+#a sequence, there's probably no way that it can fail to have t-s a certain size.
+#Eg doesn't applying any S just increase topological dimension? It's close to squaring!
 iS:=%[1]:iL:=%%[2]:
 
 ################## automatic modifications ################
