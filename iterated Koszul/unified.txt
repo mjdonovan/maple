@@ -948,8 +948,8 @@ OutputMatrix:=proc(S,L,calcToDimension,OutputFileSuffix,voLume:="loud")
  local PRITs,subinseqs,ALLND,ALLNDbrief,i;
  PRITs:=PRIter(S,calcToDimension):
  subinseqs:=map(x->[map(y->[y[1],L[y[2]]],x[1]),x[2]],PRITs):
+ subinseqs:=remove(x->testIfObviouslyLivesToEinfty(x[1])=1,subinseqs):
  ALLND:=map(XXX->["PR",XXX[1],PrettyPrintPRelt(XXX[1]),XXX[2],E2DegreePRHomEltNoZero(XXX[1],dValue)],subinseqs):
- ALLND:=remove(x->testIfObviouslyLivesToEinfty(x[2])=1,ALLND):
  ALLND:=sort(ALLND,(x,y)->(x[4]<y[4] or (x[4]=y[4] and x[5][-1]<y[5][-1]))):
  if voLume="3col" or voLume="3colLoud" then
   ALLNDbrief:=map(inp->[`if`(nops(inp[2])=1,[remove(x->x=[],inp[2][1][2]),inp[2][1][1]],""),inp[3],(map(x->(`if`(nops(x)=1, pi[x[1]], E[op(x)])),(CollapseDimensions(inp[5]))))],ALLND): 
