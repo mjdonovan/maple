@@ -1097,7 +1097,7 @@ EasyModsLister:=proc(iS,iL,dValue)
  EasyMods:=[]:
  for i to nops(iS) do
   SDBt:=SimpleDiffBuilder(iL[i],iS[i],dValue);
-  if SDBt<>0 and FinderNoErrors(SDBt[5],iL)<>0 then
+  if SDBt<>0 then
    SDBt[3]:=ExcessFormatSeq(SDBt[3]);
    for j to 100 while FinderNoErrors(SDBt[5],iL)<>0 do
     EasyMods:=[op(EasyMods),[op(SDBt[1..4]),ExcessFormatSeq(SDBt[5]),op(SDBt[6..-1])]]:
