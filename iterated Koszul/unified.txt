@@ -1137,6 +1137,7 @@ unExcessFormatPR:=y->map(x->[x[1],unExcessFormatSeq(x[2])],y):
 ######################## begin program ####################
 dValue:=2: calcToDimension:=600:
 applyEasyMods:=true:
+applyEasyMods2:=true:
 fileNm:=cat(cat(cat("C:\\maple_output\\S",dValue),"dim"),calcToDimension):
 if FileTools[Exists](fileNm)=false then
  constructSandL(calcToDimension,dValue):
@@ -1163,6 +1164,14 @@ if applyEasyMods then
  UserFeedback("there are ",nops(EasyMods)," simple modifications")
 fi;
 for MM in EasyMods do
+ easyS:=difl(op(MM),easyL,easyS,10000,"quiet"):
+od:
+
+EasyMods2:=`if`(applyEasyMods2,EasyModsLister2(easyS,easyL,dValue),[]):
+if applyEasyMods2 then
+ UserFeedback("there are ",nops(EasyMods2)," simple modifications of type 2")
+fi;
+for MM in EasyMods2 do
  easyS:=difl(op(MM),easyL,easyS,10000,"quiet"):
 od:
 
@@ -1516,6 +1525,7 @@ AllMods:=[
 [344, "d5", [[5], [1, 2, 1, 0, 0, 0, 2]], 1, [[1, 3], [2, 1, 0, 0, 0, 2]], 1]
 ]:
 Mods:=ModsTrimmer(AllMods,EasyMods):
+Mods:=ModsTrimmer(Mods,EasyMods2):
 S:=easyS: L:=easyL: MctrMax:=10000: MctrMin:=Mods[-1][1]:
 for MM in Mods while MM[1]<=MctrMax do
  if MM[1]>=MctrMin then 
@@ -1525,7 +1535,7 @@ for MM in Mods while MM[1]<=MctrMax do
   S:=difl(op(MM),L,S,MctrMax,"quiet"):
  fi:
 od:
-OM:=OutputMatrix(S,L,BDimFind(S,L)+1,"FileSuffixHere","3colLoud"):
+OM:=OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","3colLoud"):
 if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:
 ################### extract a differential ################
 SrcTarA:=[1,2]:
@@ -1578,5 +1588,93 @@ for j from 1 to nops(tester) do
  UserFeedback(op(tester[j]));
  if j=nops(tester) or tester[j][1][3][-1]<>tester[j+1][1][3][-1] then
   UserFeedback("       ",(EasyMods[ListTools[Search](tester[j][1][3][-1],map(x->x[3][-1],EasyMods))]),"\n");
+ fi;
+od:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SimpleDiffBuilder2:=proc(srcEx,SS,dValue)
+ local b,tar,bfound,tarfound,tarpow,ellone,excess,jay;
+ if nops(remove(x->x=[],srcEx))<>2 or nops(srcEx[-2])<>1############## or SS[2]<>1
+  then return 0; fi;
+ jay:=srcEx[-2][-1];
+ ellone:=nops(srcEx[-1]);
+ excess:=add(srcEx[-1][i],i=1..nops(srcEx[-1]));
+ if jay>=ellone then
+  error cat(convert(srcEx,string)," is not an unstable element!");
+ elif jay<2+dValue+ellone-excess then
+  return 0;
+ elif SS[1..2]<>["poly",1] then
+  error cat(cat("strange that",convert(srcEx,string)),"should already have been involved");
+ fi;
+ tarfound:=[[jay-1-(dValue+ellone-excess),(dValue+ellone-excess)],srcEx[-1][2..-1]];
+ return [-1,"auto",srcEx[-2..-1],1,tarfound,1];
+end proc:
+
+EasyModsLister2:=proc(iS,iL,dValue)
+ local EasyMods, i, j, SDBt, SDBti, iLe;
+ EasyMods:=[]:
+ iLe:=map(ExcessFormatSeq,iL);
+ for i to nops(iS) do
+  SDBti:=SimpleDiffBuilder2(iLe[i],iS[i],dValue);
+  if SDBti<>0 then
+   SDBt:=SDBti;
+   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
+    EasyMods:=[op(EasyMods),SDBt]:
+    if SDBt[6]<>1 then j:=10000; fi;
+    SDBt[4]:=SDBt[4]*2;
+    SDBt[5]:=[[nops(SDBt[5][1])-1],op(SDBt[5])];
+   od;
+   SDBt:=[SDBti[1],SDBti[2],[[0],op(SDBti[3])],SDBti[4],[[0],op(SDBti[5])],SDBti[6]];
+   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
+    EasyMods:=[op(EasyMods),SDBt]:
+    if SDBt[6]<>1 then j:=10000; fi;
+    SDBt[3]:=[[0],op(SDBt[3])];
+    SDBt[5]:=[[0],op(SDBt[5])];
+   od;
+  fi;
+ od:
+ EasyMods;
+end proc:
+
+
+
+EML2:=EasyModsLister2(easyS,easyL,dValue):
+EML2trim:=(map(x->x[3..4],EML2)):
+Modstrim:=(map(x->x[3..4],Mods)):
+for c1 to nops(Modstrim) do
+ currentMod:=Modstrim[c1];
+ foundPlace:=ListTools[Search](currentMod,EML2trim):
+ if foundPlace=0 then
+  UserFeedback("OLD: ",Mods[c1][3..6]);
+  UserFeedback("not found in new list");
+ else
+#  UserFeedback("old: ",Mods[c1][3..6]);
+#  UserFeedback("new: ",EML2[foundPlace][3..6]);
+  if EML2[foundPlace][3..6]<>Mods[c1][3..6] then
+   error "OOPS";
+  fi;
  fi;
 od:
