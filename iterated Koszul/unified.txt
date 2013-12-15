@@ -1137,12 +1137,23 @@ unExcessFormatPR:=y->map(x->[x[1],unExcessFormatSeq(x[2])],y):
 ######################## begin program ####################
 dValue:=2: calcToDimension:=600:
 applyEasyMods:=true:
-constructSandL(calcToDimension,dValue):
-#I bet the calculation of l1max in here is wrong... the 5/9 numbers
-#are a global bound on ratios, but once you know that t is some size in
-#a sequence, there's probably no way that it can fail to have t-s a certain size.
-#Eg doesn't applying any S just increase topological dimension? It's close to squaring!
-iS:=%[1]:iL:=%%[2]:
+fileNm:=cat(cat(cat("C:\\maple_output\\S",dValue),"dim"),calcToDimension):
+if FileTools[Exists](fileNm)=false then
+ constructSandL(calcToDimension,dValue):
+ #I bet the calculation of l1max in here is wrong... the 5/9 numbers
+ #are a global bound on ratios, but once you know that t is some size in
+ #a sequence, there's probably no way that it can fail to have t-s a certain size.
+ #Eg doesn't applying any S just increase topological dimension? It's close to squaring!
+ iS:=%[1]:iL:=%%[2]:
+ save iL, iS, cat(fileNm);
+else
+ read fileNm:
+ UserFeedback("iS and iL were read from ",fileNm,". They contain ",nops(iL)," elements each.");
+ if nops(iS)<>nops(iL) then
+  error "actually, they don't!";
+ fi;
+fi:
+
 
 ################## automatic modifications ################
 
@@ -1549,3 +1560,23 @@ for j from 1 to nops(tester) do
  fi;
 od:
 
+######### list certain interesting differentials ##########
+tester:=[]:
+for j in Mods do
+ if nops(j[3])=2 then#and nops(j[3][1])=1 then
+  #tester:=[op(tester),[(j," has a from ",
+     #nops(j[3][2])-(add(j[3][2][k],k=1..nops(j[3][2]))- (dValue+2) )," to ",nops(j[3][2])-1)]];
+  newnums:=[j[3][-2][-1]-1-(dValue+nops(j[3][-1])-add(j[3][-1][k],k=1..nops(j[3][-1]))),
+                          (dValue+nops(j[3][-1])-add(j[3][-1][k],k=1..nops(j[3][-1])))];
+ #########1st number=1+j+excess-(d+2+ell)=j-1-(d+l-e)
+ #########2nd number=(d+l-e)
+  tester:=[op(tester),[(j," has newnumbers ",newnums[1]," and ",newnums[2],"... ",evalb(j[4]<>1 or j[5]=[newnums,j[3][-1][2..-1]]))]];
+ fi;
+od:
+tester:=sort(tester,(x,y)->lexorder(convert(x[1][3][2],string),convert(y[1][3][2],string))):
+for j from 1 to nops(tester) do
+ UserFeedback(op(tester[j]));
+ if j=nops(tester) or tester[j][1][3][-1]<>tester[j+1][1][3][-1] then
+  UserFeedback("       ",(EasyMods[ListTools[Search](tester[j][1][3][-1],map(x->x[3][-1],EasyMods))]),"\n");
+ fi;
+od:
