@@ -1110,10 +1110,56 @@ EasyModsLister:=proc(iS,iL,dValue)
  EasyMods;
 end proc:
 
+SimpleDiffBuilder2:=proc(srcEx,SS,dValue)
+ local b,tar,bfound,tarfound,tarpow,ellone,excess,jay;
+ if nops(remove(x->x=[],srcEx))<>2 or nops(srcEx[-2])<>1############## or SS[2]<>1
+  then return 0; fi;
+ jay:=srcEx[-2][-1];
+ ellone:=nops(srcEx[-1]);
+ excess:=add(srcEx[-1][i],i=1..nops(srcEx[-1]));
+ if jay>=ellone then
+  error cat(convert(srcEx,string)," is not an unstable element!");
+ elif jay<2+dValue+ellone-excess then
+  return 0;
+ elif SS[1..2]<>["poly",1] then
+  error cat(cat("strange that",convert(srcEx,string)),"should already have been involved");
+ fi;
+ tarfound:=[[jay-1-(dValue+ellone-excess),(dValue+ellone-excess)],srcEx[-1][2..-1]];
+ return [-1,"auto",srcEx[-2..-1],1,tarfound,1];
+end proc:
+
+EasyModsLister2:=proc(iS,iL,dValue)
+ local EasyMods, i, j, SDBt, SDBti, iLe;
+ EasyMods:=[]:
+ iLe:=map(ExcessFormatSeq,iL);
+ for i to nops(iS) do
+  SDBti:=SimpleDiffBuilder2(iLe[i],iS[i],dValue);
+  if SDBti<>0 then
+   SDBt:=SDBti;
+   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
+    EasyMods:=[op(EasyMods),SDBt]:
+    if SDBt[6]<>1 then j:=10000; fi;
+    SDBt[4]:=SDBt[4]*2;
+    SDBt[5]:=[[nops(SDBt[5][1])-1],op(SDBt[5])];
+   od;
+#   SDBt:=[SDBti[1],SDBti[2],[[0],op(SDBti[3])],SDBti[4],[[0],op(SDBti[5])],SDBti[6]];
+#   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
+#    EasyMods:=[op(EasyMods),SDBt]:
+#    if SDBt[6]<>1 then j:=10000; fi;
+#    SDBt[3]:=[[0],op(SDBt[3])];
+#    SDBt[5]:=[[0],op(SDBt[5])];
+#   od;
+#I'm not sure I believe this differential, given
+#[352, "d9", [[0], [0], [4], [3, 0, 0, 0, 2]], 1, [[1, 0], [1, 2], [0, 0, 0, 2]], 1]
+  fi;
+ od:
+ EasyMods;
+end proc:
+
 ModsTrimmer:=proc(Mods,EasyMods)
  local EM;
- EM:=map(x->x[3..6],EasyMods);
- remove(x->0<>ListTools[Search](x[3..6],EM),Mods);
+ EM:=map(x->x[-4..-1],map(x->op(x),[args[2..nargs]]));
+ remove(x->0<>ListTools[Search](x[-4..-1],EM),Mods);
 end proc:
 
 ExcessFormatSingle:=y->`if`(y=[],[],
@@ -1132,6 +1178,44 @@ end proc:
 unExcessFormatSeq:=y->`if`(y=[[]] or y=[],y,
   [op(y[1..-2]),unExcessFormatSingle(y[-1])]):
 unExcessFormatPR:=y->map(x->[x[1],unExcessFormatSeq(x[2])],y):
+
+ModsOrder:=proc(x,y,dValue)
+ local sx,sy;
+ sx:=x[-3]*tMINUSsAdjusted(unExcessFormatSeq(x[-4]),dValue);
+ sy:=y[-3]*tMINUSsAdjusted(unExcessFormatSeq(y[-4]),dValue);
+ if sx<sy then return true;
+ elif sx>sy then return false;
+ fi;
+ return lexorder(convert(x[-4],string),convert(y[-4],string));
+end proc:
+ModsAreEssentiallyEqual:=proc(x,y)
+ return evalb(x[-4..-1]=y[-4..-1])
+end proc:
+ModStem:=proc(M,dValue)
+ return M[-3]*tMINUSsAdjusted(unExcessFormatSeq(M[-4]),dValue);
+end proc:
+DifferentialDebugger:=proc(mods1,mods2,list1nick:="list 1",list2nick:="list 2",maxStemYouCareAbout:=1000000)
+##eg: DifferentialDebugger(ModsTrimmer(AllMods,EasyMods),EasyMods2,"Manual-Easy1","Easy2",600);
+##    DifferentialDebugger(ModsTrimmer(AllMods,EasyMods,EasyMods2),[],"Manual-Easy12","null",600);
+ local mods1t,mods2t,mods1minus2,mods2minus1,mods1minus2stems,mods2minus1stems,i;
+ mods1t:=map(x->x[-4..-1],mods1);
+ mods2t:=map(x->x[-4..-1],mods2);
+ mods1t:=remove(x->ModStem(x,dValue)>maxStemYouCareAbout,mods1t);
+ mods2t:=remove(x->ModStem(x,dValue)>maxStemYouCareAbout,mods2t);
+ mods1minus2:=sort([op({op(mods1t)}minus{op(mods2t)})],(x,y)->ModsOrder(x,y,dValue));
+ mods2minus1:=sort([op({op(mods2t)}minus{op(mods1t)})],(x,y)->ModsOrder(x,y,dValue));
+ mods1minus2stems:=map(x->ModStem(x,dValue),mods1minus2);
+ mods2minus1stems:=map(x->ModStem(x,dValue),mods2minus1);
+ UserFeedback("In ",list1nick," but not in ",list2nick,", up to stem ",maxStemYouCareAbout,":");
+ for i to nops(mods1minus2) do
+  UserFeedback(list1nick,", stem ",mods1minus2stems[i],": ",mods1minus2[i]);
+ od;
+ UserFeedback("In ",list2nick," but not in ",list1nick,", up to stem ",maxStemYouCareAbout,":");
+ for i to nops(mods2minus1) do
+  UserFeedback(list2nick,", stem ",mods2minus1stems[i],": ",mods2minus1[i]);
+ od;
+ UserFeedback("That's all.");
+end proc:
 
 
 ######################## begin program ####################
@@ -1524,8 +1608,7 @@ AllMods:=[
 [343, "d9", [[4], [3, 0, 0, 0, 2]], 4, [[0], [1], [1, 2], [0, 0, 0, 2]], 1],
 [344, "d5", [[5], [1, 2, 1, 0, 0, 0, 2]], 1, [[1, 3], [2, 1, 0, 0, 0, 2]], 1]
 ]:
-Mods:=ModsTrimmer(AllMods,EasyMods):
-Mods:=ModsTrimmer(Mods,EasyMods2):
+Mods:=ModsTrimmer(AllMods,EasyMods,EasyMods2):
 S:=easyS: L:=easyL: MctrMax:=10000: MctrMin:=Mods[-1][1]:
 for MM in Mods while MM[1]<=MctrMax do
  if MM[1]>=MctrMin then 
@@ -1551,6 +1634,8 @@ UserFeedback(time(),"s: proposed three differentials:");
 print(((diffExtractor(op(SrcTarA),OM,AllMods))),
 (diffExtractor(op(SrcTarB),OM,[[AllMods[-1][1]+1]])),
 (diffExtractor(op(SrcTarC),OM,[[AllMods[-1][1]+2]])));
+############## list all manual differentials ################
+DifferentialDebugger(Mods,[],"manual","[]");
 ######### list certain interesting differentials ##########
 tester:=[]:
 for j in Mods do
@@ -1615,66 +1700,8 @@ od:
 
 
 
-SimpleDiffBuilder2:=proc(srcEx,SS,dValue)
- local b,tar,bfound,tarfound,tarpow,ellone,excess,jay;
- if nops(remove(x->x=[],srcEx))<>2 or nops(srcEx[-2])<>1############## or SS[2]<>1
-  then return 0; fi;
- jay:=srcEx[-2][-1];
- ellone:=nops(srcEx[-1]);
- excess:=add(srcEx[-1][i],i=1..nops(srcEx[-1]));
- if jay>=ellone then
-  error cat(convert(srcEx,string)," is not an unstable element!");
- elif jay<2+dValue+ellone-excess then
-  return 0;
- elif SS[1..2]<>["poly",1] then
-  error cat(cat("strange that",convert(srcEx,string)),"should already have been involved");
- fi;
- tarfound:=[[jay-1-(dValue+ellone-excess),(dValue+ellone-excess)],srcEx[-1][2..-1]];
- return [-1,"auto",srcEx[-2..-1],1,tarfound,1];
-end proc:
-
-EasyModsLister2:=proc(iS,iL,dValue)
- local EasyMods, i, j, SDBt, SDBti, iLe;
- EasyMods:=[]:
- iLe:=map(ExcessFormatSeq,iL);
- for i to nops(iS) do
-  SDBti:=SimpleDiffBuilder2(iLe[i],iS[i],dValue);
-  if SDBti<>0 then
-   SDBt:=SDBti;
-   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
-    EasyMods:=[op(EasyMods),SDBt]:
-    if SDBt[6]<>1 then j:=10000; fi;
-    SDBt[4]:=SDBt[4]*2;
-    SDBt[5]:=[[nops(SDBt[5][1])-1],op(SDBt[5])];
-   od;
-   SDBt:=[SDBti[1],SDBti[2],[[0],op(SDBti[3])],SDBti[4],[[0],op(SDBti[5])],SDBti[6]];
-   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
-    EasyMods:=[op(EasyMods),SDBt]:
-    if SDBt[6]<>1 then j:=10000; fi;
-    SDBt[3]:=[[0],op(SDBt[3])];
-    SDBt[5]:=[[0],op(SDBt[5])];
-   od;
-  fi;
- od:
- EasyMods;
-end proc:
 
 
 
-EML2:=EasyModsLister2(easyS,easyL,dValue):
-EML2trim:=(map(x->x[3..4],EML2)):
-Modstrim:=(map(x->x[3..4],Mods)):
-for c1 to nops(Modstrim) do
- currentMod:=Modstrim[c1];
- foundPlace:=ListTools[Search](currentMod,EML2trim):
- if foundPlace=0 then
-  UserFeedback("OLD: ",Mods[c1][3..6]);
-  UserFeedback("not found in new list");
- else
-#  UserFeedback("old: ",Mods[c1][3..6]);
-#  UserFeedback("new: ",EML2[foundPlace][3..6]);
-  if EML2[foundPlace][3..6]<>Mods[c1][3..6] then
-   error "OOPS";
-  fi;
- fi;
-od:
+
+
