@@ -1221,8 +1221,7 @@ DifferentialDebugger:=proc(mods1,mods2,list1nick:="list 1",list2nick:="list 2",m
   UserFeedback(list2nick,", stem ",mods2minus1stems[i],": ",mods2minus1[i]);
  od;
  UserFeedback("That's all.");
-end proc:
-######################## begin program ####################
+end proc:#*#*#################### begin program ####################
 dValue:=2: calcToDimension:=600:
 applyEasyMods:=true:
 applyEasyMods2:=true:
@@ -1241,8 +1240,7 @@ else
  if nops(iS)<>nops(iL) then
   error "actually, they don't!";
  fi;
-fi:
-################## automatic modifications ################
+fi:#*#*############## automatic modifications ################
 easyS:=iS:easyL:=iL:
 EasyMods:=`if`(applyEasyMods,EasyModsLister(iS,iL,dValue),[]):
 if applyEasyMods then
@@ -1257,8 +1255,7 @@ if applyEasyMods2 then
 fi;
 for MM in EasyMods2 do
  easyS:=difl(op(MM),easyL,easyS,10000,"quiet"):
-od:
-############# manual modifications, get results ###########
+od:#*#*######### manual modifications, get results ###########
 AllMods:=[
 [1, "d5", [[0], [4], [3, 0, 0, 0, 2]], 1, [[0], [1, 2], [0, 0, 0, 2]], 1],
 [2, "d5", [[0], [4], [2, 1, 0, 0, 2]], 1, [[0], [1, 2], [1, 0, 0, 2]], 1],
@@ -1351,24 +1348,19 @@ for MM in Mods while MM[1]<=MctrMax do
  fi:
 od:
 OM:=OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","3colLoud"):
-if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:
-################### extract a differential ################
+if BDimFind(S,L)+2>=calcToDimension then error "too close to top dimension" fi:#*#*############### extract a differential ################
 SrcTarA:=[1,2]:
 UserFeedback(time(),"s: proposed a differential:");
-diffExtractor(op(SrcTarA),OM,AllMods);
-################## extract two differentials ##############
+diffExtractor(op(SrcTarA),OM,AllMods);#*#*############## extract two differentials ##############
 SrcTarA:=[1,4]: SrcTarB:=[2,3]:
 UserFeedback(time(),"s: proposed two differentials:");
-print(((diffExtractor(op(SrcTarA),OM,AllMods))),(diffExtractor(op(SrcTarB),OM,[[AllMods[-1][1]+1]])));
-################## extract three differentials ##############
+print(((diffExtractor(op(SrcTarA),OM,AllMods))),(diffExtractor(op(SrcTarB),OM,[[AllMods[-1][1]+1]])));#*#*############## extract three differentials ############
 SrcTarA:=[1,6]: SrcTarB:=[3,5]: SrcTarC:=[2,7]:
 UserFeedback(time(),"s: proposed three differentials:");
 print(((diffExtractor(op(SrcTarA),OM,AllMods))),
 (diffExtractor(op(SrcTarB),OM,[[AllMods[-1][1]+1]])),
-(diffExtractor(op(SrcTarC),OM,[[AllMods[-1][1]+2]])));
-############## list all manual differentials ################
-DifferentialDebugger(Mods,[],"manual","[]");
-######### list certain interesting differentials ##########
+(diffExtractor(op(SrcTarC),OM,[[AllMods[-1][1]+2]])));#*#*########## list all manual differentials ##############
+DifferentialDebugger(Mods,[],"manual","[]");#*#*##### list certain interesting differentials ##########
 tester:=[]:
 for j in Mods do
  if nops(j[3])=2 and nops(j[3][1])=1 then
@@ -1385,9 +1377,7 @@ for j from 1 to nops(tester) do
  if j=nops(tester) or tester[j][1][3][-1]<>tester[j+1][1][3][-1] then
   UserFeedback("       ",(EasyMods[ListTools[Search](tester[j][1][3][-1],map(x->x[3][-1],EasyMods))]),"\n");
  fi;
-od:
-
-######### list certain interesting differentials ##########
+od:#*#*##### list certain interesting differentials ##########
 tester:=[]:
 for j in Mods do
  if nops(j[3])=2 then#and nops(j[3][1])=1 then
