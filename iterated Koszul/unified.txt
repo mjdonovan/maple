@@ -1251,7 +1251,6 @@ fi;
 for MM in EasyMods do
  easyS:=difl(op(MM),easyL,easyS,10000,"quiet"):
 od:
-
 EasyMods2:=`if`(applyEasyMods2,EasyModsLister2(easyS,easyL,dValue),[]):
 if applyEasyMods2 then
  UserFeedback("there are ",nops(EasyMods2)," simple modifications of type 2")
