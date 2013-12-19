@@ -453,7 +453,6 @@ delAdmissablesByMaxSum:=proc(maxSum,d)
    queue:-enqueue(q,[j,op(ent)]);
   od;
  od:
- print(i);
  [seq(ADMISlist[j],j=1..AMLcount)];
 end proc:
 
