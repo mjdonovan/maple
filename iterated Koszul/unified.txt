@@ -406,6 +406,7 @@ end proc:
 SqCompsMi:=proc(M,i1min)
   local ans,L;
   ans:=[];
+  if M=-1 then return [[]]; fi;
   for L from 1 to M-i1min+1 do
     ans:=[op(ans),op(SqCompsMLi(M,L,i1min))];
   od;
