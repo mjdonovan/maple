@@ -419,11 +419,6 @@ SqCompN:=proc(comp)
  sum((2^k-1)*comp[k],k=1..nops(comp));
 end proc:
 
-delAdmisExtensions:=proc(ent,d)
- [seq([i,op(ent)],
- i=(sum(ent[k],k=1..nops(ent))+nops(ent)+d)..`if`(nops(ent)>0,2*ent[1],2),-1)];
-end proc:
-
 delAdmissables:=proc(maxLength,d)
  local ADMISlist,AMLcount,q,i,ent,j,PostReln;
  ADMISlist:=Table(): AMLcount:=0:
@@ -438,6 +433,27 @@ delAdmissables:=proc(maxLength,d)
    od;
   fi;
  od:
+ [seq(ADMISlist[j],j=1..AMLcount)];
+end proc:
+
+delAdmissablesByMaxSum:=proc(maxSum,d)
+ local ADMISlist,AMLcount,q,i,ent,j,PostReln,sumSoFar;
+ ADMISlist:=Table(): AMLcount:=0:
+ q := queue:-new([]):
+ if maxSum>2000 or d>2 then 
+  UserFeedback("you've called delAdmissablesByMaxSum(",maxSum,",",d,")... is 50000 still enough iterations?");
+ fi;
+ for i to 50000 while queue:-length(q)>0 do
+  ent:=queue:-dequeue(q);
+  AMLcount:=AMLcount+1:
+  ADMISlist[AMLcount]:=ent;
+  sumSoFar:=sum(ent[k],k=1..nops(ent));
+  for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent)+d)) 
+          to `if`(nops(ent)>0,2*ent[1],2) by -1 do   
+   queue:-enqueue(q,[j,op(ent)]);
+  od;
+ od:
+ print(i);
  [seq(ADMISlist[j],j=1..AMLcount)];
 end proc:
 
