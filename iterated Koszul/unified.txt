@@ -1006,6 +1006,55 @@ diffExtractor:=proc(TR,SR,OM,AllMods)
  [AllMods[-1][1]+1,cat("d",OM[TR,5]-OM[SR,5]),op(OM[SR,2]),op(OM[TR,2])];
 end proc:
 
+constructSandLwithMonomialBounds:=proc(calcToDimension,dValue)
+ #this proc uses a simple bound on t-s which one might use if assuming
+ #that the sseq respects monomials forever.
+ local SqList,I2SqList,i,j,m2,m,
+       istatz,IT,oldList,newList,cand;
+ UserFeedback("Calculating initial S and L, up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
+ SqList  :=[seq(SqCompsMi(M,0),M=-1..11)];
+ I2SqList:=[seq(SqCompsMi(M,2),M=-1..11)];
+ UserFeedback("calculating delta sequences");
+ oldList:=map(x->[x],delAdmissablesByMaxSum(calcToDimension,dValue)):
+ UserFeedback("there are ",nops(oldList)," delta sequences");
+ newList:=[]; 
+ for i in oldList do
+  for m2 from -1 to nops(i[1])-1 do
+   for j in I2SqList[m2+2] do
+    cand:=[j,op(i)];
+    if tMINUSsAdjusted(cand,dValue)<=calcToDimension and Esatisfied(i[1],j,dValue)=0 then 
+     newList:=[op(newList),cand];
+    fi;
+   od;
+  od;
+ od;
+ UserFeedback("S2List has ",nops(newList)," elements"); 
+ for IT from 3 to 20 while nops(oldList)<>nops(newList) do
+  oldList:=newList;newList:=[];
+  for i in oldList do
+   for m from -1 to nops(i[1])-1 do
+    for j in SqList[m+2] do
+     cand:=[j,op(i)];
+     if tMINUSsAdjusted(cand,dValue)<=calcToDimension then 
+      newList:=[op(newList),cand];
+     fi;
+    od;
+   od;
+  od;
+  UserFeedback("S",IT,"List has ",nops(newList)," elements");
+ od;
+ oldList:=map(x->[x,tMINUSsAdjusted(x,dValue)],oldList);
+ oldList:=sort(oldList,(x,y)->x[2]<y[2]);
+ istatz:=map(x->["poly",1,x[2]],oldList):
+ oldList:=map(x->x[1],oldList):
+ #(still letting d1 differentials do the work of S_2 and S_3)
+ if remove(x->x=[],oldList[1])<>[] then
+  error cat("oldlist[1] isn't the fundamental class: ",oldList[1]);
+ fi;
+ return [subsop(1=["ext",1,dValue],istatz),oldList];
+end proc:
+
+
 constructSandL:=proc(calcToDimension,dValue)
  local sMax,tMax,l1Max,SqList,I2SqList,M,I2ListByM,I3ListByM,
        S1ListIgnoreE,S1List,S2List,S3List,i,j,m2,m,S4List,
@@ -1013,7 +1062,6 @@ constructSandL:=proc(calcToDimension,dValue)
  sMax:=floor(calcToDimension*4/5-1):
  tMax:=floor(calcToDimension*9/5-1):
  l1Max:=floor(log[2](tMax-dValue+1)):
-
  UserFeedback("Calculating initial S and L, up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
  SqList:=[[[]],[[0]]]:
  for M from 1 to 11 do
@@ -1025,7 +1073,6 @@ constructSandL:=proc(calcToDimension,dValue)
  od:
  I2ListByM:=x->I2SqList[x+2]:
  I3ListByM:=x->SqList[x+2]:
- 
  UserFeedback("calculating SNList:=S^(N)");
  S1ListIgnoreE:=map(x->[x],delAdmissables(l1Max,dValue)):
  S1ListIgnoreE:=TrimSListBYst(S1ListIgnoreE,sMax,tMax,dValue):
