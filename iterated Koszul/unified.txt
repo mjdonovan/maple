@@ -1267,6 +1267,9 @@ ModsOrder:=proc(x,y,dValue)
  fi;
  return lexorder(convert(x[-4],string),convert(y[-4],string));
 end proc:
+ModsListSort:=proc(L,dValue)
+  return sort(L,(x,y)->ModsOrder(x,y,dValue));
+end proc:
 ModsAreEssentiallyEqual:=proc(x,y)
  return evalb(x[-4..-1]=y[-4..-1])
 end proc:
