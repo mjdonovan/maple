@@ -1288,12 +1288,20 @@ DifferentialDebugger:=proc(mods1,mods2,list1nick:="list 1",list2nick:="list 2",m
  mods2minus1:=sort([op({op(mods2t)}minus{op(mods1t)})],(x,y)->ModsOrder(x,y,dValue));
  mods1minus2stems:=map(x->ModStem(x,dValue),mods1minus2);
  mods2minus1stems:=map(x->ModStem(x,dValue),mods2minus1);
- UserFeedback("In ",list1nick," but not in ",list2nick,", up to stem ",maxStemYouCareAbout,":");
+ if maxStemYouCareAbout=1000000 then
+  UserFeedback("In ",list1nick," but not in ",list2nick,":");
+ else
+  UserFeedback("In ",list1nick," but not in ",list2nick,", up to stem ",maxStemYouCareAbout,":");
+ fi;
  for i to nops(mods1minus2) do
   UserFeedback(list1nick,", stem ",mods1minus2stems[i],": ",mods1minus2[i]);
  od;
  if mods2<>[] then
-  UserFeedback("In ",list2nick," but not in ",list1nick,", up to stem ",maxStemYouCareAbout,":");
+  if maxStemYouCareAbout=1000000 then
+   UserFeedback("In ",list2nick," but not in ",list1nick,":");
+  else
+   UserFeedback("In ",list2nick," but not in ",list1nick,", up to stem ",maxStemYouCareAbout,":");
+  fi;
   for i to nops(mods2minus1) do
    UserFeedback(list2nick,", stem ",mods2minus1stems[i],": ",mods2minus1[i]);
   od;
