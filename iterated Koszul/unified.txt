@@ -1290,7 +1290,7 @@ applyEasyMods:=true:
 applyEasyMods2:=true:
 fileNm:=cat(cat(cat("C:\\maple_output\\S",dValue),"dim"),calcToDimension):
 if FileTools[Exists](fileNm)=false then
- constructSandL(calcToDimension,dValue):
+ constructSandLwithMonomialBounds(calcToDimension,dValue):
  #I bet the calculation of l1max in here is wrong... the 5/9 numbers
  #are a global bound on ratios, but once you know that t is some size in
  #a sequence, there's probably no way that it can fail to have t-s a certain size.
