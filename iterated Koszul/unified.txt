@@ -1210,6 +1210,16 @@ EasyModsLister2:=proc(iS,iL,dValue)
     SDBt[4]:=SDBt[4]*2;
     SDBt[5]:=[[nops(SDBt[5][1])-1],op(SDBt[5])];
    od;
+  #"add a zero at front adds a zero at front"
+  SDBt:=[SDBti[1],SDBti[2],[[0],op(SDBti[3])],SDBti[4],[[0],op(SDBti[5])],SDBti[6]];
+  if FinderNoErrors(SDBt[3],iLe)*FinderNoErrors(SDBt[5],iLe)<>0 then
+   EasyMods:=[op(EasyMods),SDBt]:
+  fi;
+  #"add two zeros at front adds a 1,0 at front"
+  SDBt:=[SDBti[1],SDBti[2],[[0],[0],op(SDBti[3])],SDBti[4],[[1,0],op(SDBti[5])],SDBti[6]];
+  if FinderNoErrors(SDBt[3],iLe)*FinderNoErrors(SDBt[5],iLe)<>0 then
+   EasyMods:=[op(EasyMods),SDBt]:
+  fi;
 #   SDBt:=[SDBti[1],SDBti[2],[[0],op(SDBti[3])],SDBti[4],[[0],op(SDBti[5])],SDBti[6]];
 #   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
 #    EasyMods:=[op(EasyMods),SDBt]:
