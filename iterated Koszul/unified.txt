@@ -1279,10 +1279,12 @@ DifferentialDebugger:=proc(mods1,mods2,list1nick:="list 1",list2nick:="list 2",m
  for i to nops(mods1minus2) do
   UserFeedback(list1nick,", stem ",mods1minus2stems[i],": ",mods1minus2[i]);
  od;
- UserFeedback("In ",list2nick," but not in ",list1nick,", up to stem ",maxStemYouCareAbout,":");
- for i to nops(mods2minus1) do
-  UserFeedback(list2nick,", stem ",mods2minus1stems[i],": ",mods2minus1[i]);
- od;
+ if mods2<>[] then
+  UserFeedback("In ",list2nick," but not in ",list1nick,", up to stem ",maxStemYouCareAbout,":");
+  for i to nops(mods2minus1) do
+   UserFeedback(list2nick,", stem ",mods2minus1stems[i],": ",mods2minus1[i]);
+  od;
+ fi;
  UserFeedback("That's all.");
 end proc:#*#*#################### begin program ####################
 dValue:=2: calcToDimension:=800:
