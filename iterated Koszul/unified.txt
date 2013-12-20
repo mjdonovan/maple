@@ -951,7 +951,7 @@ difl:=proc(ctr,diffName,sSeqEX,sPow,tSeqEX,tPow,L,S,ctrMax,PostMessage:=".")
    error "can't deal with this kind of target";
   fi;
   sFS:=["poly",2*sIS[2],sIS[3]];
-  tFS:=["ext",`if`(tPow=tIS[2],1000,tIS[2]),tIS[3]];
+  tFS:=["ext",`if`(tPow=tIS[2],100000,tIS[2]),tIS[3]];
   if PostMessage<>"quiet" then
    UserFeedback(ctr,". ",diffName,":",sSeqEX,"^",sPow,"~~>",tSeqEX,"^",tPow,
    " (stem:",sIS[2]*sIS[3],"~~>",tIS[3]*tPow,", src:poly",sIS[2],"->poly",
@@ -1127,7 +1127,7 @@ end proc:
 
 BDimFind:=proc(S,L)
  local i,j,mindim,K;
- mindim:=1000;
+ mindim:=1000000;
  for i to nops(S) do
   K:=L[i];
   if (nops(remove(x->x=[],K))<=1 and K[nops(K)]=[8192,4096,2048,1024,512,256,128,64,32,16,8,4,2][14-nops(K[nops(K)])..-1]) then
@@ -1215,10 +1215,22 @@ EasyModsLister2:=proc(iS,iL,dValue)
   if FinderNoErrors(SDBt[3],iLe)*FinderNoErrors(SDBt[5],iLe)<>0 then
    EasyMods:=[op(EasyMods),SDBt]:
   fi;
+  #"square the previous adds a second zero to target"
+  SDBt:=[SDBti[1],SDBti[2],[[0],op(SDBti[3])],2*SDBti[4],[[0],[0],op(SDBti[5])],SDBti[6]];
+  if FinderNoErrors(SDBt[3],iLe)*FinderNoErrors(SDBt[5],iLe)<>0 then
+   EasyMods:=[op(EasyMods),SDBt]:
+  fi;
   #"add two zeros at front adds a 1,0 at front"
   SDBt:=[SDBti[1],SDBti[2],[[0],[0],op(SDBti[3])],SDBti[4],[[1,0],op(SDBti[5])],SDBti[6]];
   if FinderNoErrors(SDBt[3],iLe)*FinderNoErrors(SDBt[5],iLe)<>0 then
    EasyMods:=[op(EasyMods),SDBt]:
+  fi;
+  #if ell1>5, and I2=4, you can add a one to the left of I2, and it's fine
+  if nops(remove(x->x=[],SDBti[3]))=2 and nops(SDBti[3][-1])>5 and SDBti[3][-2]=[4] then
+   SDBt:=[SDBti[1],SDBti[2],[[1,op(SDBti[3][-2])],SDBti[3][-1]],SDBti[4],[[1,op(SDBti[5][-2])],SDBti[5][-1]],SDBti[6]];
+   if FinderNoErrors(SDBt[3],iLe)*FinderNoErrors(SDBt[5],iLe)<>0 then
+    EasyMods:=[op(EasyMods),SDBt]:
+   fi;
   fi;
 #   SDBt:=[SDBti[1],SDBti[2],[[0],op(SDBti[3])],SDBti[4],[[0],op(SDBti[5])],SDBti[6]];
 #   for j to 100 while FinderNoErrors(SDBt[5],iLe)<>0 do
@@ -1431,7 +1443,7 @@ AllMods:=[
 [79, "d9", [[0], [5], [0, 2, 0, 1, 0, 2]], 1, [[0], [1, 3], [2, 0, 1, 0, 2]], 1]
 ]:
 Mods:=ModsTrimmer(AllMods,EasyMods,EasyMods2):
-S:=easyS: L:=easyL: MctrMax:=10000: MctrMin:=Mods[-1][1]:
+S:=easyS: L:=easyL: MctrMax:=10000: MctrMin:=`if`(Mods<>[],Mods[-1][1],0):
 for MM in Mods while MM[1]<=MctrMax do
  if MM[1]>=MctrMin then 
   OutputMatrix(S,L,BDimFind(S,L)+2,"FileSuffixHere","quiet"):
