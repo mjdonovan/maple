@@ -1307,6 +1307,13 @@ DifferentialDebugger:=proc(mods1,mods2,list1nick:="list 1",list2nick:="list 2",m
   od;
  fi;
  UserFeedback("That's all.");
+end proc:
+FindDifferentialInList:=proc(dif,L)
+ local p,i;
+ p:=[ListTools[SearchAll](dif,map(x->x[-2],L))];
+ for i in p do UserFeedback("target in ",L[i]); od;
+ p:=[ListTools[SearchAll](dif,map(x->x[-4],L))];
+ for i in p do UserFeedback("source in ",L[i]); od;
 end proc:#*#*#################### begin program ####################
 dValue:=2: calcToDimension:=800:
 applyEasyMods:=true:
