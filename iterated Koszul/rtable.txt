@@ -1,0 +1,149 @@
+RelevantListsGenerator:=proc(calcToDimension,dValue)
+ local I1list,I2lists,I3lists,newInterface,ans,ILIST,inclusionLists,
+       inclusionList,oldInterface,prevLength,m,ISEQ,tempo;
+ I1list:=delAdmissablesByMaxSum(calcToDimension,dValue):
+ I3lists:=[seq(SqCompsMi(M,0),M=-1..11)]:
+ I2lists:=[seq(SqCompsMi(M,2),M=-1..11)]:
+ newInterface:=[seq(2^(i+1)+dValue-2,i=1..max(seq(nops(I1list[i]),i=1..nops(I1list))))];
+ inclusionLists:=[];
+ for ILIST in [I2lists,I3lists,I3lists,I3lists,I3lists,I3lists,I3lists,I3lists] do
+  inclusionList:=[];
+  oldInterface:=remove(x->x=2^31-1,newInterface):
+  newInterface:=map(x->2^31-1,oldInterface):
+  for prevLength from 1 to nops(oldInterface) do
+   m:=prevLength - 1;
+   for ISEQ in ILIST[m+2] do
+    tempo:=2^(nops(ISEQ))*oldInterface[m+1]
+           +(2^(nops(ISEQ))-1)*(m+2)
+           -nops(ISEQ)-add((2^i-1)*ISEQ[i],i=1..nops(ISEQ));
+    if tempo<=calcToDimension and tempo<newInterface[nops(ISEQ)] then
+     newInterface[nops(ISEQ)]:=tempo;
+    fi;
+    if tempo<calcToDimension then
+     inclusionList:=[op(inclusionList),ISEQ]
+    fi;
+   od;
+  od:
+  #print("interface ",newInterface);  print("list ",inclusionList);  print("");
+  if nops(inclusionList)<>0 then
+   inclusionLists:=[[[],op(inclusionList)],op(inclusionLists)];
+  fi;
+ od:
+ return [op(inclusionLists),I1list];
+end proc:
+
+DimensionTableStarter:=proc(calcToDimension,dValue,RLs)
+ local outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc;
+ outTable:=rtable(1..nops(RLs[-2]),1..nops(RLs[-1]),storage=sparse);
+ pTable:=rtable(1..nops(RLs[-2]),1..nops(RLs[-1]),storage=sparse);
+ pInitLoc:="finished";
+ for i to nops(RLs[-2]) do
+  excess:=`if`(RLs[-2][i]=[],-1,add(RLs[-2][i][j],j=1..nops(RLs[-2][i])));
+  I2Evul:=I2vulnerable(RLs[-2][i]);
+  for j to nops(RLs[-1]) do
+   if excess<nops(RLs[-1][j]) and I2Evul*I1vulnerable(RLs[-1][j],dValue)=0 then
+    newDimn:=tMINUSsAdjusted([RLs[-2][i],RLs[-1][j]],dValue);
+    if newDimn<=calcToDimension then
+     outTable[i,j]:=newDimn;
+     if pInitLoc="finished" then
+      pInitLoc:=[i,j]; 
+     else
+      pTable[op(pLastLoc)]:=[i,j];
+     fi;
+     pLastLoc:=[i,j];
+    fi;
+   fi;
+  od;
+ od;
+ pTable[op(pLastLoc)]:="finished";
+ return [outTable,pTable,pInitLoc];
+end proc:
+
+DimensionTableCalculator4:=proc(calcToDimension,dValue,RLs,DataSoFar:="none")
+ local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
+       newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize;
+ if DataSoFar="none" then
+  if map(x->x[1],RLs)<>map(x->[],RLs) then
+   error "need RLs[i][1]=[] for all i";
+  fi;
+  return DimensionTableCalculator4(
+          calcToDimension,dValue,RLs,
+          DimensionTableStarter(calcToDimension,dValue,RLs));
+ fi;
+ DSFsize:=rtable_num_dims(DataSoFar[1]);
+ if DSFsize=nops(RLs) then
+  return DataSoFar;
+ fi;
+ outTable:=rtable(1..nops(RLs[-1-DSFsize]),
+                  rtable_dims(DataSoFar[1]),storage=sparse);
+ pTable:=rtable(rtable_dims(outTable),storage=sparse);
+ pInitLoc:="finished";
+ currRLlen:=map(x->nops(x),RLs[-1-DSFsize]);
+ prevRLlen:=map(x->nops(x),RLs[-DSFsize]);
+ currRLdim:=map(x->add((2^i-1)*x[i],i=1..nops(x)),
+                RLs[-1-DSFsize]);
+ currRLexc:=map(x->`if`(x=[],-1,add(x[i],i=1..nops(x))),
+                RLs[-1-DSFsize]);
+ fInds:=DataSoFar[3];
+ while fInds<>"finished" do
+   for iInd to nops(currRLlen) do
+    if currRLexc[iInd]<prevRLlen[fInds[1]] then
+     newDimn:=(2^(currRLlen[iInd])  )*DataSoFar[1][op(fInds)]
+             +((2^(currRLlen[iInd]))-1)*(prevRLlen[fInds[1]]+1)
+             -currRLlen[iInd]-currRLdim[iInd];
+#     UserFeedback([RLs[-1-DSFsize][iInd],seq(RLs[i][fInds[i]],i=-DSFsize..-1)]);
+     if newDimn<=calcToDimension then
+      outTable[iInd,op(fInds)]:=newDimn;
+      if pInitLoc="finished" then
+       pInitLoc:=[iInd,op(fInds)]; 
+      else
+       pTable[op(pLastLoc)]:=[iInd,op(fInds)];
+      fi;
+      pLastLoc:=[iInd,op(fInds)];
+     fi;
+    fi;
+   od;
+   fInds:=DataSoFar[2][op(fInds)];
+ od;
+ pTable[op(pLastLoc)]:="finished";
+ return DimensionTableCalculator4(calcToDimension,dValue,RLs,
+                                  [outTable,pTable,pInitLoc]);
+end proc:
+
+
+
+
+
+
+calcToDimension:=300; dValue:=2;
+RL:=RelevantListsGenerator(calcToDimension,dValue):
+DT:=DimensionTableCalculator4(calcToDimension,dValue,RL);
+
+ctr:=0:
+T:=DT[3]:
+while T<>"finished" do
+ if DT[1][op(T)]<>tMINUSsAdjusted([seq(RL[i][T[i]],i=1..nops(T))],dValue) then
+  UserFeedback(T,[seq(RL[i][T[i]],i=1..nops(T))],DT[1][op(T)]);
+ fi;
+ T:=DT[2][op(T)];
+ ctr:=ctr+1;
+od:
+ctr;
+
+excess:=proc(L)
+ if L=[] then return -1 fi;
+ return add(L[i],i=1..nops(L));
+end proc:
+ctr:=0:
+TT:=combinat[cartprod](RL):
+while not TT[finished] do 
+ T:=TT[nextvalue]();
+ if excess(T[1])<nops(T[2]) and excess(T[2])<nops(T[3]) and excess(T[3])<nops(T[4]) then
+  if Esatisfied(T[-1],T[-2],dValue)=0 then
+   if tMINUSsAdjusted(T,dValue)<=calcToDimension then
+    ctr:=ctr+1;
+   fi;
+  fi;
+ fi;
+end do:
+ctr;
