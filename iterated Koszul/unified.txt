@@ -1326,7 +1326,17 @@ FindDifferentialInList:=proc(dif,L)
  for i in p do UserFeedback("target in ",L[i]); od;
  p:=[ListTools[SearchAll](dif,map(x->x[-4],L))];
  for i in p do UserFeedback("source in ",L[i]); od;
-end proc:#*#*#################### begin program ####################
+end proc:
+
+
+
+
+
+
+
+
+
+#*#*#################### begin program ####################
 dValue:=2: calcToDimension:=800:
 applyEasyMods:=true:
 applyEasyMods2:=true:
