@@ -138,7 +138,8 @@ ctr:=0:
 TT:=combinat[cartprod](RL):
 while not TT[finished] do 
  T:=TT[nextvalue]();
- if excess(T[1])<nops(T[2]) and excess(T[2])<nops(T[3]) and excess(T[3])<nops(T[4]) then
+ if   excess(T[1])<nops(T[2]) and excess(T[2])<nops(T[3])
+  and excess(T[3])<nops(T[4]) and excess(T[4])<nops(T[5]) then
   if Esatisfied(T[-1],T[-2],dValue)=0 then
    if tMINUSsAdjusted(T,dValue)<=calcToDimension then
     ctr:=ctr+1;
