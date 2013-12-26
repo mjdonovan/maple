@@ -29,11 +29,12 @@ RelevantListsGenerator:=proc(calcToDimension,dValue)
    inclusionLists:=[[[],op(inclusionList)],op(inclusionLists)];
   fi;
  od:
- return [op(inclusionLists),I1list];
+ return [op(inclusionLists),map(ExcessFormatSingle,I1list)];
 end proc:
 
-DimensionTableStarter:=proc(calcToDimension,dValue,RLs)
- local outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc;
+DimensionTableStarter:=proc(calcToDimension,dValue,RL)
+ local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc;
+ RLs:=[op(RL[1..-2]),map(unExcessFormatSingle,RL[-1])];
  outTable:=rtable(1..nops(RLs[-2]),1..nops(RLs[-1]),storage=sparse);
  pTable:=rtable(1..nops(RLs[-2]),1..nops(RLs[-1]),storage=sparse);
  pInitLoc:="finished";
@@ -122,13 +123,14 @@ DT:=DimensionTableCalculator4(calcToDimension,dValue,RL);
 ctr:=0:
 T:=DT[3]:
 while T<>"finished" do
- if DT[1][op(T)]<>tMINUSsAdjusted([seq(RL[i][T[i]],i=1..nops(T))],dValue) then
+ if DT[1][op(T)]<>tMINUSsAllExcess([seq(RL[i][T[i]],i=1..nops(T))],dValue) then
   UserFeedback(T,[seq(RL[i][T[i]],i=1..nops(T))],DT[1][op(T)]);
  fi;
  T:=DT[2][op(T)];
  ctr:=ctr+1;
 od:
 ctr;
+
 
 excess:=proc(L)
  if L=[] then return -1 fi;
@@ -138,10 +140,9 @@ ctr:=0:
 TT:=combinat[cartprod](RL):
 while not TT[finished] do 
  T:=TT[nextvalue]();
- if   excess(T[1])<nops(T[2]) and excess(T[2])<nops(T[3])
-  and excess(T[3])<nops(T[4]) and excess(T[4])<nops(T[5]) then
-  if Esatisfied(T[-1],T[-2],dValue)=0 then
-   if tMINUSsAdjusted(T,dValue)<=calcToDimension then
+ if excess(T[1])<nops(T[2]) and excess(T[2])<nops(T[3]) and excess(T[3])<nops(T[4]) and excess(T[4])<nops(T[5]) then
+  if Esatisfied(unExcessFormatSingle(T[-1]),T[-2],dValue)=0 then
+   if tMINUSsAllExcess(T,dValue)<=calcToDimension then
     ctr:=ctr+1;
    fi;
   fi;
