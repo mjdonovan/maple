@@ -514,6 +514,11 @@ tMINUSsAdjusted:=proc(S,d)
  %[nops(%)]-add(%[j],j=1..nops(%)-1);
 end proc:
 
+tMINUSsAllExcess:=proc(S,d)
+ multiDimensionAdjusted(unExcessFormatSeq(S),d);
+ %[nops(%)]-add(%[j],j=1..nops(%)-1);
+end proc:
+
 E2DegreeIndecElt:=proc(S,d)
  [0,op(multiDimensionAdjusted(S,d))];
 end proc:
