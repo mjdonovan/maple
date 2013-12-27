@@ -201,7 +201,7 @@ end proc:
 print_OM:=proc(outputVector:=[10,1,2,3,8,7,5])
  global OM;
  print(LinearAlgebra[SubMatrix](OM,[1..-1],outputVector));
-end proc;
+end proc:
 
 diff_extractor:=proc(TR,SR,outputVector:=[10,1,2,3,8,7,5])
  global OM;
