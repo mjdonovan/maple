@@ -1,4 +1,11 @@
-RelevantListsGenerator:=proc(calcToDimension,dValue)
+set_dimensions:=proc(cTD,d)
+ global calcToDimension,dValue;
+ calcToDimension:=cTD;dValue:=d;
+ return NULL;
+end proc:
+
+build_RL:=proc()
+ global RL,calcToDimension,dValue;
  local I1list,I2lists,I3lists,newInterface,ans,ILIST,inclusionLists,
        inclusionList,oldInterface,prevLength,m,ISEQ,tempo;
  I1list:=delAdmissablesByMaxSum(calcToDimension,dValue):
@@ -29,10 +36,12 @@ RelevantListsGenerator:=proc(calcToDimension,dValue)
    inclusionLists:=[[[],op(inclusionList)],op(inclusionLists)];
   fi;
  od:
- return [op(inclusionLists),map(ExcessFormatSingle,I1list)];
+ RL:=[op(inclusionLists),map(ExcessFormatSingle,I1list)];
+ return NULL;
 end proc:
 
-DimensionTableStarter:=proc(calcToDimension,dValue,RL)
+StatMat_TravIns_starter:=proc()
+ global calcToDimension,dValue,RL;
  local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc;
  RLs:=[op(RL[1..-2]),map(unExcessFormatSingle,RL[-1])];
  outTable:=rtable(1..nops(RLs[-2]),1..nops(RLs[-1]),storage=sparse);
@@ -60,31 +69,37 @@ DimensionTableStarter:=proc(calcToDimension,dValue,RL)
  return [outTable,pTable,pInitLoc];
 end proc:
 
-DimensionTableCalculator4:=proc(calcToDimension,dValue,RLs,DataSoFar:="none")
+build_StatMat_TravIns:=proc(DataSoFar:="none")
+ global StatMat,TravIns,calcToDimension,dValue,RL;
  local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
-       newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize;
+       newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T;
  if DataSoFar="none" then
-  if map(x->x[1],RLs)<>map(x->[],RLs) then
-   error "need RLs[i][1]=[] for all i";
+  if map(x->x[1],RL)<>map(x->[],RL) then
+   error "need RL[i][1]=[] for all i";
   fi;
-  return DimensionTableCalculator4(
-          calcToDimension,dValue,RLs,
-          DimensionTableStarter(calcToDimension,dValue,RLs));
+  return build_StatMat_TravIns(StatMat_TravIns_starter());
  fi;
  DSFsize:=rtable_num_dims(DataSoFar[1]);
- if DSFsize=nops(RLs) then
-  return DataSoFar;
+ if DSFsize=nops(RL) then
+  StatMat:=DataSoFar[1];
+  TravIns:=[DataSoFar[2],DataSoFar[3]];
+  T:=TravIns[2];
+  while T<>"finished" do
+   StatMat[op(T)]:=[1,StatMat[op(T)]];
+   T:=TravIns[1][op(T)];
+  od:
+  return NULL;
  fi;
- outTable:=rtable(1..nops(RLs[-1-DSFsize]),
+ outTable:=rtable(1..nops(RL[-1-DSFsize]),
                   rtable_dims(DataSoFar[1]),storage=sparse);
  pTable:=rtable(rtable_dims(outTable),storage=sparse);
  pInitLoc:="finished";
- currRLlen:=map(x->nops(x),RLs[-1-DSFsize]);
- prevRLlen:=map(x->nops(x),RLs[-DSFsize]);
+ currRLlen:=map(x->nops(x),RL[-1-DSFsize]);
+ prevRLlen:=map(x->nops(x),RL[-DSFsize]);
  currRLdim:=map(x->add((2^i-1)*x[i],i=1..nops(x)),
-                RLs[-1-DSFsize]);
+                RL[-1-DSFsize]);
  currRLexc:=map(x->`if`(x=[],-1,add(x[i],i=1..nops(x))),
-                RLs[-1-DSFsize]);
+                RL[-1-DSFsize]);
  fInds:=DataSoFar[3];
  while fInds<>"finished" do
    for iInd to nops(currRLlen) do
@@ -92,7 +107,7 @@ DimensionTableCalculator4:=proc(calcToDimension,dValue,RLs,DataSoFar:="none")
      newDimn:=(2^(currRLlen[iInd])  )*DataSoFar[1][op(fInds)]
              +((2^(currRLlen[iInd]))-1)*(prevRLlen[fInds[1]]+1)
              -currRLlen[iInd]-currRLdim[iInd];
-#     UserFeedback([RLs[-1-DSFsize][iInd],seq(RLs[i][fInds[i]],i=-DSFsize..-1)]);
+#     UserFeedback([RL[-1-DSFsize][iInd],seq(RL[i][fInds[i]],i=-DSFsize..-1)]);
      if newDimn<=calcToDimension then
       outTable[iInd,op(fInds)]:=newDimn;
       if pInitLoc="finished" then
@@ -107,45 +122,114 @@ DimensionTableCalculator4:=proc(calcToDimension,dValue,RLs,DataSoFar:="none")
    fInds:=DataSoFar[2][op(fInds)];
  od;
  pTable[op(pLastLoc)]:="finished";
- return DimensionTableCalculator4(calcToDimension,dValue,RLs,
-                                  [outTable,pTable,pInitLoc]);
+ return build_StatMat_TravIns([outTable,pTable,pInitLoc]);
 end proc:
 
-
-
-
-
-
-calcToDimension:=300; dValue:=2;
-RL:=RelevantListsGenerator(calcToDimension,dValue):
-DT:=DimensionTableCalculator4(calcToDimension,dValue,RL);
-
-ctr:=0:
-T:=DT[3]:
-while T<>"finished" do
- if DT[1][op(T)]<>tMINUSsAllExcess([seq(RL[i][T[i]],i=1..nops(T))],dValue) then
-  UserFeedback(T,[seq(RL[i][T[i]],i=1..nops(T))],DT[1][op(T)]);
+double_class:=proc(inds)
+ global StatMat;
+ if StatMat[op(inds)][1]<>0 then
+  StatMat[op(inds)][1]:=2*StatMat[op(inds)][1];
+ else
+  error "this class is dead";
  fi;
- T:=DT[2][op(T)];
- ctr:=ctr+1;
-od:
-ctr;
-
-
-excess:=proc(L)
- if L=[] then return -1 fi;
- return add(L[i],i=1..nops(L));
+ return NULL;
 end proc:
-ctr:=0:
-TT:=combinat[cartprod](RL):
-while not TT[finished] do 
- T:=TT[nextvalue]();
- if excess(T[1])<nops(T[2]) and excess(T[2])<nops(T[3]) and excess(T[3])<nops(T[4]) and excess(T[4])<nops(T[5]) then
-  if Esatisfied(unExcessFormatSingle(T[-1]),T[-2],dValue)=0 then
-   if tMINUSsAllExcess(T,dValue)<=calcToDimension then
-    ctr:=ctr+1;
-   fi;
+
+kill_class:=proc(inds)
+ global StatMat;
+ if StatMat[op(inds)][1]<>0 then
+  StatMat[op(inds)]:=0;
+ else
+  error "this class is already dead";
+ fi;
+ return NULL;
+end proc:
+
+rectify_TravIns_find_LD:=proc()
+ global StatMat,TravIns,LowestDimension;
+ local T;
+ LowestDimension:=2^31-1;
+ T:=TravIns[2];
+ while T<>"finished" and StatMat[op(T)]=0 do
+  TravIns[2]:=TravIns[1][op(T)];
+  T:=TravIns[2];
+ od;
+ while T<>"finished" do
+  LowestDimension:=min(LowestDimension,StatMat[op(T)][1]*StatMat[op(T)][2]);
+  if TravIns[1][op(T)]<>"finished" and StatMat[op(TravIns[1][op(T)])]=0 then
+   TravIns[1][op(T)]:=TravIns[1][op(TravIns[1][op(T)])]:
+  else
+   T:=TravIns[1][op(T)];
   fi;
- fi;
-end do:
-ctr;
+ od:
+ return NULL;
+end proc:
+
+assign_OM_lowest_classes:=proc(numDimsToPrint:=2)
+ #automatically runs rectify_TravIns_find_LD beforehand
+ global StatMat,TravIns,LowestDimension,OM;
+ local T,L,i;
+ rectify_TravIns_find_LD();
+ L:=[];
+ T:=TravIns[2];
+ while T<>"finished" do
+  if StatMat[op(T)][1]*StatMat[op(T)][2] <= LowestDimension+numDimsToPrint-1 then
+   L:=[op(L),T];
+  fi;
+  T:=TravIns[1][op(T)];
+ od;
+ #L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)])],L);
+ L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)]),StatMat[op(x)][1]*StatMat[op(x)][2],
+            2^(add(nops(RL[i][x[i]]),i=1..nops(x)-1))*StatMat[op(x)][1]*(dValue+1+nops(RL[-1][x[-1]])+add(RL[-1][x[-1]][j]*(2^j-1),j=1..nops(RL[-1][x[-1]])))-1   ],L);
+ #[1=location,2=printout,3=power,4=dimensionOfFirstPower,5=t-s,6=t]
+ L:=map(x->[op(x),x[6]-x[5],PrettyPrintPRelt([[x[3],x[2]]])   ,   E2DegreePRHomEltNoZero(unExcessFormatPR([[x[3],x[2]]]),dValue)],L);
+ #[...,7=s,8=prettyprint,9=allE2dimensions(forDebug)]
+ L:=sort(L,(x,y)->(x[5]<y[5] or 
+                           (x[5]=y[5] and x[6]<y[6])) or
+                           (x[5]=y[5] and x[6]=y[6] and
+  lexorder(StringTools[Reverse](convert(ListTools[Flatten](x[2]),string)),
+           StringTools[Reverse](convert(ListTools[Flatten](y[2]),string)))
+                            )):
+ for i to nops(L) do
+  L[i]:=[op(L[i]),i];
+ od;
+ L:=[['loc',`elt`,`power`,`1powDim`,`t-s`,`t`,`s`,`elt`,`dims`,` `],op(L)];
+ OM:=Matrix(L);
+ return NULL;
+end proc:
+
+print_OM:=proc(outputVector:=[10,1,2,3,8,7,5])
+ global OM;
+ print(LinearAlgebra[SubMatrix](OM,[1..-1],outputVector));
+end proc;
+
+diff_extractor:=proc(TR,SR,outputVector:=[10,1,2,3,8,7,5])
+ global OM;
+ print(LinearAlgebra[SubMatrix](OM,[1,TR+1,SR+1],outputVector));
+ #why not test somthing at this point?
+ [`?`,cat("d",OM[TR+1,7]-OM[SR+1,7]),OM[SR+1,2],OM[SR+1,3],OM[TR+1,2],OM[TR+1,3],OM[SR+1,1],OM[TR+1,1]];
+end proc:
+
+trim_off_Einfty_classes:=proc()
+ global StatMat,TravIns,dValue,RL;
+ local i;
+ kill_class([seq(1,i=1..nops(RL))]);
+ for i from 2 to nops(RL[-1]) do
+  if remove(x->x=0,RL[-1][i])=[dValue] and RL[-1][i][-1]=dValue then
+   double_class([seq(1,i=1..nops(RL)-1),i]);  
+  fi;
+ od;
+end proc:
+
+
+
+
+set_dimensions(120,2);
+build_RL();
+build_StatMat_TravIns();
+trim_off_Einfty_classes();
+assign_OM_lowest_classes();
+print_OM();
+diff_extractor(1,2);
+
+
