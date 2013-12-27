@@ -98,6 +98,24 @@ build_RL:=proc()
  return NULL;
 end proc:
 
+find_RL_coordinates:=proc(S)
+ global RL;
+ local i,ans,T;
+ if nops(S)>nops(RL) then
+  error "the sequence is too long";
+ fi; 
+ ans:=[];
+ for i from -1 to -nops(S) by -1 do
+   T:=ListTools[Search](S[i],RL[i]);
+   if T=0 then return 0; fi;
+   ans:=[T,op(ans)];
+ od;
+ for i from -1-nops(S) to -nops(RL) by -1 do
+   ans:=[1,op(ans)];
+ od;
+ ans;
+end proc;
+
 StatMat_TravIns_starter:=proc()
  global calcToDimension,dValue,RL;
  local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc;
@@ -279,7 +297,7 @@ trim_off_Einfty_classes:=proc()
  od;
 end proc:
 
-implement_diff:=proc(difl)
+implement_diff:=proc(difl,logme:=false)
  global RL,StatMat;
  if nops(StatMat[op(difl[7])])<>2 or nops(StatMat[op(difl[8])])<>2 then
   error "either source or target is already dead or broken";
@@ -292,6 +310,9 @@ implement_diff:=proc(difl)
  fi;
  kill_class(difl[8]);
  double_class(difl[7]);
+ if logme<>false then
+  dlog(difl);
+ fi;
  return NULL;
 end proc:
 
