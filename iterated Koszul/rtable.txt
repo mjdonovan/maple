@@ -114,7 +114,7 @@ find_RL_coordinates:=proc(S)
    ans:=[1,op(ans)];
  od;
  ans;
-end proc;
+end proc:
 
 StatMat_TravIns_starter:=proc()
  global calcToDimension,dValue,RL;
@@ -297,7 +297,7 @@ trim_off_Einfty_classes:=proc()
  od;
 end proc:
 
-implement_diff:=proc(difl,logme:=false)
+implement_diff:=proc(difl,logFlag:=false)
  global RL,StatMat;
  if nops(StatMat[op(difl[7])])<>2 or nops(StatMat[op(difl[8])])<>2 then
   error "either source or target is already dead or broken";
@@ -310,10 +310,36 @@ implement_diff:=proc(difl,logme:=false)
  fi;
  kill_class(difl[8]);
  double_class(difl[7]);
- if logme<>false then
+ if logFlag<>false then
   dlog(difl);
  fi;
  return NULL;
+end proc:
+
+first_round_of_differentials:=proc(logFlag:=false)
+ global RL,StatMat,dValue;
+ local ell1,exc1,a,i,srcI1,trgS,trgPow,difl,srcCoords,trgCoords;
+ for i from 2 to nops(RL[-1]) do
+  srcCoords:=[seq(1,i=1..nops(RL)-1),i];
+  srcI1:=RL[-1][i];
+  if remove(x->x=0,srcI1)<>[dValue] and StatMat[op(srcCoords)]<>0 then
+   ell1:=nops(srcI1);
+   exc1:=add(srcI1[gh],gh=1..ell1);
+   a:=dValue+ell1-exc1;
+   if a<ell1-1 and a>=1 then
+    trgS:=[[a],srcI1[2..-1]];
+    trgPow:=1;
+   elif a=ell1-1 then
+    trgS:=[srcI1[2..-1]];
+    trgPow:=2;
+   else
+    error "this is strange";
+   fi;
+   trgCoords:=find_RL_coordinates(trgS);
+   difl:=[`rnd1`,cat("d",a),[srcI1],1,trgS,trgPow,srcCoords,trgCoords];
+   implement_diff(difl,logFlag);
+  fi;
+ od;
 end proc:
 
 
