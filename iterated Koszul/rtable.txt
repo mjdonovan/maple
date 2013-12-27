@@ -1,3 +1,61 @@
+new_dlog:=proc()
+ global LogFilename,outputStream,outputStreamOpenFlag;
+ if not type(outputStreamOpenFlag,'integer') then
+  outputStreamOpenFlag:=-1;
+ fi;
+ if outputStreamOpenFlag=-1 then
+  LogFilename:=StringTools[FormatTime]("c:/maple_logs/%d%b_%H%M%S.txt");
+  outputStream:=fopen(LogFilename,WRITE);
+  outputStreamOpenFlag:=1;
+ elif outputStreamOpenFlag=0 then
+  error "you've already opened and closed the file - use reopen_dlog()";
+ elif outputStreamOpenFlag=1 then
+  error "the file is already open!"
+ fi;
+ return NULL;
+end proc:
+close_dlog:=proc()
+ global LogFilename,outputStream,outputStreamOpenFlag;
+ if outputStreamOpenFlag<>1 then
+  if outputStreamOpenFlag=0 then
+   error "the file has already been closed";
+  else
+   error "the file probably never existed";
+  fi;
+ else
+  fclose(LogFilename);
+  outputStreamOpenFlag:=0;
+ fi;
+ return NULL;
+end proc:
+reopen_dlog:=proc()
+ global LogFilename,outputStream,outputStreamOpenFlag;
+ if outputStreamOpenFlag<>0 then
+  if outputStreamOpenFlag=1 then
+   error "the file is open already";
+  else
+   error "the file probably never existed";
+  fi;
+ else
+  outputStream:=fopen(LogFilename,APPEND);
+  outputStreamOpenFlag:=1;
+ fi;
+ return NULL;
+end proc:
+add_to_dlog:=proc(obj)
+ global LogFilename,outputStream,outputStreamOpenFlag;
+ if outputStreamOpenFlag<>1 then
+  if outputStreamOpenFlag=0 then
+   error "the file has been closed";
+  else
+   error "the file probably never existed";
+  fi;
+ else
+  fprintf(outputStream, cat(convert(obj,string),"\n"));
+ fi;
+ return NULL;
+end proc:
+
 set_dimensions:=proc(cTD,d)
  global calcToDimension,dValue;
  calcToDimension:=cTD;dValue:=d;
@@ -221,7 +279,21 @@ trim_off_Einfty_classes:=proc()
  od;
 end proc:
 
-
+implement_diff:=proc(difl)
+ global RL,StatMat;
+ if nops(StatMat[op(difl[7])])<>2 or nops(StatMat[op(difl[8])])<>2 then
+  error "either source or target is already dead or broken";
+ fi;
+ if difl[4]<>StatMat[op(difl[7])][1] then
+  error "the source power is wrong";
+ fi;
+ if difl[6]<>StatMat[op(difl[8])][1] then
+  error "the target power is likely to be wrong";
+ fi;
+ kill_class(difl[8]);
+ double_class(difl[7]);
+ return NULL;
+end proc:
 
 
 set_dimensions(120,2);
