@@ -55,6 +55,24 @@ dlog:=proc(obj)
  fi;
  return NULL;
 end proc:
+timed_message:=proc()
+ local ans,i,Listo;Listo:=[args];
+ ans:=StringTools[FormatTime]("%a%l:%M:%S%p: ");
+ for i to nops(Listo) do
+  ans:=cat(ans,convert(Listo[i],'string'));
+ od;
+ writeline(default,ans);
+ NULL;
+end proc:
+timed_dlog:=proc()
+ local ans,i,Listo;Listo:=[args];
+ ans:=StringTools[FormatTime]("%a%l:%M:%S%p: ");
+ for i to nops(Listo) do
+  ans:=cat(ans,convert(Listo[i],'string'));
+ od;
+ dlog(ans);
+ NULL;
+end proc:
 
 set_dimensions:=proc(cTD,d)
  global calcToDimension,dValue;
