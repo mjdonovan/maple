@@ -42,7 +42,7 @@ reopen_dlog:=proc()
  fi;
  return NULL;
 end proc:
-add_to_dlog:=proc(obj)
+dlog:=proc(obj)
  global LogFilename,outputStream,outputStreamOpenFlag;
  if outputStreamOpenFlag<>1 then
   if outputStreamOpenFlag=0 then
@@ -102,7 +102,7 @@ find_RL_coordinates:=proc(S)
  global RL;
  local i,ans,T;
  if nops(S)>nops(RL) then
-  error "the sequence is too long";
+  return 0;
  fi; 
  ans:=[];
  for i from -1 to -nops(S) by -1 do
@@ -202,9 +202,12 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
 end proc:
 
 double_class:=proc(inds)
- global StatMat;
+ global StatMat,calcToDimension;
  if StatMat[op(inds)][1]<>0 then
   StatMat[op(inds)][1]:=2*StatMat[op(inds)][1];
+  if StatMat[op(inds)][1]*StatMat[op(inds)][2]>calcToDimension then
+   StatMat[op(inds)]:=0;
+  fi;
  else
   error "this class is dead";
  fi;
@@ -318,8 +321,9 @@ end proc:
 
 first_round_of_differentials:=proc(logFlag:=false)
  global RL,StatMat,dValue;
- local ell1,exc1,a,i,srcI1,trgS,trgPow,difl,srcCoords,trgCoords;
+ local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,difl,srcCoords,trgCoords;
  for i from 2 to nops(RL[-1]) do
+  srcPow:=1;
   srcCoords:=[seq(1,i=1..nops(RL)-1),i];
   srcI1:=RL[-1][i];
   if remove(x->x=0,srcI1)<>[dValue] and StatMat[op(srcCoords)]<>0 then
@@ -336,19 +340,35 @@ first_round_of_differentials:=proc(logFlag:=false)
     error "this is strange";
    fi;
    trgCoords:=find_RL_coordinates(trgS);
-   difl:=[`rnd1`,cat("d",a),[srcI1],1,trgS,trgPow,srcCoords,trgCoords];
-   implement_diff(difl,logFlag);
+   difl:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,srcCoords,trgCoords];
+   if trgPow=2 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 then
+    implement_diff(difl,logFlag);
+   elif trgPow=1 then
+    while StatMat[op(srcCoords)]<>0 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 do
+     implement_diff(difl,logFlag);
+     trgS:=[[0],op(trgS)];
+     srcPow:=2*srcPow;
+     trgCoords:=find_RL_coordinates(trgS);
+     a:=2*a-1;
+     difl:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,srcCoords,trgCoords];
+    od;
+   fi;
   fi;
  od;
 end proc:
 
-
+########### begin program
 set_dimensions(120,2);
+new_dlog();
 build_RL();
 build_StatMat_TravIns();
 trim_off_Einfty_classes();
 assign_OM_lowest_classes();
 print_OM();
-diff_extractor(1,2);
+#diff_extractor(1,2);
 
+first_round_of_differentials("log me");
+assign_OM_lowest_classes();
+print_OM();
+close_dlog();
 
