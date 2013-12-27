@@ -497,6 +497,7 @@ end proc:
 multiDimensionAdjusted:=proc(S,d)
  #adjusted so that all but the final entry are inputted in excess-vector format
  local i,ans,ellR,ennR,N,smr;
+ if S=[] then return [d]; fi;
  N:=nops(S);ellR:=[];ennR:=[];
  ellR:=map(x->nops(x),S);
  ennR:=map(x->add(x[smr+1]*(2^(smr+1)-1),smr=0..nops(x)-1),S);
@@ -533,6 +534,7 @@ end proc:
 E2DegreePRHomEltNoZero:=proc(HE,d)
  remove(x->x=0,E2DegreePRHomElt(HE,d));
 end proc:
+
 Swhat:=proc(elt,d)
  local i,N,T,ans;
  N:=nops(elt);
