@@ -45,6 +45,21 @@ reopen_dlog:=proc()
  fi;
  return NULL;
 end proc:
+save_dlog:=proc()
+ global LogFilename,outputStream,outputStreamOpenFlag;
+ if outputStreamOpenFlag<>1 then
+  if outputStreamOpenFlag=0 then
+   error "the file has already been closed";
+  else
+   error "the file probably never existed";
+  fi;
+ else
+  fclose(LogFilename);
+  outputStream:=fopen(LogFilename,APPEND);
+  timed_message("dlog closed and reopened (",LogFilename,")");
+ fi;
+ return NULL;
+end proc:
 dlog:=proc(obj)
  global LogFilename,outputStream,outputStreamOpenFlag;
  if outputStreamOpenFlag<>1 then
@@ -416,7 +431,8 @@ build_StatMat_TravIns();
 trim_off_Einfty_classes();
 assign_and_print_OM();
 first_round_of_differentials();
+save_dlog();
 assign_and_print_OM();
 #diff_extractor(1,2);
-#close_dlog();
+
 
