@@ -7,6 +7,7 @@ new_dlog:=proc()
   LogFilename:=StringTools[FormatTime]("c:/maple_logs/%d%b_%H%M%S.txt");
   outputStream:=fopen(LogFilename,WRITE);
   outputStreamOpenFlag:=1;
+  timed_message("new dlog opened (",LogFilename,")");
  elif outputStreamOpenFlag=0 then
   error "you've already opened and closed the file - use reopen_dlog()";
  elif outputStreamOpenFlag=1 then
@@ -25,6 +26,7 @@ close_dlog:=proc()
  else
   fclose(LogFilename);
   outputStreamOpenFlag:=0;
+  timed_message("dlog closed (",LogFilename,")");
  fi;
  return NULL;
 end proc:
@@ -39,6 +41,7 @@ reopen_dlog:=proc()
  else
   outputStream:=fopen(LogFilename,APPEND);
   outputStreamOpenFlag:=1;
+  timed_message("dlog reopened (",LogFilename,")");
  fi;
  return NULL;
 end proc:
@@ -77,6 +80,7 @@ end proc:
 set_dimensions:=proc(cTD,d)
  global calcToDimension,dValue;
  calcToDimension:=cTD;dValue:=d;
+ timed_message("set dimensions: up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
  return NULL;
 end proc:
 
@@ -84,6 +88,7 @@ build_RL:=proc()
  global RL,calcToDimension,dValue;
  local I1list,I2lists,I3lists,newInterface,ans,ILIST,inclusionLists,
        inclusionList,oldInterface,prevLength,m,ISEQ,tempo;
+ timed_message("building RL for calculation up to dimension ",calcToDimension);
  I1list:=delAdmissablesByMaxSum(calcToDimension,dValue):
  I3lists:=[seq(SqCompsMi(M,0),M=-1..11)]:
  I2lists:=[seq(SqCompsMi(M,2),M=-1..11)]:
@@ -113,6 +118,7 @@ build_RL:=proc()
   fi;
  od:
  RL:=[op(inclusionLists),map(ExcessFormatSingle,I1list)];
+ timed_message("built RL[1..",nops(RL),"] with dimensions ",map(x->nops(x),RL));
  return NULL;
 end proc:
 
@@ -160,6 +166,7 @@ StatMat_TravIns_starter:=proc()
   od;
  od;
  pTable[op(pLastLoc)]:="finished";
+ timed_message("calculated StatMat_TravIns_starter");
  return [outTable,pTable,pInitLoc];
 end proc:
 
@@ -168,6 +175,7 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
  local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
        newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T;
  if DataSoFar="none" then
+  timed_message("commencing build of StatMat and TravIns");
   if map(x->x[1],RL)<>map(x->[],RL) then
    error "need RL[i][1]=[] for all i";
   fi;
@@ -182,6 +190,7 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
    StatMat[op(T)]:=[1,StatMat[op(T)]];
    T:=TravIns[1][op(T)];
   od:
+  timed_message("StatMat and TravIns done, dimensions ",map(x->[seq(i,i=x)][-1],[rtable_dims(StatMat)]));
   return NULL;
  fi;
  outTable:=rtable(1..nops(RL[-1-DSFsize]),
@@ -216,6 +225,9 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
    fInds:=DataSoFar[2][op(fInds)];
  od;
  pTable[op(pLastLoc)]:="finished";
+ if rtable_num_dims(outTable)<nops(RL) then
+  timed_message("computed ",rtable_num_dims(outTable)," out of ",nops(RL)," dimensions deep");
+ fi;
  return build_StatMat_TravIns([outTable,pTable,pInitLoc]);
 end proc:
 
@@ -262,9 +274,9 @@ rectify_TravIns_find_LD:=proc()
  return NULL;
 end proc:
 
-assign_OM_lowest_classes:=proc(numDimsToPrint:=2)
+assign_OM:=proc(numDimsToPrint:=2)
  #automatically runs rectify_TravIns_find_LD beforehand
- global StatMat,TravIns,LowestDimension,OM;
+ global StatMat,TravIns,LowestDimension,OM,calcToDimension;
  local T,L,i;
  rectify_TravIns_find_LD();
  L:=[];
@@ -290,14 +302,24 @@ assign_OM_lowest_classes:=proc(numDimsToPrint:=2)
  for i to nops(L) do
   L[i]:=[op(L[i]),i];
  od;
- L:=[['loc',`elt`,`power`,`1powDim`,`t-s`,`t`,`s`,`elt`,`dims`,` `],op(L)];
+ L:=[['loc',`elt`,`pow`,`1powDim`,`t-s`,`t`,`s`,`elt`,`dims`,` `],op(L)];
  OM:=Matrix(L);
+ if nops(L)>1 then
+  timed_message("OM has ",nops(L)-1," entries, starting in dimension ",L[2][5]);
+ else
+  timed_message("spectral sequence cleared up to dimension ",calcToDimension);
+ fi;
  return NULL;
 end proc:
 
 print_OM:=proc(outputVector:=[10,1,2,3,8,7,5])
  global OM;
  print(LinearAlgebra[SubMatrix](OM,[1..-1],outputVector));
+end proc:
+
+assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,1,2,3,8,7,5])
+ assign_OM(numDimsToPrint);
+ print_OM(outputVector);
 end proc:
 
 diff_extractor:=proc(TR,SR,outputVector:=[10,1,2,3,8,7,5])
@@ -316,9 +338,11 @@ trim_off_Einfty_classes:=proc()
    double_class([seq(1,i=1..nops(RL)-1),i]);  
   fi;
  od;
+ timed_message("trimmed off the E_infinity classes");
+ return NULL;
 end proc:
 
-implement_diff:=proc(difl,logFlag:=false)
+implement_diff:=proc(difl,logFlag:=true)
  global RL,StatMat;
  if nops(StatMat[op(difl[7])])<>2 or nops(StatMat[op(difl[8])])<>2 then
   error "either source or target is already dead or broken";
@@ -331,15 +355,23 @@ implement_diff:=proc(difl,logFlag:=false)
  fi;
  kill_class(difl[8]);
  double_class(difl[7]);
- if logFlag<>false then
-  dlog(difl);
+ if logFlag=false then return NULL; fi;
+ if outputStreamOpenFlag=0 then
+  reopen_dlog();
+  timed_message("(in order to store differentials)");
+ elif outputStreamOpenFlag<>1 then
+  new_dlog();
+  timed_message("(in order to store differentials)");
  fi;
+ dlog(difl);
  return NULL;
 end proc:
 
-first_round_of_differentials:=proc(logFlag:=false)
- global RL,StatMat,dValue;
- local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,difl,srcCoords,trgCoords;
+first_round_of_differentials:=proc(logFlag:=true)
+ global RL,StatMat,dValue,outputStreamOpenFlag;
+ local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,difl,srcCoords,trgCoords,diffCounter;
+ timed_message("starting first round of differentials");
+ diffCounter:=0;
  for i from 2 to nops(RL[-1]) do
   srcPow:=1;
   srcCoords:=[seq(1,i=1..nops(RL)-1),i];
@@ -360,10 +392,10 @@ first_round_of_differentials:=proc(logFlag:=false)
    trgCoords:=find_RL_coordinates(trgS);
    difl:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,srcCoords,trgCoords];
    if trgPow=2 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 then
-    implement_diff(difl,logFlag);
+    implement_diff(difl,logFlag);diffCounter:=diffCounter+1;
    elif trgPow=1 then
     while StatMat[op(srcCoords)]<>0 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 do
-     implement_diff(difl,logFlag);
+     implement_diff(difl,logFlag);diffCounter:=diffCounter+1;
      trgS:=[[0],op(trgS)];
      srcPow:=2*srcPow;
      trgCoords:=find_RL_coordinates(trgS);
@@ -373,20 +405,18 @@ first_round_of_differentials:=proc(logFlag:=false)
    fi;
   fi;
  od;
+ timed_message("finished first round of differentials - there were ",diffCounter);
+ return NULL;
 end proc:
 
 ########### begin program
-set_dimensions(120,2);
-new_dlog();
+set_dimensions(500,2);
 build_RL();
 build_StatMat_TravIns();
 trim_off_Einfty_classes();
-assign_OM_lowest_classes();
-print_OM();
+assign_and_print_OM();
+first_round_of_differentials();
+assign_and_print_OM();
 #diff_extractor(1,2);
-
-first_round_of_differentials("log me");
-assign_OM_lowest_classes();
-print_OM();
-close_dlog();
+#close_dlog();
 
