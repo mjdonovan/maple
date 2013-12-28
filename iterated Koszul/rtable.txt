@@ -155,6 +155,32 @@ find_RL_coordinates:=proc(S)
  ans;
 end proc:
 
+find_RL_coordinates_with_hints:=proc(S,hints:=[])
+ #hints is a list like [[-3,5],[-2,47]] indicating some known positions
+ #which must be indexed by negative numbers like -2 and -3 to work
+ global RL;
+ local i,ans,T,hfind;
+ if nops(S)>nops(RL) then
+  return 0;
+ fi; 
+ ans:=[];
+ for i from -1 to -nops(S) by -1 do
+   hfind:=ListTools[Search](i,map(x->x[1],hints));
+   if hfind=0 then
+    T:=ListTools[Search](S[i],RL[i]);
+   else
+    T:=hints[hfind][2];
+    if T>nops(RL[i]) or RL[i][T]<>S[i] then error "that hint sucked"; fi;
+   fi;
+   if T=0 then return 0; fi;
+   ans:=[T,op(ans)];
+ od;
+ for i from -1-nops(S) to -nops(RL) by -1 do
+   ans:=[1,op(ans)];
+ od;
+ ans;
+end proc:
+
 StatMat_TravIns_starter:=proc()
  global calcToDimension,dValue,RL;
  local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc;
@@ -382,6 +408,15 @@ implement_diff:=proc(difl,logFlag:=true)
  return NULL;
 end proc:
 
+double_rMinusOne:=proc(dwhat)
+ local SR;
+ if not type("hi",'string') then error "not a string" fi;
+ SR:=StringTools[SelectRemove]( StringTools[IsDigit],  dwhat  );
+ if SR[2]<>"d" or dwhat[1]<>"d" then error "not of form d123" fi;
+ SR[1];
+ cat("d",2*parse(%)-1);
+end proc:
+
 first_round_of_differentials:=proc(logFlag:=true)
  global RL,StatMat,dValue,outputStreamOpenFlag;
  local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,difl,srcCoords,trgCoords,diffCounter;
@@ -423,6 +458,44 @@ first_round_of_differentials:=proc(logFlag:=true)
  timed_message("finished first round of differentials - there were ",diffCounter);
  return NULL;
 end proc:
+
+second_round_of_differentials:=proc(logFlag:=true)
+ global RL,StatMat,dValue,outputStreamOpenFlag;
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,difl,srcCoords,trgCoords,diffCounter;
+ timed_message("starting second round of differentials");
+ diffCounter:=0;
+ for i from 2 to nops(RL[-1]) do
+ srcI1:=RL[-1][i];
+ ell1:=nops(srcI1);
+ exc1:=add(srcI1[gh],gh=1..ell1); 
+ for jay from 2+dValue+ell1-exc1 to ell1-1 do
+  srcS:=[[jay],srcI1];
+  srcCoords:=find_RL_coordinates_with_hints(srcS,[[-1,i]]);
+  trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
+  trgCoords:=find_RL_coordinates(trgS);
+  srcPow:=1;
+  trgPow:=1;
+  if srcCoords<>0 and StatMat[op(srcCoords)]<>0 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 then
+#test here if the powers are right? nah
+   difl:=[`rnd2`,cat("d",2*(dValue+ell1-exc1)-1),srcS,srcPow,trgS,trgPow,srcCoords,trgCoords];
+#   if trgPow=2 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 then
+    implement_diff(difl,logFlag);diffCounter:=diffCounter+1;
+#   elif trgPow=1 then
+#    while StatMat[op(srcCoords)]<>0 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 do
+#     implement_diff(difl,logFlag);diffCounter:=diffCounter+1;
+#     trgS:=[[0],op(trgS)];
+#     srcPow:=2*srcPow;
+#     trgCoords:=find_RL_coordinates(trgS);
+#     a:=2*a-1;
+#     difl:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,srcCoords,trgCoords];
+#    od;
+#   fi;
+  fi;
+ od;od;
+ timed_message("finished 2nd round of differentials - there were ",diffCounter);
+ return NULL;
+end proc:
+
 
 ########### begin program
 set_dimensions(500,2);
