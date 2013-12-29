@@ -509,15 +509,15 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
 end proc:
 
 first_round_of_differentials:=proc(logFlag:=true)
+ #slower than the previous version, but easier to read and emulate!
  global RL,StatMat,dValue,outputStreamOpenFlag;
- local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,difl,srcCoords,trgCoords,diffCounter;
+ local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,diff,srcCoords,trgCoords,diffCounter;
  timed_message("starting first round of differentials");
  diffCounter:=0;
  for i from 2 to nops(RL[-1]) do
   srcPow:=1;
-  srcCoords:=[seq(1,i=1..nops(RL)-1),i];
   srcI1:=RL[-1][i];
-  if remove(x->x=0,srcI1)<>[dValue] and StatMat[op(srcCoords)]<>0 then
+  if remove(x->x=0,srcI1)<>[dValue] then
    ell1:=nops(srcI1);
    exc1:=add(srcI1[gh],gh=1..ell1);
    a:=dValue+ell1-exc1;
@@ -530,18 +530,17 @@ first_round_of_differentials:=proc(logFlag:=true)
    else
     error "this is strange";
    fi;
-   trgCoords:=find_RL_coordinates(trgS);
-   difl:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,srcCoords,trgCoords];
-   if trgPow=2 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 then
-    implement_diff(difl,logFlag);diffCounter:=diffCounter+1;
+   diff:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,[i],"?"];
+   diff:=differential_coords_finder(diff,[-1]);
+   if trgPow=2 then
+    implement_diff_if_in_range_TF(diff,logFlag);
+    if %=true then diffCounter:=diffCounter+1; fi;
    elif trgPow=1 then
-    while StatMat[op(srcCoords)]<>0 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 do
-     implement_diff(difl,logFlag);diffCounter:=diffCounter+1;
-     trgS:=[[0],op(trgS)];
-     srcPow:=2*srcPow;
-     trgCoords:=find_RL_coordinates(trgS);
-     a:=2*a-1;
-     difl:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,srcCoords,trgCoords];
+    while implement_diff_if_in_range_TF(diff,logFlag) do
+     diffCounter:=diffCounter+1;
+     diff:=differential_upgrader(diff,
+     "square","meh",
+     "add top 1-element sequence to left","meh");
     od;
    fi;
   fi;
@@ -600,3 +599,15 @@ assign_and_print_OM();
 second_round_of_differentials();
 assign_and_print_OM();
 close_dlog();
+
+
+
+
+
+
+
+
+
+
+
+
