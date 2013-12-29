@@ -408,7 +408,34 @@ implement_diff:=proc(difl,logFlag:=true)
  return NULL;
 end proc:
 
+differential_coords_finder:=proc(diff,sEqualityPositions:=false,tEqualityPositions:=false)
+ #will find the coordinates of the elements in a differential if they are missing
+ #if coordinates are present, will automatically refind them unless passed "done" or "same"
+ #if partially incorrect coordinates present, will correct them - can be passed a short list...
+ #...of negative integer indices where the corrdinates given are known.
+ local output;
+ output:=diff[1..6];
+ if sEqualityPositions="no hints" or sEqualityPositions=false then
+  output:=[op(output),find_RL_coordinates(diff[3])];
+ elif sEqualityPositions="same" or sEqualityPositions="done" then
+  output:=[op(output),diff[7]];
+ else
+  output:=[op(output),find_RL_coordinates_with_hints(diff[3],
+                 map(x->[x,diff[7][x]],sEqualityPositions))];
+ fi;
+ if tEqualityPositions="no hints" or tEqualityPositions=false then
+  output:=[op(output),find_RL_coordinates(diff[5])];
+ elif tEqualityPositions="same" or tEqualityPositions="done" then
+  output:=[op(output),diff[8]];
+ else
+  output:=[op(output),find_RL_coordinates_with_hints(diff[5],
+                 map(x->[x,diff[8][x]],tEqualityPositions))];
+ fi;
+ return output;
+end proc:
+
 double_rMinusOne:=proc(dwhat)
+ option remember;
  local SR;
  if not type("hi",'string') then error "not a string" fi;
  SR:=StringTools[SelectRemove]( StringTools[IsDigit],  dwhat  );
@@ -416,6 +443,21 @@ double_rMinusOne:=proc(dwhat)
  SR[1];
  cat("d",2*parse(%)-1);
 end proc:
+
+differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
+ #under construction
+ local output;
+ output:=diff;
+ if sDescriptor="square" then
+  output[4]:=2*output[4];
+ elif sDescriptor="add new sequence" then
+  output[3]:=[sData,op(output[3])];
+ elif sDescriptor="append to left of leftmost nontrivial sequence" then
+  output[3]:=remove(x->x=[],output[3]);
+  output[3][1]:=[op(sData),op(output[3][1])]
+ elif sDescriptor="completely replace, inputting [srcS,pow]" then
+ fi;
+end proc;
 
 first_round_of_differentials:=proc(logFlag:=true)
  global RL,StatMat,dValue,outputStreamOpenFlag;
@@ -476,7 +518,6 @@ second_round_of_differentials:=proc(logFlag:=true)
   srcPow:=1;
   trgPow:=1;
   if srcCoords<>0 and StatMat[op(srcCoords)]<>0 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 then
-#test here if the powers are right? nah
    difl:=[`rnd2`,cat("d",2*(dValue+ell1-exc1)-1),srcS,srcPow,trgS,trgPow,srcCoords,trgCoords];
 #   if trgPow=2 and trgCoords<>0 and StatMat[op(trgCoords)]<>0 then
     implement_diff(difl,logFlag);diffCounter:=diffCounter+1;
@@ -504,8 +545,9 @@ build_StatMat_TravIns();
 trim_off_Einfty_classes();
 assign_and_print_OM();
 first_round_of_differentials();
-save_dlog();
+close_dlog();
 assign_and_print_OM();
 #diff_extractor(1,2);
-
-
+second_round_of_differentials();
+assign_and_print_OM();
+close_dlog();
