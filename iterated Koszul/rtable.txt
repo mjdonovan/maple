@@ -19,6 +19,9 @@
 #assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
 #diff_extractor(TR,SR,outputVector:=[10,8,7,5])
 #quick_extract_and_implement_diffs()
+#quick_extract_and_store_diffs()
+#quick_extract_and_store_initial_diff_string(len,sourceStarts:="no gap")
+#apply_stored_diffs_and_assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
 #
 #find_RL_coordinates(S)
 #find_RL_coordinates_with_hints(S,hints:=[])
@@ -407,11 +410,13 @@ print_OM:=proc(outputVector:=[10,8,7,5])
  global OM;
  #set the following 2 to 1 to show headings
  print(LinearAlgebra[SubMatrix](OM,[2..-1],outputVector));
+ return NULL;
 end proc:
 
 assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,8,7,5])
  assign_OM(numDimsToPrint);
  print_OM(outputVector);
+ return NULL;
 end proc:
 
 diff_extractor:=proc(TR,SR,outputVector:=[10,8,7,5])
@@ -429,7 +434,38 @@ quick_extract_and_implement_diffs:=proc()
   if de[3][-1][2..-1]<>de[5][-1] then error "I think this last one was wrong" fi;
   implement_diff(de);
  od;
+ return NULL;
 end proc:
+
+apply_stored_diffs_and_assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,8,7,5])
+ global ManuallyStoredDiffs;
+ local i;
+ if assigned(ManuallyStoredDiffs) then
+  for i in ManuallyStoredDiffs do
+   implement_diff(i);
+  od;
+ fi;
+ ManuallyStoredDiffs:=[];
+ assign_and_print_OM(numDimsToPrint,outputVector);
+ return NULL;
+end proc:
+
+quick_extract_and_store_diffs:=proc()
+ local i,Listo;
+ global ManuallyStoredDiffs;
+ Listo:=[args];
+ for i to nops(Listo) do
+  Listo[i]:=diff_extractor(Listo[i][1],Listo[i][2]);
+  if Listo[i][3][-1][2..-1]<>Listo[i][5][-1] then error "I think this last one was wrong" fi;
+ od;
+ ManuallyStoredDiffs:=Listo;
+ return NULL;
+end proc:
+
+quick_extract_and_store_initial_diff_string:=proc(len,sourceStarts:="no gap")
+ quick_extract_and_store_diffs(seq([i+1,i+`if`(sourceStarts="no gap" or sourceStarts=0,len+1,sourceStarts)],i=0..len-1));
+ return NULL;
+end proc;
 
 trim_off_Einfty_classes:=proc()
  global StatMat,TravIns,dValue,RL;
@@ -670,7 +706,6 @@ if FileTools[Exists](fileNm)=false then
  first_round_of_differentials();
  close_dlog();
  assign_and_print_OM();
- #diff_extractor(1,2);
  second_round_of_differentials();
  assign_and_print_OM();
  close_dlog();
@@ -678,11 +713,12 @@ if FileTools[Exists](fileNm)=false then
 else
  read fileNm:
  timed_message("you just loaded the post-round 2 data");
- assign_and_print_OM();
 fi;
 
 
-
+#apply_stored_diffs_and_assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
+#quick_extract_and_store_initial_diff_string(3,5)
+#quick_extract_and_store_diffs([1,2],[3,4]);
 
 
 
