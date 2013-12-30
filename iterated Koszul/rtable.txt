@@ -465,7 +465,7 @@ end proc:
 quick_extract_and_store_initial_diff_string:=proc(len,sourceStarts:="no gap")
  quick_extract_and_store_diffs(seq([i+1,i+`if`(sourceStarts="no gap" or sourceStarts=0,len+1,sourceStarts)],i=0..len-1));
  return NULL;
-end proc;
+end proc:
 
 trim_off_Einfty_classes:=proc()
  global StatMat,TravIns,dValue,RL;
