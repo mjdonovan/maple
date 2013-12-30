@@ -429,6 +429,7 @@ end proc:
 quick_extract_and_implement_diffs:=proc()
  local i, Listo,de;
  Listo:=[args];
+ timed_message("IMPLEMENTing ",nops(Listo)," differentials:");
  for i in Listo do
   de:=diff_extractor(i[1],i[2]);
   if de[3][-1][2..-1]<>de[5][-1] then error "I think this last one was wrong" fi;
@@ -454,6 +455,7 @@ quick_extract_and_store_diffs:=proc()
  local i,Listo;
  global ManuallyStoredDiffs;
  Listo:=[args];
+ timed_message("storing ",nops(Listo)," differentials:");
  for i to nops(Listo) do
   Listo[i]:=diff_extractor(Listo[i][1],Listo[i][2]);
   if Listo[i][3][-1][2..-1]<>Listo[i][5][-1] then error "I think this last one was wrong" fi;
