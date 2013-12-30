@@ -15,9 +15,9 @@
 #
 #rectify_TravIns_find_LD()
 #assign_OM(numDimsToPrint:=2)
-#print_OM(outputVector:=[10,1,2,3,8,7,5])
-#assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,1,2,3,8,7,5])
-#diff_extractor(TR,SR,outputVector:=[10,1,2,3,8,7,5])
+#print_OM(outputVector:=[10,8,7,5])
+#assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
+#diff_extractor(TR,SR,outputVector:=[10,8,7,5])
 #quick_extract_and_implement_diffs()
 #
 #find_RL_coordinates(S)
@@ -403,19 +403,20 @@ assign_OM:=proc(numDimsToPrint:=2)
  return NULL;
 end proc:
 
-print_OM:=proc(outputVector:=[10,1,2,3,8,7,5])
+print_OM:=proc(outputVector:=[10,8,7,5])
  global OM;
- print(LinearAlgebra[SubMatrix](OM,[1..-1],outputVector));
+ #set the following 2 to 1 to show headings
+ print(LinearAlgebra[SubMatrix](OM,[2..-1],outputVector));
 end proc:
 
-assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,1,2,3,8,7,5])
+assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,8,7,5])
  assign_OM(numDimsToPrint);
  print_OM(outputVector);
 end proc:
 
-diff_extractor:=proc(TR,SR,outputVector:=[10,1,2,3,8,7,5])
+diff_extractor:=proc(TR,SR,outputVector:=[10,8,7,5])
  global OM;
- print(LinearAlgebra[SubMatrix](OM,[1,TR+1,SR+1],outputVector));
+ print(LinearAlgebra[SubMatrix](OM,[TR+1,SR+1],outputVector));
  #why not test somthing at this point?
  [`?`,cat("d",OM[TR+1,7]-OM[SR+1,7]),OM[SR+1,2],OM[SR+1,3],OM[TR+1,2],OM[TR+1,3],OM[SR+1,1],OM[TR+1,1]];
 end proc:
