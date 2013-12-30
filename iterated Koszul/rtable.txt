@@ -42,7 +42,7 @@ new_dlog:=proc()
   outputStreamOpenFlag:=-1;
  fi;
  if outputStreamOpenFlag=-1 then
-  LogFilename:=StringTools[FormatTime]("c:/maple_logs/%d%b_%H%M%S.txt");
+  LogFilename:=StringTools[FormatTime]("c:/maple_logs/%m%d_%H%M%S.txt");
   outputStream:=fopen(LogFilename,WRITE);
   outputStreamOpenFlag:=1;
   timed_message("new dlog opened (",LogFilename,")");
