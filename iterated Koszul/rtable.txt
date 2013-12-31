@@ -32,11 +32,12 @@
 #differential_upgrader(diff,sDescriptor,sData,tDescriptor,tData)
 #differential_squarer(diff)
 #
-#implement_diff(difl,logFlag:=true)
-#implement_diff_if_in_range_TF(difl,logFlag:=true)
+#implement_diff(difl)
+#implement_diff_if_in_range_TF(difl)
+#implement_diff_if_in_range_TF_with_some_squares(difl)
 #
-#first_round_of_differentials(logFlag:=true)
-#second_round_of_differentials(logFlag:=true)
+#first_round_of_differentials()
+#second_round_of_differentials()
 
 new_dlog:=proc()
  global LogFilename,outputStream,outputStreamOpenFlag;
@@ -470,7 +471,7 @@ trim_off_Einfty_classes:=proc()
  return NULL;
 end proc:
 
-implement_diff:=proc(difl,logFlag:=true)
+implement_diff:=proc(difl)
  global RL,StatMat,diffCounter;
  if nops(StatMat[op(difl[7])])<>2 or nops(StatMat[op(difl[8])])<>2 then
   error "either source or target is already dead or broken";
@@ -484,7 +485,6 @@ implement_diff:=proc(difl,logFlag:=true)
  kill_class(difl[8]);
  double_class(difl[7]);
  diffCounter:=diffCounter+1;
- if logFlag=false then return NULL; fi;
  if outputStreamOpenFlag=0 then
   reopen_dlog();
  elif outputStreamOpenFlag<>1 then
@@ -494,15 +494,27 @@ implement_diff:=proc(difl,logFlag:=true)
  return NULL;
 end proc:
 
-implement_diff_if_in_range_TF:=proc(difl,logFlag:=true)
+implement_diff_if_in_range_TF:=proc(difl)
  #implements a differential if it's in range, returning true/false
  global RL,StatMat;
  if difl=0 or StatMat[op(difl[7])]=0 or StatMat[op(difl[8])]=0 then
   return false;
  fi;
- implement_diff(difl,logFlag);
+ implement_diff(difl);
  return true;
 end proc:
+
+implement_diff_if_in_range_TF_with_some_squares:=proc(difl,numSquares:=2^31-1)
+ local counter,diff;
+ counter:=0;diff:=difl;
+ while counter<=numSquares and implement_diff_if_in_range_TF(diff) do
+  if counter<numSquares then
+   diff:=differential_squarer(diff);
+  fi;
+  counter:=counter+1;
+ od;
+ return evalb(counter<>0);
+end proc;
 
 differential_coords_finder:=proc(diff,sEqualityPositions:=false,tEqualityPositions:=false)
  #will find the coordinates of the elements in a differential if they are missing
@@ -599,7 +611,7 @@ differential_squarer:=proc(diff)
  return differential_upgrader(diff,"square","meh","add top 1-element sequence to left","meh");
 end proc:
 
-first_round_of_differentials:=proc(logFlag:=true)
+first_round_of_differentials:=proc()
  #slower than the previous version, but easier to read and emulate!
  global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter;
  local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,diff,srcCoords,trgCoords,diffCounterStarting;
@@ -624,11 +636,12 @@ first_round_of_differentials:=proc(logFlag:=true)
    diff:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,[i],"?"];
    diff:=differential_coords_finder(diff,[-1]);
    if trgPow=2 then
-    implement_diff_if_in_range_TF(diff,logFlag);
+    implement_diff_if_in_range_TF(diff);
    elif trgPow=1 then
-    while implement_diff_if_in_range_TF(diff,logFlag) do
+    while implement_diff_if_in_range_TF(diff) do
      diff:=differential_squarer(diff);
     od;
+#use implement_diff_if_in_range_TF_with_some_squares for last 3 lines
    fi;
   fi;
  od;
@@ -636,7 +649,7 @@ first_round_of_differentials:=proc(logFlag:=true)
  return NULL;
 end proc:
 
-second_round_of_differentials:=proc(logFlag:=true)
+second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffSq,diffCounterStarting;
  timed_message("starting second round of differentials");
@@ -652,34 +665,37 @@ second_round_of_differentials:=proc(logFlag:=true)
    trgPow:=1;
    initdiff:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),srcS,srcPow,trgS,trgPow,[i]],[-1],false);
    diff:=initdiff;
-   while implement_diff_if_in_range_TF(diff,logFlag) do
+   while implement_diff_if_in_range_TF(diff) do
     diff:=differential_squarer(diff);
    od;
+#use implement_diff_if_in_range_TF_with_some_squares for last 3 lines
    diff0:=differential_upgrader(initdiff,"add new sequence to left",[0],"add new sequence to left",[0]);
-   if implement_diff_if_in_range_TF(diff0,logFlag) then
+   if implement_diff_if_in_range_TF(diff0) then
     diff:=differential_squarer(diff0);
-    implement_diff_if_in_range_TF(diff,logFlag);
+#use implement_diff_if_in_range_TF_with_some_squares for last 2 lines
+    implement_diff_if_in_range_TF(diff);
     diff:=differential_upgrader(diff0,"add new sequence to left",[0],
                "append to left of leftmost nontrivial sequence",[1]);
-    implement_diff_if_in_range_TF(diff,logFlag);
+    implement_diff_if_in_range_TF(diff);
    fi;
 #   if jay=4 and ell1>5 then
 #    diff:=differential_upgrader(initdiff,
 #             "append to left of leftmost nontrivial sequence",[1],
 #             "append to left of leftmost nontrivial sequence",[1]);
-#    implement_diff_if_in_range_TF(diff,logFlag);
+#    implement_diff_if_in_range_TF(diff);
 #   fi;
    for xtra from 1 to ell1-jay-1 do
     diff:=differential_upgrader(initdiff,
              "append to left of leftmost nontrivial sequence",[xtra],
              "append to left of leftmost nontrivial sequence",[xtra]);
-    if implement_diff_if_in_range_TF(diff,logFlag) then
+    if implement_diff_if_in_range_TF(diff) then
      diffSq:=differential_squarer(diff);
-     implement_diff_if_in_range_TF(diffSq,logFlag);
+     implement_diff_if_in_range_TF(diffSq);
+#use implement_diff_if_in_range_TF_with_some_squares for last 3 lines
      diff0:=differential_upgrader(diff,"add new sequence to left",[0],"add new sequence to left",[0]);
-     implement_diff_if_in_range_TF(diff0,logFlag);
+     implement_diff_if_in_range_TF(diff0);
      diff0:=differential_upgrader(diff,"add new sequence to left",[1],"add new sequence to left",[1]);
-     implement_diff_if_in_range_TF(diff0,logFlag);
+     implement_diff_if_in_range_TF(diff0);
     fi;
    od;
   od;
