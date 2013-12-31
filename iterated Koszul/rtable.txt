@@ -714,8 +714,8 @@ else
 fi;
 
 
-#apply_stored_diffs_and_assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
-#quick_extract_and_store_initial_diff_string(3,5)
+apply_stored_diffs_and_assign_and_print_OM(2)
+quick_extract_and_store_initial_diff_string(1)
 #quick_extract_and_store_diffs([1,2],[3,4]);
 
 
