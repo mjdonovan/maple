@@ -514,7 +514,7 @@ implement_diff_if_in_range_TF_with_some_squares:=proc(difl,numSquares:=2^31-1)
   counter:=counter+1;
  od;
  return evalb(counter<>0);
-end proc;
+end proc:
 
 differential_coords_finder:=proc(diff,sEqualityPositions:=false,tEqualityPositions:=false)
  #will find the coordinates of the elements in a differential if they are missing
@@ -651,7 +651,7 @@ end proc:
 
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
- local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffSq,diffCounterStarting;
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffSq,diffCounterStarting,xtra;
  timed_message("starting second round of differentials");
  diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
