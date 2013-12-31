@@ -18,7 +18,6 @@
 #print_OM(outputVector:=[10,8,7,5])
 #assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
 #diff_extractor(TR,SR,outputVector:=[10,8,7,5])
-#quick_extract_and_implement_diffs()
 #quick_extract_and_store_diffs()
 #quick_extract_and_store_initial_diff_string(len,sourceStarts:="no gap")
 #apply_stored_diffs_and_assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
@@ -265,11 +264,12 @@ StatMat_TravIns_starter:=proc()
 end proc:
 
 build_StatMat_TravIns:=proc(DataSoFar:="none")
- global StatMat,TravIns,calcToDimension,dValue,RL;
+ global StatMat,TravIns,calcToDimension,dValue,RL,diffCounter;
  local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
        newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T;
  if DataSoFar="none" then
   timed_message("commencing build of StatMat and TravIns");
+  diffCounter:=0;
   if map(x->x[1],RL)<>map(x->[],RL) then
    error "need RL[i][1]=[] for all i";
   fi;
@@ -370,7 +370,7 @@ end proc:
 
 assign_OM:=proc(numDimsToPrint:=2)
  #automatically runs rectify_TravIns_find_LD beforehand
- global StatMat,TravIns,LowestDimension,OM,calcToDimension;
+ global StatMat,TravIns,LowestDimension,OM,calcToDimension,diffCounter;
  local T,L,i;
  rectify_TravIns_find_LD();
  L:=[];
@@ -399,9 +399,9 @@ assign_OM:=proc(numDimsToPrint:=2)
  L:=[['loc',`elt`,`pow`,`1powDim`,`t-s`,`t`,`s`,`elt`,`dims`,` `],op(L)];
  OM:=Matrix(L);
  if nops(L)>1 then
-  timed_message("OM has ",nops(L)-1," entries, starting in dimension ",L[2][5]);
+  timed_message("after ",diffCounter," differentials, OM has ",nops(L)-1," entries, starting in dimension ",L[2][5]);
  else
-  timed_message("spectral sequence cleared up to dimension ",calcToDimension);
+  timed_message("after ",diffCounter," differentials, we've cleared up to dimension ",calcToDimension);
  fi;
  return NULL;
 end proc:
@@ -426,18 +426,6 @@ diff_extractor:=proc(TR,SR,outputVector:=[10,8,7,5])
  [`?`,cat("d",OM[TR+1,7]-OM[SR+1,7]),OM[SR+1,2],OM[SR+1,3],OM[TR+1,2],OM[TR+1,3],OM[SR+1,1],OM[TR+1,1]];
 end proc:
 
-quick_extract_and_implement_diffs:=proc()
- local i, Listo,de;
- Listo:=[args];
- timed_message("IMPLEMENTing ",nops(Listo)," differentials:");
- for i in Listo do
-  de:=diff_extractor(i[1],i[2]);
-  if de[3][-1][2..-1]<>de[5][-1] then error "I think this last one was wrong" fi;
-  implement_diff(de);
- od;
- return NULL;
-end proc:
-
 apply_stored_diffs_and_assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,8,7,5])
  global ManuallyStoredDiffs;
  local i;
@@ -453,9 +441,9 @@ end proc:
 
 quick_extract_and_store_diffs:=proc()
  local i,Listo;
- global ManuallyStoredDiffs;
+ global ManuallyStoredDiffs,diffCounter;
  Listo:=[args];
- timed_message("storing ",nops(Listo)," differentials:");
+ timed_message("after ",diffCounter," differentials, storing ",nops(Listo)," differentials:");
  for i to nops(Listo) do
   Listo[i]:=diff_extractor(Listo[i][1],Listo[i][2]);
   if Listo[i][3][-1][2..-1]<>Listo[i][5][-1] then error "I think this last one was wrong" fi;
@@ -483,7 +471,7 @@ trim_off_Einfty_classes:=proc()
 end proc:
 
 implement_diff:=proc(difl,logFlag:=true)
- global RL,StatMat;
+ global RL,StatMat,diffCounter;
  if nops(StatMat[op(difl[7])])<>2 or nops(StatMat[op(difl[8])])<>2 then
   error "either source or target is already dead or broken";
  fi;
@@ -495,13 +483,12 @@ implement_diff:=proc(difl,logFlag:=true)
  fi;
  kill_class(difl[8]);
  double_class(difl[7]);
+ diffCounter:=diffCounter+1;
  if logFlag=false then return NULL; fi;
  if outputStreamOpenFlag=0 then
   reopen_dlog();
-  timed_message("(in order to store differentials)");
  elif outputStreamOpenFlag<>1 then
   new_dlog();
-  timed_message("(in order to store differentials)");
  fi;
  dlog(difl);
  return NULL;
@@ -614,10 +601,10 @@ end proc:
 
 first_round_of_differentials:=proc(logFlag:=true)
  #slower than the previous version, but easier to read and emulate!
- global RL,StatMat,dValue,outputStreamOpenFlag;
- local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,diff,srcCoords,trgCoords,diffCounter;
+ global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter;
+ local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,diff,srcCoords,trgCoords,diffCounterStarting;
  timed_message("starting first round of differentials");
- diffCounter:=0;
+ diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
   srcPow:=1;
   srcI1:=RL[-1][i];
@@ -638,24 +625,22 @@ first_round_of_differentials:=proc(logFlag:=true)
    diff:=differential_coords_finder(diff,[-1]);
    if trgPow=2 then
     implement_diff_if_in_range_TF(diff,logFlag);
-    if %=true then diffCounter:=diffCounter+1; fi;
    elif trgPow=1 then
     while implement_diff_if_in_range_TF(diff,logFlag) do
-     diffCounter:=diffCounter+1;
      diff:=differential_squarer(diff);
     od;
    fi;
   fi;
  od;
- timed_message("finished first round of differentials - there were ",diffCounter);
+ timed_message("finished first round of differentials - there were ",diffCounter-diffCounterStarting);
  return NULL;
 end proc:
 
 second_round_of_differentials:=proc(logFlag:=true)
- global RL,StatMat,dValue,outputSreamOpenFlag;
- local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffCounter;
+ global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffSq,diffCounterStarting;
  timed_message("starting second round of differentials");
- diffCounter:=0;
+ diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
   srcI1:=RL[-1][i];
   ell1:=nops(srcI1);
@@ -668,32 +653,38 @@ second_round_of_differentials:=proc(logFlag:=true)
    initdiff:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),srcS,srcPow,trgS,trgPow,[i]],[-1],false);
    diff:=initdiff;
    while implement_diff_if_in_range_TF(diff,logFlag) do
-    diffCounter:=diffCounter+1;
     diff:=differential_squarer(diff);
    od;
    diff0:=differential_upgrader(initdiff,"add new sequence to left",[0],"add new sequence to left",[0]);
    if implement_diff_if_in_range_TF(diff0,logFlag) then
-    diffCounter:=diffCounter+1;
     diff:=differential_squarer(diff0);
-    if implement_diff_if_in_range_TF(diff,logFlag) then
-     diffCounter:=diffCounter+1;
-    fi;
-    diff:=differential_upgrader(diff0,"add new sequence to left",[0],"append to left of leftmost nontrivial sequence",[1]);
-    if implement_diff_if_in_range_TF(diff,logFlag) then
-     diffCounter:=diffCounter+1;
-    fi;
+    implement_diff_if_in_range_TF(diff,logFlag);
+    diff:=differential_upgrader(diff0,"add new sequence to left",[0],
+               "append to left of leftmost nontrivial sequence",[1]);
+    implement_diff_if_in_range_TF(diff,logFlag);
    fi;
-   if jay=4 and ell1>5 then
+#   if jay=4 and ell1>5 then
+#    diff:=differential_upgrader(initdiff,
+#             "append to left of leftmost nontrivial sequence",[1],
+#             "append to left of leftmost nontrivial sequence",[1]);
+#    implement_diff_if_in_range_TF(diff,logFlag);
+#   fi;
+   for xtra from 1 to ell1-jay-1 do
     diff:=differential_upgrader(initdiff,
-             "append to left of leftmost nontrivial sequence",[1],
-             "append to left of leftmost nontrivial sequence",[1]);
+             "append to left of leftmost nontrivial sequence",[xtra],
+             "append to left of leftmost nontrivial sequence",[xtra]);
     if implement_diff_if_in_range_TF(diff,logFlag) then
-     diffCounter:=diffCounter+1;
+     diffSq:=differential_squarer(diff);
+     implement_diff_if_in_range_TF(diffSq,logFlag);
+     diff0:=differential_upgrader(diff,"add new sequence to left",[0],"add new sequence to left",[0]);
+     implement_diff_if_in_range_TF(diff0,logFlag);
+     diff0:=differential_upgrader(diff,"add new sequence to left",[1],"add new sequence to left",[1]);
+     implement_diff_if_in_range_TF(diff0,logFlag);
     fi;
-   fi;
+   od;
   od;
  od;
- timed_message("finished 2nd round of differentials - there were ",diffCounter);
+ timed_message("finished 2nd round of differentials - there were ",diffCounter-diffCounterStarting);
  return NULL;
 end proc:
 
@@ -711,7 +702,7 @@ if FileTools[Exists](fileNm)=false then
  second_round_of_differentials();
  assign_and_print_OM();
  close_dlog();
- save RL, StatMat, TravIns, cat(fileNm);
+ save RL, StatMat, TravIns, diffCounter, cat(fileNm);
 else
  read fileNm:
  timed_message("you just loaded the post-round 2 data");
