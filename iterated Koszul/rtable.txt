@@ -401,6 +401,9 @@ assign_OM:=proc(numDimsToPrint:=2)
  OM:=Matrix(L);
  if nops(L)>1 then
   timed_message("after ",diffCounter," differentials, OM has ",nops(L)-1," entries, starting in dimension ",L[2][5]);
+  if L[2][5]=calcToDimension then 
+   timed_message("------------------------------------final dimension!------------------------------------"); 
+  fi;
  else
   timed_message("after ",diffCounter," differentials, we've cleared up to dimension ",calcToDimension);
  fi;
