@@ -641,10 +641,7 @@ first_round_of_differentials:=proc()
    if trgPow=2 then
     implement_diff_if_in_range_TF(diff);
    elif trgPow=1 then
-    while implement_diff_if_in_range_TF(diff) do
-     diff:=differential_squarer(diff);
-    od;
-#use implement_diff_if_in_range_TF_with_some_squares for last 3 lines
+    implement_diff_if_in_range_TF_with_some_squares(diff);
    fi;
   fi;
  od;
@@ -654,7 +651,8 @@ end proc:
 
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
- local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffSq,diffCounterStarting,xtra;
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffCounterStarting,
+       xtra,diff0_0,diff1_1,diff00_10,diff000_010,xtradiff,xtradiff0_0,xtradiff1_1;
  timed_message("starting second round of differentials");
  diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
@@ -667,40 +665,28 @@ second_round_of_differentials:=proc()
    srcPow:=1;
    trgPow:=1;
    initdiff:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),srcS,srcPow,trgS,trgPow,[i]],[-1],false);
-   diff:=initdiff;
-   while implement_diff_if_in_range_TF(diff) do
-    diff:=differential_squarer(diff);
-   od;
-#use implement_diff_if_in_range_TF_with_some_squares for last 3 lines
-   diff0:=differential_upgrader(initdiff,"add new sequence to left",[0],"add new sequence to left",[0]);
-   if implement_diff_if_in_range_TF(diff0) then
-    diff:=differential_squarer(diff0);
-#use implement_diff_if_in_range_TF_with_some_squares for last 2 lines
-    implement_diff_if_in_range_TF(diff);
-    diff:=differential_upgrader(diff0,"add new sequence to left",[0],
-               "append to left of leftmost nontrivial sequence",[1]);
-    implement_diff_if_in_range_TF(diff);
-   fi;
-#   if jay=4 and ell1>5 then
-#    diff:=differential_upgrader(initdiff,
-#             "append to left of leftmost nontrivial sequence",[1],
-#             "append to left of leftmost nontrivial sequence",[1]);
-#    implement_diff_if_in_range_TF(diff);
-#   fi;
-   for xtra from 1 to ell1-jay-1 do
-    diff:=differential_upgrader(initdiff,
-             "append to left of leftmost nontrivial sequence",[xtra],
-             "append to left of leftmost nontrivial sequence",[xtra]);
-    if implement_diff_if_in_range_TF(diff) then
-     diffSq:=differential_squarer(diff);
-     implement_diff_if_in_range_TF(diffSq);
-#use implement_diff_if_in_range_TF_with_some_squares for last 3 lines
-     diff0:=differential_upgrader(diff,"add new sequence to left",[0],"add new sequence to left",[0]);
-     implement_diff_if_in_range_TF(diff0);
-     diff0:=differential_upgrader(diff,"add new sequence to left",[1],"add new sequence to left",[1]);
-     implement_diff_if_in_range_TF(diff0);
+   if implement_diff_if_in_range_TF_with_some_squares(initdiff) then   
+    diff0_0:=differential_upgrader(initdiff,"add new sequence to left",[0],"add new sequence to left",[0]);
+    if implement_diff_if_in_range_TF_with_some_squares(diff0_0) then
+     diff00_10:=differential_upgrader(diff0_0,"add new sequence to left",[0],
+                "append to left of leftmost nontrivial sequence",[1]);
+     if implement_diff_if_in_range_TF_with_some_squares(diff00_10,1) then
+      diff000_010:=differential_upgrader(diff00_10,"add new sequence to left",[0],"add new sequence to left",[0]);
+      implement_diff_if_in_range_TF(diff000_010);
+     fi;
     fi;
-   od;
+    for xtra from 1 to ell1-jay-1 do
+     xtradiff:=differential_upgrader(initdiff,
+              "append to left of leftmost nontrivial sequence",[xtra],
+              "append to left of leftmost nontrivial sequence",[xtra]);
+     if implement_diff_if_in_range_TF_with_some_squares(xtradiff,1) then
+      xtradiff0_0:=differential_upgrader(xtradiff,"add new sequence to left",[0],"add new sequence to left",[0]);
+      implement_diff_if_in_range_TF(xtradiff0_0);
+      xtradiff1_1:=differential_upgrader(xtradiff,"add new sequence to left",[1],"add new sequence to left",[1]);
+      implement_diff_if_in_range_TF(xtradiff1_1);
+     fi;
+    od;
+   fi;
   od;
  od;
  timed_message("finished 2nd round of differentials - there were ",diffCounter-diffCounterStarting);
