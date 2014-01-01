@@ -11,7 +11,7 @@
 #build_RL()
 #StatMat_TravIns_starter()
 #build_StatMat_TravIns(DataSoFar:="none")
-#trim_off_Einfty_classes()
+#trim_off_00002_001002_classes()
 #
 #rectify_TravIns_find_LD()
 #assign_OM(numDimsToPrint:=2)
@@ -461,16 +461,17 @@ quick_extract_and_store_initial_diff_string:=proc(len,sourceStarts:="no gap")
  return NULL;
 end proc:
 
-trim_off_Einfty_classes:=proc()
+trim_off_00002_001002_classes:=proc()
  global StatMat,TravIns,dValue,RL;
  local i;
  kill_class([seq(1,i=1..nops(RL))]);
+ if dValue<>2 then error "I don't know what Einfinity classes to trim off"; fi;
  for i from 2 to nops(RL[-1]) do
-  if remove(x->x=0,RL[-1][i])=[dValue] and RL[-1][i][-1]=dValue then
-   double_class([seq(1,i=1..nops(RL)-1),i]);  
+  if remove(x->x=0,RL[-1][i])=[1,2] or remove(x->x=0,RL[-1][i])=[2] then
+   kill_class([seq(1,i=1..nops(RL)-1),i]);  
   fi;
  od;
- timed_message("trimmed off the E_infinity classes");
+ timed_message("trimmed off the 00002 and 001002 classes");
  return NULL;
 end proc:
 
@@ -617,32 +618,26 @@ end proc:
 first_round_of_differentials:=proc()
  #slower than the previous version, but easier to read and emulate!
  global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter;
- local ell1,exc1,a,i,srcI1,trgS,srcPow,trgPow,diff,srcCoords,trgCoords,diffCounterStarting;
+ local ell1,exc1,a,i,srcI1,trgS,diff,srcCoords,trgCoords,diffCounterStarting;
  timed_message("starting first round of differentials");
  diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
   srcPow:=1;
   srcI1:=RL[-1][i];
-  if remove(x->x=0,srcI1)<>[dValue] then
+  a:=remove(x->x=0,srcI1);
+  if a<>[1,dValue] and a<>[dValue] then
    ell1:=nops(srcI1);
    exc1:=add(srcI1[gh],gh=1..ell1);
    a:=dValue+ell1-exc1;
    if a<ell1-1 and a>=1 then
     trgS:=[[a],srcI1[2..-1]];
     trgPow:=1;
-   elif a=ell1-1 then
-    trgS:=[srcI1[2..-1]];
-    trgPow:=2;
    else
     error "this is strange";
    fi;
-   diff:=[`rnd1`,cat("d",a),[srcI1],srcPow,trgS,trgPow,[i],"?"];
+   diff:=[`rnd1`,cat("d",a),[srcI1],1,trgS,1,[i],"?"];
    diff:=differential_coords_finder(diff,[-1]);
-   if trgPow=2 then
-    implement_diff_if_in_range_TF(diff);
-   elif trgPow=1 then
-    implement_diff_if_in_range_TF_with_some_squares(diff);
-   fi;
+   implement_diff_if_in_range_TF_with_some_squares(diff);
   fi;
  od;
  timed_message("finished first round of differentials - there were ",diffCounter-diffCounterStarting);
@@ -699,7 +694,7 @@ fileNm:=cat(cat(cat("C:\\maple_output\\afterRound2_S",dValue),"dim"),calcToDimen
 if FileTools[Exists](fileNm)=false then
  build_RL();
  build_StatMat_TravIns();
- trim_off_Einfty_classes();
+ trim_off_00002_001002_classes();
  assign_and_print_OM();
  first_round_of_differentials();
  close_dlog();
