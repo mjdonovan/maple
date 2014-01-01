@@ -15,6 +15,7 @@
 #
 #rectify_TravIns_find_LD()
 #assign_OM(numDimsToPrint:=2)
+#pretty_print_power_of_sequence(KE,pow)
 #print_OM(outputVector:=[10,8,7,5])
 #assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
 #diff_extractor(TR,SR,outputVector:=[10,8,7,5])
@@ -369,6 +370,17 @@ rectify_TravIns_find_LD:=proc()
  return NULL;
 end proc:
 
+pretty_print_power_of_sequence:=proc(KE,pow)
+local ANS,i;
+ ANS:='e^pow':
+ for i from nops(KE) to 1 by -1 do 
+  if nops(KE[i])>0 then 
+   ANS:=[delta,SQa,SQb,SQc,SQd,SQe,SQf,SQg,SQh,SQi,SQj,SQk][1+nops(KE)-i][op(KE[i])]*ANS;
+  fi;
+ od;
+ ANS; 
+end proc:
+
 assign_OM:=proc(numDimsToPrint:=2)
  #automatically runs rectify_TravIns_find_LD beforehand
  global StatMat,TravIns,LowestDimension,OM,calcToDimension,diffCounter;
@@ -388,7 +400,7 @@ assign_OM:=proc(numDimsToPrint:=2)
             StatMat[op(x)][1]*(dValue+1+nops(RL[-1][x[-1]])
             +add(RL[-1][x[-1]][j]*(2^j-1),j=1..nops(RL[-1][x[-1]])))-1   ],L);
  #[1=location,2=printout,3=power,4=dimensionOfFirstPower,5=t-s,6=t]
- L:=map(x->[op(x),x[6]-x[5],PrettyPrintPRelt([[x[3],x[2]]])   ,   E2DegreePRHomEltNoZero(unExcessFormatPR([[x[3],x[2]]]),dValue)],L);
+ L:=map(x->[op(x),x[6]-x[5],pretty_print_power_of_sequence(x[2],x[3])   ,   E2DegreePRHomEltNoZero(unExcessFormatPR([[x[3],x[2]]]),dValue)],L);
  #[...,7=s,8=prettyprint,9=allE2dimensions(forDebug)]
  L:=sort(L,(x,y)->(x[5]<y[5] or 
                            (x[5]=y[5] and x[6]<y[6])) or
