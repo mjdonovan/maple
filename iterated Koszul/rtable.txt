@@ -154,9 +154,10 @@ set_dimensions:=proc(cTD,d)
 end proc:
 
 build_RL:=proc()
- global RL,calcToDimension,dValue;
+ global RL,calcToDimension,dValue,string_of_length_one_sequences_for_squares_index_finder;
  local I1list,I2lists,I3lists,newInterface,ans,ILIST,inclusionLists,
        inclusionList,oldInterface,prevLength,m,ISEQ,tempo;
+ forget(string_of_length_one_sequences_for_squares_index_finder);
  timed_message("building RL for calculation up to dimension ",calcToDimension);
  I1list:=delAdmissablesByMaxSum(calcToDimension,dValue):
  I3lists:=[seq(SqCompsMi(M,0),M=-1..11)]:
@@ -636,7 +637,6 @@ first_round_of_differentials:=proc()
  timed_message("starting first round of differentials");
  diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
-  srcPow:=1;
   srcI1:=RL[-1][i];
   a:=remove(x->x=0,srcI1);
   if a<>[1,dValue] and a<>[dValue] then
@@ -645,7 +645,6 @@ first_round_of_differentials:=proc()
    a:=dValue+ell1-exc1;
    if a<ell1-1 and a>=1 then
     trgS:=[[a],srcI1[2..-1]];
-    trgPow:=1;
    else
     error "this is strange";
    fi;
@@ -657,6 +656,7 @@ first_round_of_differentials:=proc()
  timed_message("finished first round of differentials - there were ",diffCounter-diffCounterStarting);
  return NULL;
 end proc:
+
 
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
