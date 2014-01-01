@@ -384,7 +384,9 @@ assign_OM:=proc(numDimsToPrint:=2)
  od;
  #L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)])],L);
  L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)]),StatMat[op(x)][1]*StatMat[op(x)][2],
-            2^(add(nops(RL[i][x[i]]),i=1..nops(x)-1))*StatMat[op(x)][1]*(dValue+1+nops(RL[-1][x[-1]])+add(RL[-1][x[-1]][j]*(2^j-1),j=1..nops(RL[-1][x[-1]])))-1   ],L);
+            2^(add(nops(RL[i][x[i]]),i=1..nops(x)-1))*
+            StatMat[op(x)][1]*(dValue+1+nops(RL[-1][x[-1]])
+            +add(RL[-1][x[-1]][j]*(2^j-1),j=1..nops(RL[-1][x[-1]])))-1   ],L);
  #[1=location,2=printout,3=power,4=dimensionOfFirstPower,5=t-s,6=t]
  L:=map(x->[op(x),x[6]-x[5],PrettyPrintPRelt([[x[3],x[2]]])   ,   E2DegreePRHomEltNoZero(unExcessFormatPR([[x[3],x[2]]]),dValue)],L);
  #[...,7=s,8=prettyprint,9=allE2dimensions(forDebug)]
