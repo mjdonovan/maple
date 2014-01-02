@@ -441,7 +441,7 @@ delAdmissablesByMaxSum:=proc(maxSum,d)
  local ADMISlist,AMLcount,q,i,ent,j,PostReln,sumSoFar;
  ADMISlist:=Table(): AMLcount:=0:
  q := queue:-new([]):
- if maxSum>2000 or d>2 then 
+ if maxSum>2500 or d>2 then 
   UserFeedback("you've called delAdmissablesByMaxSum(",maxSum,",",d,")... is 50000 still enough iterations?");
  fi;
  for i to 50000 while queue:-length(q)>0 do
@@ -833,13 +833,9 @@ PromotePRList:=proc(PRList)
 end proc:
 
 UserFeedback:=proc()
- local ans,i,Listo;Listo:=[args];
- ans:="";
- for i to nops(Listo) do
-  ans:=cat(ans,convert(Listo[i],'string'));
- od;
- writeline(default,ans);
- NULL;
+ local ans,x;ans:="";
+ for x in args do ans:=cat(ans,convert(x,'string'));od;
+ writeline(default,ans); return NULL;
 end proc:
 
 ExcessFormatToStandard:=proc(Listo,AmIOn:=1)

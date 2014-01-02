@@ -140,13 +140,7 @@ dlog:=proc(obj,end_entry_string:=",\n")
  return NULL;
 end proc:
 timed_message:=proc()
- local ans,i,Listo;Listo:=[args];
- ans:=StringTools[FormatTime]("%a%l:%M:%S%p: ");
- for i to nops(Listo) do
-  ans:=cat(ans,convert(Listo[i],'string'));
- od;
- writeline(default,ans);
- NULL;
+ UserFeedback(StringTools[FormatTime]("%H:%M:%S: "),args);
 end proc:
 timed_dlog:=proc()
  local ans,i,Listo;Listo:=[args];
