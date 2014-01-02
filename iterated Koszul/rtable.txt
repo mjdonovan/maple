@@ -2,6 +2,7 @@
 #force_new_dlog()
 #close_dlog()
 #reopen_dlog()
+#ensure_dlog_open()
 #save_dlog()
 #dlog()
 #timed_message()
@@ -35,7 +36,7 @@
 #
 #implement_diff(difl)
 #implement_diff_if_in_range_TF(difl)
-#implement_diff_if_in_range_TF_with_some_squares(difl)
+#implement_diff_if_in_range_TF_with_some_squares(difl,numSquares:=2^31-1)
 #
 #first_round_of_differentials()
 #second_round_of_differentials()
@@ -99,6 +100,13 @@ reopen_dlog:=proc()
  fi;
  return NULL;
 end proc:
+ensure_dlog_open:=proc()
+ if outputStreamOpenFlag=0 then
+  reopen_dlog();
+ elif outputStreamOpenFlag<>1 then
+  new_dlog();
+ fi;
+end proc;
 save_dlog:=proc()
  global LogFilename,outputStream,outputStreamOpenFlag;
  if outputStreamOpenFlag<>1 then
@@ -114,7 +122,7 @@ save_dlog:=proc()
  fi;
  return NULL;
 end proc:
-dlog:=proc(obj)
+dlog:=proc(obj,end_entry_string:=",\n")
  global LogFilename,outputStream,outputStreamOpenFlag;
  if outputStreamOpenFlag<>1 then
   if outputStreamOpenFlag=0 then
@@ -123,7 +131,7 @@ dlog:=proc(obj)
    error "the file probably never existed";
   fi;
  else
-  fprintf(outputStream, cat(convert(obj,string),"\n"));
+  fprintf(outputStream, cat(convert(obj,string),end_entry_string));
  fi;
  return NULL;
 end proc:
@@ -701,6 +709,49 @@ second_round_of_differentials:=proc()
  timed_message("finished 2nd round of differentials - there were ",diffCounter-diffCounterStarting);
  return NULL;
 end proc:
+
+
+
+string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_recent_length) option remember;
+>  global RL;
+>  local ans,mrl,search_loc;
+>  ans:=[]; mrl:=most_recent_length;
+>  while nops(ans)+N_so_far<nops(RL) and mrl<>0 do
+>   search_loc:=ListTools[Search]([mrl-1],RL[-N_so_far-nops(ans)-1]);
+>   if search_loc<>0 then
+>    ans:=[search_loc,op(ans)];
+>    mrl:=1;
+>   else
+>    mrl:=0;
+>   fi;
+>  od;
+>  return ans;
+> end proc:
+
+implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
+>  global StatMat,calcToDimension,diffCounter;
+>  local counter,diff,dim,num_of_squarings,SM7,SM8,trimmedTargIndex,prefixes;
+>  if difl=0 then return false; fi;
+>  if difl[4]<>1 or difl[6]<>1 then error "I expected only first power to first power"; fi; 
+>  SM7:=StatMat[op(difl[7])]; SM8:=StatMat[op(difl[8])];
+>  if SM7=0 then return false; fi;
+>  if SM8=0 or SM7[1]<>1 or SM8[1]<>1 then error "this class has already been messed with"; fi;
+>  if SM7[2]<>SM8[2]+1 then error "dimensions don't differ by 1"; fi;
+>  num_of_squarings:=ilog2( (1+calcToDimension)/(1+SM8[2]) );
+>  trimmedTargIndex:=remove(x->x=1,difl[8]);
+>  prefixes:=string_of_length_one_sequences_for_squares_index_finder(nops(trimmedTargIndex),
+>             nops(RL[-nops(trimmedTargIndex)][trimmedTargIndex[1]]))[-num_of_squarings..-1];
+>  StatMat[op(difl[7])]:=0;
+>  for counter from 0 to nops(prefixes) do
+>   StatMat[seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops(RL)),op(prefixes[-counter..-1]),op(trimmedTargIndex)]:=0;
+>   UserFeedback("killed ",seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops(RL)),op(prefixes[-counter..-1]),op(trimmedTargIndex));
+>  od;
+>  diffCounter:=diffCounter+1;
+>  dlog(difl);
+>  return true;
+> end proc:
+
+
 
 ########### begin program
 set_dimensions(2000,2);
