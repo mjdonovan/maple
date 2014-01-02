@@ -28,18 +28,22 @@
 #find_RL_coordinates_with_hints(S,hints:=[])
 #differential_coords_finder(diff,sEqualityPositions:=false,tEqualityPositions:=false)
 #
-#double_class(inds)
+#*double_class(inds)
 #kill_class(inds)
 #double_rMinusOne(dwhat)
 #differential_upgrader(diff,sDescriptor,sData,tDescriptor,tData)
-#differential_squarer(diff)
+#*differential_squarer(diff)
 #
-#implement_diff(difl)
-#implement_diff_if_in_range_TF(difl)
-#implement_diff_if_in_range_TF_with_some_squares(difl,numSquares:=2^31-1)
+#*implement_diff(difl)
+#*implement_diff_if_in_range_TF(difl)
+#*implement_diff_if_in_range_TF_with_some_squares(difl,numSquares:=2^31-1)
+#implement_diff_and_all_squares_if_in_range_TF_quick(difl)
+#string_of_length_one_sequences_for_squares_index_finder(N_so_far,most_recent_length)
 #
 #first_round_of_differentials()
 #second_round_of_differentials()
+
+#*=out of date
 
 new_dlog:=proc()
  global LogFilename,outputStream,outputStreamOpenFlag;
@@ -638,6 +642,44 @@ differential_squarer:=proc(diff)
  return differential_upgrader(diff,"square","meh","add top 1-element sequence to left","meh");
 end proc:
 
+string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_recent_length) option remember;
+ global RL;
+ local ans,mrl,search_loc;
+ ans:=[]; mrl:=most_recent_length;
+ while nops(ans)+N_so_far<nops(RL) and mrl<>0 do
+  search_loc:=ListTools[Search]([mrl-1],RL[-N_so_far-nops(ans)-1]);
+  if search_loc<>0 then
+   ans:=[search_loc,op(ans)];
+   mrl:=1;
+  else
+   mrl:=0;
+  fi;
+ od;
+ return ans;
+end proc:
+
+implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
+ global StatMat,calcToDimension,diffCounter;
+ local counter,diff,dim,num_of_squarings,SM7,SM8,trimmedTargIndex,prefixes;
+ if difl=0 then return false; fi;
+ if difl[4]<>1 or difl[6]<>1 then error "I expected only first power to first power"; fi; 
+ SM7:=StatMat[op(difl[7])]; SM8:=StatMat[op(difl[8])];
+ if SM7=0 then return false; fi;
+ if SM8=0 or SM7[1]<>1 or SM8[1]<>1 then error "this class has already been messed with"; fi;
+ if SM7[2]<>SM8[2]+1 then error "dimensions don't differ by 1"; fi;
+ num_of_squarings:=ilog2( (1+calcToDimension)/(1+SM8[2]) );
+ trimmedTargIndex:=remove(x->x=1,difl[8]);
+ prefixes:=string_of_length_one_sequences_for_squares_index_finder(nops(trimmedTargIndex),
+            nops(RL[-nops(trimmedTargIndex)][trimmedTargIndex[1]]))[-num_of_squarings..-1];
+ StatMat[op(difl[7])]:=0;
+ diffCounter:=diffCounter+1;
+ dlog(difl);
+ for counter from 0 to nops(prefixes) do
+  StatMat[seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops(RL)),op(prefixes[-counter..-1]),op(trimmedTargIndex)]:=0;
+ od;
+ return true;
+end proc:
+
 first_round_of_differentials:=proc()
  #slower than the previous version, but easier to read and emulate!
  global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter;
@@ -714,44 +756,6 @@ end proc:
 
 
 
-string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_recent_length) option remember;
->  global RL;
->  local ans,mrl,search_loc;
->  ans:=[]; mrl:=most_recent_length;
->  while nops(ans)+N_so_far<nops(RL) and mrl<>0 do
->   search_loc:=ListTools[Search]([mrl-1],RL[-N_so_far-nops(ans)-1]);
->   if search_loc<>0 then
->    ans:=[search_loc,op(ans)];
->    mrl:=1;
->   else
->    mrl:=0;
->   fi;
->  od;
->  return ans;
-> end proc:
-
-implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
->  global StatMat,calcToDimension,diffCounter;
->  local counter,diff,dim,num_of_squarings,SM7,SM8,trimmedTargIndex,prefixes;
->  if difl=0 then return false; fi;
->  if difl[4]<>1 or difl[6]<>1 then error "I expected only first power to first power"; fi; 
->  SM7:=StatMat[op(difl[7])]; SM8:=StatMat[op(difl[8])];
->  if SM7=0 then return false; fi;
->  if SM8=0 or SM7[1]<>1 or SM8[1]<>1 then error "this class has already been messed with"; fi;
->  if SM7[2]<>SM8[2]+1 then error "dimensions don't differ by 1"; fi;
->  num_of_squarings:=ilog2( (1+calcToDimension)/(1+SM8[2]) );
->  trimmedTargIndex:=remove(x->x=1,difl[8]);
->  prefixes:=string_of_length_one_sequences_for_squares_index_finder(nops(trimmedTargIndex),
->             nops(RL[-nops(trimmedTargIndex)][trimmedTargIndex[1]]))[-num_of_squarings..-1];
->  StatMat[op(difl[7])]:=0;
->  for counter from 0 to nops(prefixes) do
->   StatMat[seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops(RL)),op(prefixes[-counter..-1]),op(trimmedTargIndex)]:=0;
->   UserFeedback("killed ",seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops(RL)),op(prefixes[-counter..-1]),op(trimmedTargIndex));
->  od;
->  diffCounter:=diffCounter+1;
->  dlog(difl);
->  return true;
-> end proc:
 
 
 
