@@ -110,7 +110,7 @@ ensure_dlog_open:=proc()
  elif outputStreamOpenFlag<>1 then
   new_dlog();
  fi;
-end proc;
+end proc:
 save_dlog:=proc()
  global LogFilename,outputStream,outputStreamOpenFlag;
  if outputStreamOpenFlag<>1 then
@@ -701,7 +701,7 @@ first_round_of_differentials:=proc()
    fi;
    diff:=[`rnd1`,cat("d",a),[srcI1],1,trgS,1,[i],"?"];
    diff:=differential_coords_finder(diff,[-1]);
-   implement_diff_if_in_range_TF_with_some_squares(diff);
+   implement_diff_and_all_squares_if_in_range_TF_quick(diff);
   fi;
  od;
  timed_message("finished first round of differentials - there were ",diffCounter-diffCounterStarting);
@@ -726,25 +726,25 @@ second_round_of_differentials:=proc()
    srcPow:=1;
    trgPow:=1;
    initdiff:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),srcS,srcPow,trgS,trgPow,[i]],[-1],false);
-   if implement_diff_if_in_range_TF_with_some_squares(initdiff) then   
+   if implement_diff_and_all_squares_if_in_range_TF_quick(initdiff) then   
     diff0_0:=differential_upgrader(initdiff,"add new sequence to left",[0],"add new sequence to left",[0]);
-    if implement_diff_if_in_range_TF_with_some_squares(diff0_0) then
+    if implement_diff_and_all_squares_if_in_range_TF_quick(diff0_0) then
      diff00_10:=differential_upgrader(diff0_0,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[1]);
-     if implement_diff_if_in_range_TF_with_some_squares(diff00_10,1) then
+     if implement_diff_and_all_squares_if_in_range_TF_quick(diff00_10) then
       diff000_010:=differential_upgrader(diff00_10,"add new sequence to left",[0],"add new sequence to left",[0]);
-      implement_diff_if_in_range_TF(diff000_010);
+      implement_diff_and_all_squares_if_in_range_TF_quick(diff000_010);
      fi;
     fi;
     for xtra from 1 to ell1-jay-1 do
      xtradiff:=differential_upgrader(initdiff,
               "append to left of leftmost nontrivial sequence",[xtra],
               "append to left of leftmost nontrivial sequence",[xtra]);
-     if implement_diff_if_in_range_TF_with_some_squares(xtradiff,1) then
+     if implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff) then
       xtradiff0_0:=differential_upgrader(xtradiff,"add new sequence to left",[0],"add new sequence to left",[0]);
-      implement_diff_if_in_range_TF(xtradiff0_0);
+      implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff0_0);
       xtradiff1_1:=differential_upgrader(xtradiff,"add new sequence to left",[1],"add new sequence to left",[1]);
-      implement_diff_if_in_range_TF(xtradiff1_1);
+      implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff1_1);
      fi;
     od;
    fi;
