@@ -643,6 +643,7 @@ first_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter;
  local ell1,exc1,a,i,srcI1,trgS,diff,srcCoords,trgCoords,diffCounterStarting;
  timed_message("starting first round of differentials");
+ ensure_dlog_open();
  diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
   srcI1:=RL[-1][i];
@@ -671,6 +672,7 @@ second_round_of_differentials:=proc()
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffCounterStarting,
        xtra,diff0_0,diff1_1,diff00_10,diff000_010,xtradiff,xtradiff0_0,xtradiff1_1;
  timed_message("starting second round of differentials");
+ ensure_dlog_open();
  diffCounterStarting:=diffCounter;
  for i from 2 to nops(RL[-1]) do
   srcI1:=RL[-1][i];
