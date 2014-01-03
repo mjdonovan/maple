@@ -13,6 +13,7 @@
 #StatMat_TravIns_starter()
 #build_StatMat_TravIns(DataSoFar:="none")
 #trim_off_00002_001002_classes()
+#delta_admissables_by_max_sum_using_stack(maxSum,d)
 #
 #rectify_TravIns_find_LD()
 #assign_OM(numDimsToPrint:=2)
@@ -159,13 +160,30 @@ set_dimensions:=proc(cTD,d)
  return NULL;
 end proc:
 
+delta_admissables_by_max_sum_using_stack:=proc(maxSum,d)
+ local ADMISlist,AMLcount,q,ent,j,PostReln,sumSoFar;
+ ADMISlist:=Table(): AMLcount:=0:
+ q := stack[new]([]):
+ while not stack[empty](q) do
+  ent:=stack[pop](q);
+  AMLcount:=AMLcount+1:
+  ADMISlist[AMLcount]:=ent;
+  sumSoFar:=sum(ent[k],k=1..nops(ent));
+  for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent)+d))
+          to `if`(nops(ent)>0,2*ent[1],2) by -1 do
+   stack[push]([j,op(ent)],q);
+  od;
+ od:
+ [seq(ADMISlist[j],j=1..AMLcount)];
+end proc:
+
 build_RL:=proc()
  global RL,nops_RL,calcToDimension,dValue,string_of_length_one_sequences_for_squares_index_finder;
  local I1list,I2lists,I3lists,newInterface,ans,ILIST,inclusionLists,
        inclusionList,oldInterface,prevLength,m,ISEQ,tempo;
  forget(string_of_length_one_sequences_for_squares_index_finder);
  timed_message("building RL for calculation up to dimension ",calcToDimension);
- I1list:=delAdmissablesByMaxSum(calcToDimension,dValue):
+ I1list:=delta_admissables_by_max_sum_using_stack(calcToDimension,dValue):
  I3lists:=[seq(SqCompsMi(M,0),M=-1..11)]:
  I2lists:=[seq(SqCompsMi(M,2),M=-1..11)]:
  newInterface:=[seq(2^(i+1)+dValue-2,i=1..max(seq(nops(I1list[i]),i=1..nops(I1list))))];
