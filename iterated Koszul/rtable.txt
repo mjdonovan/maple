@@ -496,16 +496,20 @@ quick_extract_and_store_initial_diff_string:=proc(len,sourceStarts:="no gap")
 end proc:
 
 trim_off_00002_001002_classes:=proc()
- global StatMat,TravIns,dValue,RL,nops_RL;
- local i;
- kill_class([seq(1,i=1..nops_RL)]);
- if dValue<>2 then error "I don't know what Einfinity classes to trim off"; fi;
- for i from 2 to nops(RL[-1]) do
-  if remove(x->x=0,RL[-1][i])=[1,2] or remove(x->x=0,RL[-1][i])=[2] then
-   kill_class([seq(1,i=1..nops_RL-1),i]);  
-  fi;
+ global StatMat, TravIns, dValue, RL, nops_RL;
+ local OneIndices,ell,ZeroList,temp,TempZeroList,OnePos;
+ OneIndices:=[seq(1,i = 1 .. nops_RL-1)];
+ for ell from 1 to ilog2(calcToDimension) do
+  ZeroList:=[seq(0,dummy=1..ell-1),2];
+  temp:=ListTools[Search](ZeroList,RL[-1]);
+  if temp<>0 then StatMat[op(OneIndices),temp]:=0; fi;
+  for OnePos from 2 to ell do
+   TempZeroList:=ZeroList;
+   TempZeroList[-OnePos]:=1;
+   temp:=ListTools[Search](TempZeroList,RL[-1]);
+   if temp<>0 then StatMat[op(OneIndices),temp]:=0; fi;
+  od;
  od;
- timed_message("trimmed off the 00002 and 001002 classes");
  return NULL;
 end proc:
 
