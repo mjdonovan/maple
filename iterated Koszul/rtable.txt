@@ -160,7 +160,7 @@ set_dimensions:=proc(cTD,d)
 end proc:
 
 build_RL:=proc()
- global RL,calcToDimension,dValue,string_of_length_one_sequences_for_squares_index_finder;
+ global RL,nops_RL,calcToDimension,dValue,string_of_length_one_sequences_for_squares_index_finder;
  local I1list,I2lists,I3lists,newInterface,ans,ILIST,inclusionLists,
        inclusionList,oldInterface,prevLength,m,ISEQ,tempo;
  forget(string_of_length_one_sequences_for_squares_index_finder);
@@ -194,14 +194,15 @@ build_RL:=proc()
   fi;
  od:
  RL:=[op(inclusionLists),map(ExcessFormatSingle,I1list)];
- timed_message("built RL[1..",nops(RL),"] with dimensions ",map(x->nops(x),RL));
+ nops_RL:=nops(RL);
+ timed_message("built RL[1..",nops_RL,"] with dimensions ",map(x->nops(x),RL));
  return NULL;
 end proc:
 
 find_RL_coordinates:=proc(S)
- global RL;
+ global RL,nops_RL;
  local i,ans,T;
- if nops(S)>nops(RL) then
+ if nops(S)>nops_RL then
   return 0;
  fi; 
  ans:=[];
@@ -210,7 +211,7 @@ find_RL_coordinates:=proc(S)
    if T=0 then return 0; fi;
    ans:=[T,op(ans)];
  od;
- for i from -1-nops(S) to -nops(RL) by -1 do
+ for i from -1-nops(S) to -nops_RL by -1 do
    ans:=[1,op(ans)];
  od;
  ans;
@@ -219,9 +220,9 @@ end proc:
 find_RL_coordinates_with_hints:=proc(S,hints:=[])
  #hints is a list like [[-3,5],[-2,47]] indicating some known positions
  #which must be indexed by negative numbers like -2 and -3 to work
- global RL;
+ global RL,nops_RL;
  local i,ans,T,hfind;
- if nops(S)>nops(RL) then
+ if nops(S)>nops_RL then
   return 0;
  fi; 
  ans:=[];
@@ -236,7 +237,7 @@ find_RL_coordinates_with_hints:=proc(S,hints:=[])
    if T=0 then return 0; fi;
    ans:=[T,op(ans)];
  od;
- for i from -1-nops(S) to -nops(RL) by -1 do
+ for i from -1-nops(S) to -nops_RL by -1 do
    ans:=[1,op(ans)];
  od;
  ans;
@@ -273,7 +274,7 @@ StatMat_TravIns_starter:=proc()
 end proc:
 
 build_StatMat_TravIns:=proc(DataSoFar:="none")
- global StatMat,TravIns,calcToDimension,dValue,RL,diffCounter;
+ global StatMat,TravIns,calcToDimension,dValue,RL,nops_RL,diffCounter;
  local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
        newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T;
  if DataSoFar="none" then
@@ -285,7 +286,7 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
   return build_StatMat_TravIns(StatMat_TravIns_starter());
  fi;
  DSFsize:=rtable_num_dims(DataSoFar[1]);
- if DSFsize=nops(RL) then
+ if DSFsize=nops_RL then
   StatMat:=DataSoFar[1];
   TravIns:=[DataSoFar[2],DataSoFar[3]];
   T:=TravIns[2];
@@ -328,8 +329,8 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
    fInds:=DataSoFar[2][op(fInds)];
  od;
  pTable[op(pLastLoc)]:="finished";
- if rtable_num_dims(outTable)<nops(RL) then
-  timed_message("computed ",rtable_num_dims(outTable)," out of ",nops(RL)," dimensions deep");
+ if rtable_num_dims(outTable)<nops_RL then
+  timed_message("computed ",rtable_num_dims(outTable)," out of ",nops_RL," dimensions deep");
  fi;
  return build_StatMat_TravIns([outTable,pTable,pInitLoc]);
 end proc:
@@ -483,13 +484,13 @@ quick_extract_and_store_initial_diff_string:=proc(len,sourceStarts:="no gap")
 end proc:
 
 trim_off_00002_001002_classes:=proc()
- global StatMat,TravIns,dValue,RL;
+ global StatMat,TravIns,dValue,RL,nops_RL;
  local i;
- kill_class([seq(1,i=1..nops(RL))]);
+ kill_class([seq(1,i=1..nops_RL)]);
  if dValue<>2 then error "I don't know what Einfinity classes to trim off"; fi;
  for i from 2 to nops(RL[-1]) do
   if remove(x->x=0,RL[-1][i])=[1,2] or remove(x->x=0,RL[-1][i])=[2] then
-   kill_class([seq(1,i=1..nops(RL)-1),i]);  
+   kill_class([seq(1,i=1..nops_RL-1),i]);  
   fi;
  od;
  timed_message("trimmed off the 00002 and 001002 classes");
@@ -637,10 +638,10 @@ differential_squarer:=proc(diff)
 end proc:
 
 string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_recent_length) option remember;
- global RL;
+ global RL,nops_RL;
  local ans,mrl,search_loc;
  ans:=[]; mrl:=most_recent_length;
- while nops(ans)+N_so_far<nops(RL) and mrl<>0 do
+ while nops(ans)+N_so_far<nops_RL and mrl<>0 do
   search_loc:=ListTools[Search]([mrl-1],RL[-N_so_far-nops(ans)-1]);
   if search_loc<>0 then
    ans:=[search_loc,op(ans)];
@@ -653,7 +654,7 @@ string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_rece
 end proc:
 
 implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
- global StatMat,calcToDimension,diffCounter;
+ global StatMat,calcToDimension,diffCounter,nops_RL;
  local counter,diff,dim,num_of_squarings,SM7,SM8,trimmedTargIndex,prefixes;
  if difl=0 then return false; fi;
  if difl[4]<>1 or difl[6]<>1 then error "I expected only first power to first power"; fi; 
@@ -669,7 +670,7 @@ implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
  diffCounter:=diffCounter+1;
  dlog(difl);
  for counter from 0 to nops(prefixes) do
-  StatMat[seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops(RL)),op(prefixes[-counter..-1]),op(trimmedTargIndex)]:=0;
+  StatMat[seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops_RL),op(prefixes[-counter..-1]),op(trimmedTargIndex)]:=0;
  od;
  return true;
 end proc:
