@@ -250,20 +250,24 @@ find_RL_coordinates_with_hints:=proc(S,hints:=[])
  return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
 end proc:
 
-
 StatMat_TravIns_starter:=proc()
  global calcToDimension,dValue,RL;
- local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc;
- RLs:=[op(RL[1..-2]),map(unExcessFormatSingle,RL[-1])];
- outTable:=rtable(1..nops(RLs[-2]),1..nops(RLs[-1]),storage=sparse);
- pTable:=rtable(1..nops(RLs[-2]),1..nops(RLs[-1]),storage=sparse);
+ local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc,I1vulnerabilities,I1lengths,
+       I1tMs,I2vulnerabilities,I2ellPlusEnn2,I2exc,I2lengths;
+ outTable:=rtable(1..nops(RL[-2]),1..nops(RL[-1]),storage=sparse);
+ pTable:=rtable(1..nops(RL[-2]),1..nops(RL[-1]),storage=sparse);
+ I1vulnerabilities:=map(x->evalb(nops(x)>2 and add(x[i],i=1..nops(x))=dValue+nops(x)-1),RL[-1]);
+ I1lengths:=map(x->nops(x),RL[-1]);
+ I1tMs:=map(x->dValue+add((2^i-1)*x[i],i=1..nops(x)),RL[-1]);
+ I2vulnerabilities:=map(x->evalb(x=[] or x[-1]>2) ,RL[-2]);
+ I2ellPlusEnn2:=map(x->nops(x)+add((2^i-1)*x[i],i=1..nops(x)),RL[-2]);
+ I2exc:=map(x->`if`(x=[],-1,add(x[i],i=1..nops(x))),RL[-2]);
+ I2lengths:=map(x->nops(x),RL[-2]);
  pInitLoc:="finished";
- for i to nops(RLs[-2]) do
-  excess:=`if`(RLs[-2][i]=[],-1,add(RLs[-2][i][j],j=1..nops(RLs[-2][i])));
-  I2Evul:=I2vulnerable(RLs[-2][i]);
-  for j to nops(RLs[-1]) do
-   if excess<nops(RLs[-1][j]) and I2Evul*I1vulnerable(RLs[-1][j],dValue)=0 then
-    newDimn:=tMINUSsAdjusted([RLs[-2][i],RLs[-1][j]],dValue);
+ for i to nops(RL[-2]) do
+  for j to nops(RL[-1]) do
+   if I2exc[i]<I1lengths[j] and not (I1vulnerabilities[j] and I2vulnerabilities[i]) then
+    newDimn:=2^(I2lengths[i])*(I1tMs[j]+I1lengths[j]+1)-(I1lengths[j]+1)-I2ellPlusEnn2[i];
     if newDimn<=calcToDimension then
      outTable[i,j]:=newDimn;
      if pInitLoc="finished" then
@@ -786,11 +790,6 @@ fi;
 apply_stored_diffs_and_assign_and_print_OM(2)
 quick_extract_and_store_initial_diff_string(1)
 #quick_extract_and_store_diffs([1,2],[3,4]);
-
-
-
-
-
 
 
 
