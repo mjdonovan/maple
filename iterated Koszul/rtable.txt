@@ -515,13 +515,13 @@ trim_off_00002_001002_classes:=proc()
  StatMat[op(OneIndices),1]:=0;
  for ell from 1 to ilog2(calcToDimension) do
   ZeroList:=[seq(0,dummy=1..ell-1),2];
-  temp:=ListTools[Search](ZeroList,RL[-1]);
-  if temp<>0 then StatMat[op(OneIndices),temp]:=0; fi;
+  temp:=RLlookup(-1,op(ZeroList));
+  if type(temp,'integer') then StatMat[op(OneIndices),temp]:=0; fi;
   for OnePos from 2 to ell do
    TempZeroList:=ZeroList;
    TempZeroList[-OnePos]:=1;
-   temp:=ListTools[Search](TempZeroList,RL[-1]);
-   if temp<>0 then StatMat[op(OneIndices),temp]:=0; fi;
+   temp:=RLlookup(-1,op(TempZeroList));
+   if type(temp,'integer') then StatMat[op(OneIndices),temp]:=0; fi;
   od;
  od;
  timed_message("trimmed off the 00002 and 001002 classes");
@@ -673,8 +673,8 @@ string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_rece
  local ans,mrl,search_loc;
  ans:=[]; mrl:=most_recent_length;
  while nops(ans)+N_so_far<nops_RL and mrl<>0 do
-  search_loc:=ListTools[Search]([mrl-1],RL[-N_so_far-nops(ans)-1]);
-  if search_loc<>0 then
+  search_loc:=RLlookup(-N_so_far-nops(ans)-1,mrl-1);
+  if type(search_loc,'integer') then
    ans:=[search_loc,op(ans)];
    mrl:=1;
   else
