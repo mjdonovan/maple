@@ -499,6 +499,7 @@ trim_off_00002_001002_classes:=proc()
  global StatMat, TravIns, dValue, RL, nops_RL;
  local OneIndices,ell,ZeroList,temp,TempZeroList,OnePos;
  OneIndices:=[seq(1,i = 1 .. nops_RL-1)];
+ StatMat[op(OneIndices),1]:=0;
  for ell from 1 to ilog2(calcToDimension) do
   ZeroList:=[seq(0,dummy=1..ell-1),2];
   temp:=ListTools[Search](ZeroList,RL[-1]);
