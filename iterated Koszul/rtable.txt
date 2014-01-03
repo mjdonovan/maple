@@ -9,7 +9,7 @@
 #timed_dlog()
 #
 #set_dimensions(cTd,d)
-#build_RL()
+#build_RL_and_RLlookup()
 #StatMat_TravIns_starter()
 #build_StatMat_TravIns(DataSoFar:="none")
 #trim_off_00002_001002_classes()
@@ -177,10 +177,10 @@ delta_admissables_by_max_sum_using_stack:=proc(maxSum,d)
  [seq(ADMISlist[j],j=1..AMLcount)];
 end proc:
 
-build_RL:=proc()
- global RL,nops_RL,calcToDimension,dValue,string_of_length_one_sequences_for_squares_index_finder;
+build_RL_and_RLlookup:=proc()
+ global RL,nops_RL,calcToDimension,dValue,string_of_length_one_sequences_for_squares_index_finder,RLlookup;
  local I1list,I2lists,I3lists,newInterface,ans,ILIST,inclusionLists,
-       inclusionList,oldInterface,prevLength,m,ISEQ,tempo;
+       inclusionList,oldInterface,prevLength,m,ISEQ,tempo,i,j;
  forget(string_of_length_one_sequences_for_squares_index_finder);
  timed_message("building RL for calculation up to dimension ",calcToDimension);
  I1list:=delta_admissables_by_max_sum_using_stack(calcToDimension,dValue):
@@ -214,28 +214,36 @@ build_RL:=proc()
  RL:=[op(inclusionLists),map(ExcessFormatSingle,I1list)];
  nops_RL:=nops(RL);
  timed_message("built RL[1..",nops_RL,"] with dimensions ",map(x->nops(x),RL));
+ RLlookup:=Table();
+ for i from -1 to -nops_RL by -1 do
+  for j from 1 to nops(RL[i]) do
+   RLlookup(i,op(RL[i][j])):=j;
+  od;
+ od: 
+ timed_message("built lookup table inverting RL:N*N-->seq");
  return NULL;
 end proc:
 
 find_RL_coordinates:=proc(S)
- global RL,nops_RL;
+ global RL,nops_RL,RLlookup;
  local i,ans,T;
  if nops(S)>nops_RL then
   return 0;
  fi; 
  ans:=[];
  for i from -1 to -nops(S) by -1 do
-   T:=ListTools[Search](S[i],RL[i]);
-   if T=0 then return 0; fi;
+   T:=RLlookup(i,op(S[i]));
+   if not type(T,'integer') then return 0; fi;
    ans:=[T,op(ans)];
  od;
  return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
 end proc:
 
+
 find_RL_coordinates_with_hints:=proc(S,hints:=[])
  #hints is a list like [[-3,5],[-2,47]] indicating some known positions
  #which must be indexed by negative numbers like -2 and -3 to work
- global RL,nops_RL;
+ global RL,nops_RL,RLlookup;
  local i,ans,T,hfind;
  if nops(S)>nops_RL then
   return 0;
@@ -243,8 +251,13 @@ find_RL_coordinates_with_hints:=proc(S,hints:=[])
  ans:=[];
  for i from -1 to -nops(S) by -1 do
    hfind:=ListTools[Search](i,map(x->x[1],hints));
-   T:=`if`(hfind=0,ListTools[Search](S[i],RL[i]),hints[hfind][2]);
-   if T=0 then return 0; fi;
+   if hfind=0 then
+    T:=RLlookup(i,op(S[i]));
+    if not type(T,'integer') then return 0; fi;
+   else
+    T:=hints[hfind][2];
+    if T=0 then return 0; fi;
+   fi;
    ans:=[T,op(ans)];
  od;
  return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
