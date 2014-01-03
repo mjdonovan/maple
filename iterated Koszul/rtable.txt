@@ -211,10 +211,7 @@ find_RL_coordinates:=proc(S)
    if T=0 then return 0; fi;
    ans:=[T,op(ans)];
  od;
- for i from -1-nops(S) to -nops_RL by -1 do
-   ans:=[1,op(ans)];
- od;
- ans;
+ return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
 end proc:
 
 find_RL_coordinates_with_hints:=proc(S,hints:=[])
@@ -228,20 +225,13 @@ find_RL_coordinates_with_hints:=proc(S,hints:=[])
  ans:=[];
  for i from -1 to -nops(S) by -1 do
    hfind:=ListTools[Search](i,map(x->x[1],hints));
-   if hfind=0 then
-    T:=ListTools[Search](S[i],RL[i]);
-   else
-    T:=hints[hfind][2];
-    if T>nops(RL[i]) or RL[i][T]<>S[i] then error "that hint sucked"; fi;
-   fi;
+   T:=`if`(hfind=0,ListTools[Search](S[i],RL[i]),hints[hfind][2]);
    if T=0 then return 0; fi;
    ans:=[T,op(ans)];
  od;
- for i from -1-nops(S) to -nops_RL by -1 do
-   ans:=[1,op(ans)];
- od;
- ans;
+ return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
 end proc:
+
 
 StatMat_TravIns_starter:=proc()
  global calcToDimension,dValue,RL;
