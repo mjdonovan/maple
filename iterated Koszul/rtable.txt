@@ -511,6 +511,7 @@ trim_off_00002_001002_classes:=proc()
    if temp<>0 then StatMat[op(OneIndices),temp]:=0; fi;
   od;
  od;
+ timed_message("trimmed off the 00002 and 001002 classes");
  return NULL;
 end proc:
 
