@@ -697,9 +697,8 @@ implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
  trimmedTargIndex:=remove(x->x=1,difl[8]);
  prefixes:=string_of_length_one_sequences_for_squares_index_finder(nops(trimmedTargIndex),
             nops(RL[-nops(trimmedTargIndex)][trimmedTargIndex[1]]))[-num_of_squarings..-1];
+ dlog(difl); diffCounter:=diffCounter+1;
  StatMat[op(difl[7])]:=0;
- diffCounter:=diffCounter+1;
- dlog(difl);
  for counter from 0 to nops(prefixes) do
   StatMat[seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops_RL),op(prefixes[-counter..-1]),op(trimmedTargIndex)]:=0;
  od;
