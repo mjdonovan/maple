@@ -801,6 +801,16 @@ second_round_of_differentials:=proc()
       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0_0`);
       `xtradiff1_1`:=differential_upgrader(`xtradiff`,"add new sequence to left",[1],"add new sequence to left",[1]);
       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
+      if nops(xtra)=1 then
+       `xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"add new sequence to left",[0],
+                "append to left of leftmost nontrivial sequence",[1]);
+       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.1_11`);
+       `xtradiff0.0_20`:=differential_upgrader(`xtradiff0_0`,"add new sequence to left",[0],
+                "append to left of leftmost nontrivial sequence",[2]);
+       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0_20`);
+       `xtradiff10_10`:=differential_upgrader(`xtradiff`,"add new sequence to left",[1,0],"add new sequence to left",[1,0]);
+       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff10_10`);
+      fi;
      fi;
     od;
    fi;
