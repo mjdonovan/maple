@@ -827,7 +827,7 @@ end proc:
 set_dimensions(2000,2);
 fileNm:=cat(cat(cat("C:\\maple_output\\afterRound2_S",dValue),"dim"),calcToDimension):
 if FileTools[Exists](fileNm)=false then
- build_RL();
+ build_RL_and_RLlookup();
  build_StatMat_TravIns();
  trim_off_00002_001002_classes();
  assign_and_print_OM();
