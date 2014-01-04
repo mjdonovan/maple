@@ -763,8 +763,9 @@ end proc:
 
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
- local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`diff`,`diff0`,`initdiff`,diffCounterStarting,
-       xtra,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`;
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,
+       `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,
+       xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff0.1_11`,`xtradiff0.0_20`,`xtradiff10_10`;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
@@ -837,7 +838,7 @@ if FileTools[Exists](fileNm)=false then
  second_round_of_differentials();
  assign_and_print_OM();
  close_dlog();
- save RL, StatMat, TravIns, diffCounter, cat(fileNm);
+ save RL, StatMat, TravIns, diffCounter, RLlookup, cat(fileNm);
 else
  read fileNm:
  timed_message("you just loaded the post-round 2 data");
@@ -852,3 +853,5 @@ quick_extract_and_store_initial_diff_string(1)
 
 
 
+PUT status updates for each round of differentials
+Change RLlookup[-1] to a table. - find upper bound on the sizes at each coordinate. -1=empty, 0=0, 1=1,...
