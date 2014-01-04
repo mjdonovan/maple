@@ -1,3 +1,25 @@
+SqCompsMLi:=proc(M,L,i1min)
+  local shifter,i;
+  shifter:=[i1min-1];
+  for i to L-1 do shifter:=[0,op(shifter)];od;
+  map(xx->xx+shifter,combinat[composition](M-(i1min-1), L));
+end proc:
+SqCompsMi:=proc(M,i1min)
+  local ans,L;
+  ans:=[];
+  if M=-1 then return [[]]; fi;
+  for L from 1 to M-i1min+1 do
+    ans:=[op(ans),op(SqCompsMLi(M,L,i1min))];
+  od;
+  ans;
+end proc:
+ExcessFormatSingle:=y->`if`(y=[],[], [seq(y[i-1]-2*y[i],i=2..nops(y)),y[-1]]):
+UserFeedback:=proc()
+ local ans,x;ans:="";
+ for x in args do ans:=cat(ans,convert(x,'string'));od;
+ writeline(default,ans); return NULL;
+end proc:
+
 #new_dlog()
 #force_new_dlog()
 #close_dlog()
@@ -34,6 +56,7 @@
 #double_rMinusOne(dwhat)
 #differential_upgrader(diff,sDescriptor,sData,tDescriptor,tData)
 #*differential_squarer(diff)
+#all_ordered_partitions_with_sum_at_most(mAx)
 #
 #*implement_diff(difl)
 #*implement_diff_if_in_range_TF(difl)
@@ -480,6 +503,7 @@ end proc:
 apply_stored_diffs_and_assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,8,7,5])
  global ManuallyStoredDiffs;
  local i;
+ ensure_dlog_open();
  if assigned(ManuallyStoredDiffs) then
   for i in ManuallyStoredDiffs do
    implement_diff_and_all_squares_if_in_range_TF_quick(i);
@@ -612,6 +636,10 @@ double_rMinusOne:=proc(dwhat)
  cat("d",2*parse(%)-1);
 end proc:
 
+all_ordered_partitions_with_sum_at_most:=proc(mAx) option remember;
+ return [seq(seq(op(combinat[composition](n,i)),i=1..n),n=1..mAx)];
+end proc:
+
 differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
  #changes a differential in one of 5*5 simple ways:
  #1. "square", 2. "add new sequence to left"
@@ -733,11 +761,10 @@ first_round_of_differentials:=proc()
  return NULL;
 end proc:
 
-
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffCounterStarting,
-       xtra,diff0_0,diff1_1,diff00_10,diff000_010,xtradiff,xtradiff0_0,xtradiff1_1;
+       xtra,diff0_0,diff1_1,diff00_10,diff000_010,diff0000_1010,xtradiff,xtradiff0_0,xtradiff1_1;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
@@ -758,13 +785,17 @@ second_round_of_differentials:=proc()
                 "append to left of leftmost nontrivial sequence",[1]);
      if implement_diff_and_all_squares_if_in_range_TF_quick(diff00_10) then
       diff000_010:=differential_upgrader(diff00_10,"add new sequence to left",[0],"add new sequence to left",[0]);
-      implement_diff_and_all_squares_if_in_range_TF_quick(diff000_010);
+      if implement_diff_and_all_squares_if_in_range_TF_quick(diff000_010) then
+       diff0000_1010:=differential_upgrader(diff000_010,"add new sequence to left",[0],
+                "append to left of leftmost nontrivial sequence",[1]);
+       implement_diff_and_all_squares_if_in_range_TF_quick(diff0000_1010);
+      fi;
      fi;
     fi;
-    for xtra from 1 to ell1-jay-1 do
+    for xtra in all_ordered_partitions_with_sum_at_most(ell1-jay-1) do
      xtradiff:=differential_upgrader(initdiff,
-              "append to left of leftmost nontrivial sequence",[xtra],
-              "append to left of leftmost nontrivial sequence",[xtra]);
+              "append to left of leftmost nontrivial sequence",xtra,
+              "append to left of leftmost nontrivial sequence",xtra);
      if implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff) then
       xtradiff0_0:=differential_upgrader(xtradiff,"add new sequence to left",[0],"add new sequence to left",[0]);
       implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff0_0);
@@ -778,8 +809,6 @@ second_round_of_differentials:=proc()
  timed_message("finished 2nd round of differentials - there were ",diffCounter-diffCounterStarting);
  return NULL;
 end proc:
-
-
 
 
 
