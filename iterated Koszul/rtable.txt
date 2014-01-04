@@ -482,7 +482,7 @@ apply_stored_diffs_and_assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:
  local i;
  if assigned(ManuallyStoredDiffs) then
   for i in ManuallyStoredDiffs do
-   implement_diff(i);
+   implement_diff_and_all_squares_if_in_range_TF_quick(i);
   od;
  fi;
  ManuallyStoredDiffs:=[];
