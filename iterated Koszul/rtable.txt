@@ -763,8 +763,8 @@ end proc:
 
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
- local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,diff,diff0,initdiff,diffCounterStarting,
-       xtra,diff0_0,diff1_1,diff00_10,diff000_010,diff0000_1010,xtradiff,xtradiff0_0,xtradiff1_1;
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`diff`,`diff0`,`initdiff`,diffCounterStarting,
+       xtra,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
@@ -777,30 +777,30 @@ second_round_of_differentials:=proc()
    trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
    srcPow:=1;
    trgPow:=1;
-   initdiff:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),srcS,srcPow,trgS,trgPow,[i]],[-1],false);
-   if implement_diff_and_all_squares_if_in_range_TF_quick(initdiff) then   
-    diff0_0:=differential_upgrader(initdiff,"add new sequence to left",[0],"add new sequence to left",[0]);
-    if implement_diff_and_all_squares_if_in_range_TF_quick(diff0_0) then
-     diff00_10:=differential_upgrader(diff0_0,"add new sequence to left",[0],
+   `initdiff`:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),srcS,srcPow,trgS,trgPow,[i]],[-1],false);
+   if implement_diff_and_all_squares_if_in_range_TF_quick(`initdiff`) then   
+    `diff0_0`:=differential_upgrader(`initdiff`,"add new sequence to left",[0],"add new sequence to left",[0]);
+    if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0_0`) then
+     `diff0.0_10`:=differential_upgrader(`diff0_0`,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[1]);
-     if implement_diff_and_all_squares_if_in_range_TF_quick(diff00_10) then
-      diff000_010:=differential_upgrader(diff00_10,"add new sequence to left",[0],"add new sequence to left",[0]);
-      if implement_diff_and_all_squares_if_in_range_TF_quick(diff000_010) then
-       diff0000_1010:=differential_upgrader(diff000_010,"add new sequence to left",[0],
+     if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0_10`) then
+      `diff0.0.0_0.10`:=differential_upgrader(`diff0.0_10`,"add new sequence to left",[0],"add new sequence to left",[0]);
+      if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0_0.10`) then
+       `diff0.0.0.0_10.10`:=differential_upgrader(`diff0.0.0_0.10`,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[1]);
-       implement_diff_and_all_squares_if_in_range_TF_quick(diff0000_1010);
+       implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0_10.10`);
       fi;
      fi;
     fi;
     for xtra in all_ordered_partitions_with_sum_at_most(ell1-jay-1) do
-     xtradiff:=differential_upgrader(initdiff,
+     `xtradiff`:=differential_upgrader(`initdiff`,
               "append to left of leftmost nontrivial sequence",xtra,
               "append to left of leftmost nontrivial sequence",xtra);
-     if implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff) then
-      xtradiff0_0:=differential_upgrader(xtradiff,"add new sequence to left",[0],"add new sequence to left",[0]);
-      implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff0_0);
-      xtradiff1_1:=differential_upgrader(xtradiff,"add new sequence to left",[1],"add new sequence to left",[1]);
-      implement_diff_and_all_squares_if_in_range_TF_quick(xtradiff1_1);
+     if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff`) then
+      `xtradiff0_0`:=differential_upgrader(`xtradiff`,"add new sequence to left",[0],"add new sequence to left",[0]);
+      implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0_0`);
+      `xtradiff1_1`:=differential_upgrader(`xtradiff`,"add new sequence to left",[1],"add new sequence to left",[1]);
+      implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
      fi;
     od;
    fi;
