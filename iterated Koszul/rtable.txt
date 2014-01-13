@@ -49,6 +49,7 @@ end proc:
 #
 #find_RL_coordinates(S)
 #find_RL_coordinates_with_hints(S,hints:=[])
+#find_RL_coordinates_with_consecutive_hints(S,hints:=[])
 #differential_coords_finder(diff,sEqualityPositions:=false,tEqualityPositions:=false)
 #
 #*double_class(inds)
@@ -282,6 +283,20 @@ find_RL_coordinates_with_hints:=proc(S,hints:=[])
     if T=0 then return 0; fi;
    fi;
    ans:=[T,op(ans)];
+ od;
+ return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
+end proc:
+
+find_RL_coordinates_with_consecutive_hints:=proc(S,hints:=[])
+ #hints is a list like [2,5,47] indicating the rightmost positions
+ global RL,nops_RL,RLlookup;
+ local i,ans,T,hfind;
+ if nops(S)>nops_RL then
+  return 0;
+ fi; 
+ ans:=hints;
+ for i from -1-nops(hints) to -nops(S) by -1 do
+  ans:=[RLlookup(i,op(S[i])),op(ans)];
  od;
  return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
 end proc:
@@ -603,9 +618,13 @@ differential_coords_finder:=proc(diff,sEqualityPositions:=false,tEqualityPositio
  #if diff[7..8] are present, will automatically refind them unless passed "done" or "same"
  #if diff[7..8] present but partially incorrect, will correct them - can be passed a short list...
  #...of negative integer indices where the coordinates given are known.
+ #finally, last two entries can be integers which state how many of the final entries of...
+ #...diff[7] and diff[8] are correct.
  local output;
  output:=diff[1..6];
- if sEqualityPositions="no hints" or sEqualityPositions=false then
+ if type(sEqualityPositions,integer) then
+  output:=[op(output),find_RL_coordinates_with_consecutive_hints(diff[3],diff[7][-sEqualityPositions..-1])];
+ elif sEqualityPositions="no hints" or sEqualityPositions=false then
   output:=[op(output),find_RL_coordinates(diff[3])];
  elif sEqualityPositions="same" or sEqualityPositions="done" then
   output:=[op(output),diff[7]];
@@ -614,7 +633,9 @@ differential_coords_finder:=proc(diff,sEqualityPositions:=false,tEqualityPositio
                  map(x->[x,diff[7][x]],sEqualityPositions))];
  fi;
  if output[7]=0 then return 0; fi;
- if tEqualityPositions="no hints" or tEqualityPositions=false then
+ if type(tEqualityPositions,integer) then
+  output:=[op(output),find_RL_coordinates_with_consecutive_hints(diff[5],diff[8][-tEqualityPositions..-1])];
+ elif tEqualityPositions="no hints" or tEqualityPositions=false then
   output:=[op(output),find_RL_coordinates(diff[5])];
  elif tEqualityPositions="same" or tEqualityPositions="done" then
   output:=[op(output),diff[8]];
