@@ -290,7 +290,7 @@ end proc:
 find_RL_coordinates_with_consecutive_hints:=proc(S,hints:=[])
  #hints is a list like [2,5,47] indicating the rightmost positions
  global RL,nops_RL,RLlookup;
- local i,ans,T,hfind;
+ local i,ans,RLglance;
  if nops(S)>nops_RL then
   return 0;
  fi; 
