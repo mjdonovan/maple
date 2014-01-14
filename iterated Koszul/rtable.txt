@@ -1,15 +1,12 @@
-SqCompsMLi:=proc(M,L,i1min)
-  local shifter,i;
-  shifter:=[i1min-1];
-  for i to L-1 do shifter:=[0,op(shifter)];od;
-  map(xx->xx+shifter,combinat[composition](M-(i1min-1), L));
-end proc:
 SqCompsMi:=proc(M,i1min)
   local ans,L;
   ans:=[];
   if M=-1 then return [[]]; fi;
   for L from 1 to M-i1min+1 do
-    ans:=[op(ans),op(SqCompsMLi(M,L,i1min))];
+    ans:=[op(ans),
+          op( map(xx->xx+[seq(0,dummy=1..L-1),i1min-1],
+                  sort([op(combinat[composition](M-(i1min-1), L))])) 
+            )];
   od;
   ans;
 end proc:
