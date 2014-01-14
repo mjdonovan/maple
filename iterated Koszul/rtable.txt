@@ -5,7 +5,10 @@ SqCompsMi:=proc(M,i1min)
   for L from 1 to M-i1min+1 do
     ans:=[op(ans),
           op( map(xx->xx+[seq(0,dummy=1..L-1),i1min-1],
-                  sort([op(combinat[composition](M-(i1min-1), L))])) 
+                  sort([op(combinat[composition](M-(i1min-1), L))],
+                       (x,y)->lexorder(convert(x,string),convert(y,string))
+                      )
+                 ) 
             )];
   od;
   ans;
