@@ -296,7 +296,9 @@ find_RL_coordinates_with_consecutive_hints:=proc(S,hints:=[])
  fi; 
  ans:=hints;
  for i from -1-nops(hints) to -nops(S) by -1 do
-  ans:=[RLlookup(i,op(S[i])),op(ans)];
+  RLglance:=RLlookup(i,op(S[i]));
+  if not type(RLglance,'integer') then return 0; fi;
+  ans:=[RLglance,op(ans)];
  od;
  return [seq(1,asd=1..(nops_RL-nops(S))),op(ans)];
 end proc:
