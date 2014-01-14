@@ -709,7 +709,7 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
   error "I don't recognise the command";
  fi;
  output[2]:=double_rMinusOne(output[2]);
- output:=differential_coords_finder(output,sHints,tHints);
+ output:=differential_coords_finder(output,sHint,tHint);
  return output;
 end proc:
 
