@@ -1,3 +1,4 @@
+interface(rtablesize=2000):
 SqCompsMi:=proc(M,i1min)
   local ans,L;
   ans:=[];
@@ -71,6 +72,7 @@ end proc:
 #
 #first_round_of_differentials()
 #second_round_of_differentials()
+#autowipe()
 
 #*=out of date
 
@@ -890,6 +892,26 @@ second_round_of_differentials:=proc()
  return NULL;
 end proc:
 
+autowipe:=proc()
+ global OM;
+ local numberOfInterestingRows,seqOfDims,numberAtBottomDimension,seqOfElements;
+ numberOfInterestingRows:=LinearAlgebra[RowDimension](OM)-1;
+ seqOfDims:=[seq(OM[i+1,5],i=1..numberOfInterestingRows)];
+ seqOfElements:=[seq(OM[i+1,2],i=1..numberOfInterestingRows)];
+ numberAtBottomDimension:=nops(remove(x->x<>seqOfDims[1],seqOfDims));
+ if numberOfInterestingRows<2*numberAtBottomDimension or
+    seqOfDims[numberAtBottomDimension+1..2*numberAtBottomDimension]
+    <>map(x->x+1,seqOfDims[1..numberAtBottomDimension]) or
+    map(x->x[-1][2..-1],seqOfElements[numberAtBottomDimension+1..2*numberAtBottomDimension])
+    <>map(x->x[-1],seqOfElements[1..numberAtBottomDimension]) then
+  error "bad idea (no damage done)";
+ else
+  quick_extract_and_store_initial_diff_string(numberAtBottomDimension);
+  apply_stored_diffs_and_assign_and_print_OM();
+ fi;
+end proc:
+
+
 
 
 
@@ -913,15 +935,6 @@ set_dimensions(2000,2);
 # timed_message("you just loaded the post-round 2 data");
 #fi;
 
-
-apply_stored_diffs_and_assign_and_print_OM(2);
-quick_extract_and_store_initial_diff_string(1);
-#quick_extract_and_store_diffs([1,2],[3,4]);
-
-WAS ABOUT TO IMPROVE THE INITIALISATION OF NEW DIFFS USING the predecessor data, 
-WHICH IS UNTESTED as is the new function that builds it
-
-
-
-PUT status updates for each round of differentials
-Change RLlookup[-1] to a table. - find upper bound on the sizes at each coordinate. -1=empty, 0=0, 1=1,...
+autowipe:=proc()
+#quick_extract_and_store_initial_diff_string(1,3);
+#apply_stored_diffs_and_assign_and_print_OM();
