@@ -20,6 +20,9 @@ UserFeedback:=proc()
  writeline(default,ans); return NULL;
 end proc:
 
+#calcToDimension, dValue, delta_admissables, predecessor_data, RL, nops_RL, RLlookup,
+#StatMat, TravIns, diffCounter, LowestDimension, OM
+#
 #new_dlog()
 #force_new_dlog()
 #close_dlog()
