@@ -783,7 +783,7 @@ end proc:
 
 first_round_of_differentials:=proc()
  #slower than the previous version, but easier to read and emulate!
- global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter;
+ global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter,predecessor_data;
  local ell1,exc1,a,i,srcI1,trgS,diff,srcCoords,trgCoords,diffCounterStarting;
  timed_message("starting first round of differentials");
  ensure_dlog_open();
@@ -800,8 +800,8 @@ first_round_of_differentials:=proc()
    else
     error "this is strange";
    fi;
-   diff:=[`rnd1`,cat("d",a),[srcI1],1,trgS,1,[i],"?"];
-   diff:=differential_coords_finder(diff,1);
+   diff:=[`rnd1`,cat("d",a),[srcI1],1,trgS,1,[i],[predecessor_data[i]]];
+   diff:=differential_coords_finder(diff,1,1);
    implement_diff_and_all_squares_if_in_range_TF_quick(diff);
   fi;
  od;
@@ -810,7 +810,7 @@ first_round_of_differentials:=proc()
 end proc:
 
 second_round_of_differentials:=proc()
- global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter;
+ global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,predecessor_data;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,
        `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,
        xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff0.1_11`,`xtradiff0.0_20`,`xtradiff10_10`;
@@ -826,7 +826,8 @@ second_round_of_differentials:=proc()
    trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
    srcPow:=1;
    trgPow:=1;
-   `initdiff`:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),srcS,srcPow,trgS,trgPow,[i]],1,false);
+   `initdiff`:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
+                     srcS,srcPow,trgS,trgPow,[i],[predecessor_data[i]]],1,1);
    if implement_diff_and_all_squares_if_in_range_TF_quick(`initdiff`) then   
     `diff0_0`:=differential_upgrader(`initdiff`,"add new sequence to left",[0],"add new sequence to left",[0]);
     if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0_0`) then
