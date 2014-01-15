@@ -264,12 +264,12 @@ build_RL_and_RLlookup:=proc()
  nops_RL:=nops(RL);
  timed_message("built RL[1..",nops_RL,"] with dimensions ",map(x->nops(x),RL));
  RLlookup:=Table();
- for i from -1 to -nops_RL by -1 do
+ for i from -2 to -nops_RL by -1 do
   for j from 1 to nops(RL[i]) do
    RLlookup(i,op(RL[i][j])):=j;
   od;
  od: 
- timed_message("built lookup table inverting RL:N*N-->seq");
+ timed_message("built lookup table inverting RL:{-2,...,",nops_RL,"}*N-->seq");
  return NULL;
 end proc:
 
@@ -575,19 +575,19 @@ quick_extract_and_store_initial_diff_string:=proc(len,sourceStarts:="no gap")
 end proc:
 
 trim_off_00002_001002_classes:=proc()
- global StatMat, TravIns, dValue, RL, nops_RL;
+ global StatMat, TravIns, dValue, RL, nops_RL, delta_admissables;
  local OneIndices,ell,ZeroList,temp,TempZeroList,OnePos;
  OneIndices:=[seq(1,i = 1 .. nops_RL-1)];
  StatMat[op(OneIndices),1]:=0;
  for ell from 1 to ilog2(calcToDimension) do
   ZeroList:=[seq(0,dummy=1..ell-1),2];
-  temp:=RLlookup(-1,op(ZeroList));
-  if type(temp,'integer') then StatMat[op(OneIndices),temp]:=0; fi;
+  temp:=ListTools[Search](ZeroList,delta_admissables);
+  if temp>0 then StatMat[op(OneIndices),temp]:=0; fi;
   for OnePos from 2 to ell do
    TempZeroList:=ZeroList;
    TempZeroList[-OnePos]:=1;
-   temp:=RLlookup(-1,op(TempZeroList));
-   if type(temp,'integer') then StatMat[op(OneIndices),temp]:=0; fi;
+   temp:=ListTools[Search](TempZeroList,delta_admissables);
+   if temp>0 then StatMat[op(OneIndices),temp]:=0; fi;
   od;
  od;
  timed_message("trimmed off the 00002 and 001002 classes");
@@ -745,6 +745,7 @@ differential_squarer:=proc(diff)
 end proc:
 
 string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_recent_length) option remember;
+ #helps speed up the process of adding in the squares of a differential
  global RL,nops_RL;
  local ans,mrl,search_loc;
  ans:=[]; mrl:=most_recent_length;
