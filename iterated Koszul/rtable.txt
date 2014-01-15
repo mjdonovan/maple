@@ -788,11 +788,17 @@ end proc:
 first_round_of_differentials:=proc()
  #slower than the previous version, but easier to read and emulate!
  global RL,StatMat,dValue,outputStreamOpenFlag,diffCounter,predecessor_data;
- local ell1,exc1,a,i,srcI1,trgS,diff,srcCoords,trgCoords,diffCounterStarting;
+ local ell1,exc1,a,i,srcI1,trgS,diff,srcCoords,trgCoords,diffCounterStarting,tnLP,cdLP;
  timed_message("starting first round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
- for i from 2 to nops(RL[-1]) do
+ tnLP:=nops(RL[-1]);
+ cdLP:=tnLP:
+ for i from 2 to tnLP do
+  if cdLP>1 and (i-2)*cdLP>=tnLP then
+   timed_message((1/cdLP," done"));
+   cdLP:=`if`(cdLP>5,iquo(cdLP,2),cdLP/2);
+  fi:
   srcI1:=RL[-1][i];
   a:=remove(x->x=0,srcI1);
   if a<>[1,dValue] and a<>[dValue] then
@@ -815,13 +821,19 @@ end proc:
 
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,predecessor_data;
- local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,tnLP,cdLP,
        `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,
        xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff0.1_11`,`xtradiff0.0_20`,`xtradiff10_10`;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
- for i from 2 to nops(RL[-1]) do
+ tnLP:=nops(RL[-1]);
+ cdLP:=tnLP:
+ for i from 2 to tnLP do
+  if cdLP>1 and (i-2)*cdLP>=tnLP then
+   timed_message((1/cdLP," done"));
+   cdLP:=`if`(cdLP>5,iquo(cdLP,2),cdLP/2);
+  fi:
   srcI1:=RL[-1][i];
   ell1:=nops(srcI1);
   exc1:=add(srcI1[gh],gh=1..ell1); 
