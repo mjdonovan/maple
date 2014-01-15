@@ -260,7 +260,7 @@ build_RL_and_RLlookup:=proc()
    inclusionLists:=[[[],op(inclusionList)],op(inclusionLists)];
   fi;
  od:
- RL:=[op(inclusionLists),map(ExcessFormatSingle,delta_admissables)];
+ RL:=[op(inclusionLists),delta_admissables];
  nops_RL:=nops(RL);
  timed_message("built RL[1..",nops_RL,"] with dimensions ",map(x->nops(x),RL));
  RLlookup:=Table();
@@ -897,7 +897,8 @@ apply_stored_diffs_and_assign_and_print_OM(2)
 quick_extract_and_store_initial_diff_string(1)
 #quick_extract_and_store_diffs([1,2],[3,4]);
 
-
+WAS ABOUT TO IMPROVE THE INITIALISATION OF NEW DIFFS USING the predecessor data, 
+WHICH IS UNTESTED as is the new function that builds it
 
 
 
