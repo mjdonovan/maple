@@ -828,7 +828,7 @@ second_round_of_differentials:=proc()
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,tnLP,cdLP,
        `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,diff0.0.0.0.0_0.10.10,
        xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff0.1_11`,`xtradiff0.0_20`,
-       `xtradiff10_10`,`xtradiff0.0.0_0.20`,
+       `xtradiff10_10`,`xtradiff0.0.0_0.20`,`xtradiff0.0.1_0.11`,
        predecessor_data_of_i;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
@@ -889,7 +889,11 @@ second_round_of_differentials:=proc()
        `xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[1]);
       #`xtradiff0.1_11`=[[0],[1],[v,j],[xyz]]->[[1,1],[v,j-1-a,a],[yz]]
-       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.1_11`);
+       if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.1_11`) then
+        `xtradiff0.0.1_0.11`:=differential_upgrader(`xtradiff0.1_11`,"add new sequence to left",[0],"add new sequence to left",[0]);
+       #`xtradiff0.0.1_0.11`=[[0],[0],[1],[v,j],[xyz]]->[[0],[1,1],[v,j-1-a,a],[yz]]
+        implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0.1_0.11`);
+       fi;
        `xtradiff0.0_20`:=differential_upgrader(`xtradiff0_0`,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[2]);
       #`xtradiff0.0_20`=[[0],[0],[v,j],[xyz]]->[[2,0],[v,j-1-a,a],[yz]]
