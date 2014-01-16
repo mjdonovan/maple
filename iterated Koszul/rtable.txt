@@ -885,6 +885,11 @@ second_round_of_differentials:=proc()
       `xtradiff1_1`:=differential_upgrader(`xtradiff`,"add new sequence to left",[1],"add new sequence to left",[1]);
      #`xtradiff1_1`=[[1],[tuv,j],[xyz]]->[[1],[tuv,j-1-a,a],[yz]]
       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
+      if nops(xtra)=2 then
+       `xtradiff2_2`:=differential_upgrader(`xtradiff`,"add new sequence to left",[2],"add new sequence to left",[2]);
+      #`xtradiff2_2`=[[2],[tuv,j],[xyz]]->[[2],[tuv,j-1-a,a],[yz]]
+       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff2_2`);
+      fi
       if nops(xtra)=1 then
        `xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[1]);
