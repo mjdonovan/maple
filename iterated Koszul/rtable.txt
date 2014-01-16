@@ -795,7 +795,7 @@ first_round_of_differentials:=proc()
  timed_message("starting first round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
- tnLP:=nops(RL[-1]);
+ tnLP:=nops(delta_admissables);
  cdLP:=tnLP:
  for i from 2 to tnLP do
   if cdLP>1 and (i-2)*cdLP>=tnLP then
@@ -832,7 +832,7 @@ second_round_of_differentials:=proc()
  timed_message("starting second round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
- tnLP:=nops(RL[-1]);
+ tnLP:=nops(delta_admissables);
  cdLP:=tnLP:
  for i from 2 to tnLP do
   if cdLP>1 and (i-2)*cdLP>=tnLP then
@@ -846,10 +846,8 @@ second_round_of_differentials:=proc()
   for jay from 2+dValue+ell1-exc1 to ell1-1 do
    srcS:=[[jay],srcI1];
    trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
-   srcPow:=1;
-   trgPow:=1;
    `initdiff`:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
-                     srcS,srcPow,trgS,trgPow,[i],[predecessor_data_of_i]],1,1);
+                     srcS,1,trgS,1,[i],[predecessor_data_of_i]],1,1);
    if implement_diff_and_all_squares_if_in_range_TF_quick(`initdiff`) then   
     `diff0_0`:=differential_upgrader(`initdiff`,"add new sequence to left",[0],"add new sequence to left",[0]);
     if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0_0`) then
