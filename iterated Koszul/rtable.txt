@@ -29,7 +29,7 @@ end proc:
 #close_dlog()
 #reopen_dlog()
 #ensure_dlog_open()
-#save_dlog()
+#save_dlog(loud:=true)
 #dlog()
 #timed_message()
 #timed_dlog()
@@ -142,18 +142,16 @@ ensure_dlog_open:=proc()
   new_dlog();
  fi;
 end proc:
-save_dlog:=proc()
+save_dlog:=proc(loud:=true)
  global LogFilename,outputStream,outputStreamOpenFlag;
  if outputStreamOpenFlag<>1 then
-  if outputStreamOpenFlag=0 then
-   error "the file has already been closed";
-  else
+  if outputStreamOpenFlag<>0 then
    error "the file probably never existed";
   fi;
  else
   fclose(LogFilename);
   outputStream:=fopen(LogFilename,APPEND);
-  timed_message("dlog closed and reopened (",LogFilename,")");
+  if loud=true then timed_message("dlog closed and reopened (",LogFilename,")");fi;
  fi;
  return NULL;
 end proc:
@@ -801,6 +799,7 @@ first_round_of_differentials:=proc()
   if cdLP>1 and (i-2)*cdLP>=tnLP then
    timed_message((1/cdLP," done"));
    cdLP:=`if`(cdLP>5,iquo(cdLP,2),cdLP/2);
+   save_dlog("quiet");
   fi:
   srcI1:=delta_admissables[i];
   predecessor_data_of_i:=predecessor_data[i];
@@ -826,8 +825,8 @@ end proc:
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,predecessor_data,delta_admissables;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,tnLP,cdLP,
-       `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,diff0.0.0.0.0_0.10.10,
-       xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff0.1_11`,`xtradiff0.0_20`,
+       `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,`diff0.0.0.0.0_0.10.10`,
+       xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff2_2`,`xtradiff0.1_11`,`xtradiff0.0_20`,
        `xtradiff10_10`,`xtradiff0.0.0_0.20`,`xtradiff0.0.1_0.11`,
        predecessor_data_of_i;
  timed_message("starting second round of differentials");
@@ -839,6 +838,7 @@ second_round_of_differentials:=proc()
   if cdLP>1 and (i-2)*cdLP>=tnLP then
    timed_message((1/cdLP," done"));
    cdLP:=`if`(cdLP>5,iquo(cdLP,2),cdLP/2);
+   save_dlog("quiet");
   fi:
   srcI1:=delta_admissables[i];
   predecessor_data_of_i:=predecessor_data[i];
@@ -884,7 +884,7 @@ second_round_of_differentials:=proc()
        `xtradiff2_2`:=differential_upgrader(`xtradiff`,"anstl",[2],"anstl",[2]);
       #`xtradiff2_2`=[[2],[tuv,j],[xyz]]->[[2],[tuv,j-1-a,a],[yz]]
        implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff2_2`);
-      fi
+      fi;
       if nops(xtra)=1 then
        `xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"anstl",[0],"atlolns",[1]);
       #`xtradiff0.1_11`=[[0],[1],[v,j],[xyz]]->[[1,1],[v,j-1-a,a],[yz]]
