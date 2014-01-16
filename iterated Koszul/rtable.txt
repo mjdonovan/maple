@@ -956,8 +956,10 @@ set_dimensions(2000,2);
 #else
 # read fileNm:
 # timed_message("you just loaded the post-round 2 data");
+# apply_stored_diffs_and_assign_and_print_OM();
 #fi;
 
-autowipe:=proc()
-#quick_extract_and_store_initial_diff_string(1,3);
-#apply_stored_diffs_and_assign_and_print_OM();
+while LowestDimension<calcToDimension do autowipe(); od;
+
+quick_extract_and_store_initial_diff_string(1,3);
+apply_stored_diffs_and_assign_and_print_OM();
