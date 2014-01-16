@@ -826,7 +826,7 @@ end proc:
 second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,predecessor_data,delta_admissables;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,tnLP,cdLP,
-       `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,
+       `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,diff0.0.0.0.0_0.10.10,
        xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff0.1_11`,`xtradiff0.0_20`,`xtradiff10_10`,
        predecessor_data_of_i;
  timed_message("starting second round of differentials");
@@ -848,17 +848,27 @@ second_round_of_differentials:=proc()
    trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
    `initdiff`:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
                      srcS,1,trgS,1,[i],[predecessor_data_of_i]],1,1);
+  #`initdiff`=[[j],[xyz]]->[[j-1-a,a],[yz]]
    if implement_diff_and_all_squares_if_in_range_TF_quick(`initdiff`) then   
     `diff0_0`:=differential_upgrader(`initdiff`,"add new sequence to left",[0],"add new sequence to left",[0]);
+   #`diff0_0`=[[0],[j],[xyz]]->[[0],[j-1-a,a],[yz]]
     if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0_0`) then
      `diff0.0_10`:=differential_upgrader(`diff0_0`,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[1]);
+    #`diff0.0_10`=[[0],[0],[j],[xyz]]->[[1,0],[j-1-a,a],[yz]]
      if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0_10`) then
       `diff0.0.0_0.10`:=differential_upgrader(`diff0.0_10`,"add new sequence to left",[0],"add new sequence to left",[0]);
+     #`diff0.0.0_0.10`=[[0],[0],[0],[j],[xyz]]->[[0],[1,0],[j-1-a,a],[yz]]
       if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0_0.10`) then
        `diff0.0.0.0_10.10`:=differential_upgrader(`diff0.0.0_0.10`,"add new sequence to left",[0],
                 "append to left of leftmost nontrivial sequence",[1]);
-       implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0_10.10`);
+      #`diff0.0.0.0_10.10`=[[0],[0],[0],[0],[j],[xyz]]->[[1,0],[1,0],[j-1-a,a],[yz]]
+       if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0_10.10`) then
+        `diff0.0.0.0.0_0.10.10`:=differential_upgrader(`diff0.0.0.0_10.10`,"add new sequence to left",[0],
+                                                                           "add new sequence to left",[0]);
+       #`diff0.0.0.0.0_0.10.10`=[[0],[0],[0],[0],[0],[j],[xyz]]->[[0],[1,0],[1,0],[j-1-a,a],[yz]]
+        implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0_0.10.10`)
+       fi;
       fi;
      fi;
     fi;
