@@ -707,13 +707,13 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
  if sDescriptor="square" then
   output[4]:=2*output[4];
   sHint:="done";
- elif sDescriptor="add new sequence to left" then
+ elif sDescriptor="anstl" then
   sHint:=nops(output[3]);
   output[3]:=[sData,op(output[3])];
  elif sDescriptor="add top 1-element sequence to left" then
   sHint:=nops(output[3]);
   output[3]:=[[nops(output[3][1])-1],op(output[3])];
- elif sDescriptor="append to left of leftmost nontrivial sequence" then
+ elif sDescriptor="atlolns" then
   sHint:=nops(output[3])-1;
   output[3][1]:=[op(sData),op(output[3][1])];
  elif sDescriptor="completely replace, (k+...+ell2)+=1, inputting [S,pow]" then
@@ -725,13 +725,13 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
  if tDescriptor="square" then
   output[6]:=2*output[6];
   tHint:="done";
- elif tDescriptor="add new sequence to left" then
+ elif tDescriptor="anstl" then
   tHint:=nops(output[5]);
   output[5]:=[tData,op(output[5])];
  elif tDescriptor="add top 1-element sequence to left" then
   tHint:=nops(output[5]);
   output[5]:=[[nops(output[5][1])-1],op(output[5])];
- elif tDescriptor="append to left of leftmost nontrivial sequence" then
+ elif tDescriptor="atlolns" then
   tHint:=nops(output[5])-1;
   output[5][1]:=[op(tData),op(output[5][1])];
  elif tDescriptor="completely replace, (k+...+ell2)+=1, inputting [S,pow]" then
@@ -851,22 +851,19 @@ second_round_of_differentials:=proc()
                      srcS,1,trgS,1,[i],[predecessor_data_of_i]],1,1);
   #`initdiff`=[[j],[xyz]]->[[j-1-a,a],[yz]]
    if implement_diff_and_all_squares_if_in_range_TF_quick(`initdiff`) then   
-    `diff0_0`:=differential_upgrader(`initdiff`,"add new sequence to left",[0],"add new sequence to left",[0]);
+    `diff0_0`:=differential_upgrader(`initdiff`,"anstl",[0],"anstl",[0]);
    #`diff0_0`=[[0],[j],[xyz]]->[[0],[j-1-a,a],[yz]]
     if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0_0`) then
-     `diff0.0_10`:=differential_upgrader(`diff0_0`,"add new sequence to left",[0],
-                "append to left of leftmost nontrivial sequence",[1]);
+     `diff0.0_10`:=differential_upgrader(`diff0_0`,"anstl",[0],"atlolns",[1]);
     #`diff0.0_10`=[[0],[0],[j],[xyz]]->[[1,0],[j-1-a,a],[yz]]
      if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0_10`) then
-      `diff0.0.0_0.10`:=differential_upgrader(`diff0.0_10`,"add new sequence to left",[0],"add new sequence to left",[0]);
+      `diff0.0.0_0.10`:=differential_upgrader(`diff0.0_10`,"anstl",[0],"anstl",[0]);
      #`diff0.0.0_0.10`=[[0],[0],[0],[j],[xyz]]->[[0],[1,0],[j-1-a,a],[yz]]
       if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0_0.10`) then
-       `diff0.0.0.0_10.10`:=differential_upgrader(`diff0.0.0_0.10`,"add new sequence to left",[0],
-                "append to left of leftmost nontrivial sequence",[1]);
+       `diff0.0.0.0_10.10`:=differential_upgrader(`diff0.0.0_0.10`,"anstl",[0],"atlolns",[1]);
       #`diff0.0.0.0_10.10`=[[0],[0],[0],[0],[j],[xyz]]->[[1,0],[1,0],[j-1-a,a],[yz]]
        if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0_10.10`) then
-        `diff0.0.0.0.0_0.10.10`:=differential_upgrader(`diff0.0.0.0_10.10`,"add new sequence to left",[0],
-                                                                           "add new sequence to left",[0]);
+        `diff0.0.0.0.0_0.10.10`:=differential_upgrader(`diff0.0.0.0_10.10`,"anstl",[0],"anstl",[0]);
        #`diff0.0.0.0.0_0.10.10`=[[0],[0],[0],[0],[0],[j],[xyz]]->[[0],[1,0],[1,0],[j-1-a,a],[yz]]
         implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0_0.10.10`)
        fi;
@@ -874,40 +871,36 @@ second_round_of_differentials:=proc()
      fi;
     fi;
     for xtra in all_ordered_partitions_with_sum_at_most(ell1-jay-1) do
-     `xtradiff`:=differential_upgrader(`initdiff`,
-              "append to left of leftmost nontrivial sequence",xtra,
-              "append to left of leftmost nontrivial sequence",xtra);
+     `xtradiff`:=differential_upgrader(`initdiff`,"atlolns",xtra,"atlolns",xtra);
     #`xtradiff`=[[tuv,j],[xyz]]->[[tuv,j-1-a,a],[yz]]
      if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff`) then
-      `xtradiff0_0`:=differential_upgrader(`xtradiff`,"add new sequence to left",[0],"add new sequence to left",[0]);
+      `xtradiff0_0`:=differential_upgrader(`xtradiff`,"anstl",[0],"anstl",[0]);
      #`xtradiff0_0`=[[0],[tuv,j],[xyz]]->[[0],[tuv,j-1-a,a],[yz]]
       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0_0`);
-      `xtradiff1_1`:=differential_upgrader(`xtradiff`,"add new sequence to left",[1],"add new sequence to left",[1]);
+      `xtradiff1_1`:=differential_upgrader(`xtradiff`,"anstl",[1],"anstl",[1]);
      #`xtradiff1_1`=[[1],[tuv,j],[xyz]]->[[1],[tuv,j-1-a,a],[yz]]
       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
       if nops(xtra)=2 then
-       `xtradiff2_2`:=differential_upgrader(`xtradiff`,"add new sequence to left",[2],"add new sequence to left",[2]);
+       `xtradiff2_2`:=differential_upgrader(`xtradiff`,"anstl",[2],"anstl",[2]);
       #`xtradiff2_2`=[[2],[tuv,j],[xyz]]->[[2],[tuv,j-1-a,a],[yz]]
        implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff2_2`);
       fi
       if nops(xtra)=1 then
-       `xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"add new sequence to left",[0],
-                "append to left of leftmost nontrivial sequence",[1]);
+       `xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"anstl",[0],"atlolns",[1]);
       #`xtradiff0.1_11`=[[0],[1],[v,j],[xyz]]->[[1,1],[v,j-1-a,a],[yz]]
        if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.1_11`) then
-        `xtradiff0.0.1_0.11`:=differential_upgrader(`xtradiff0.1_11`,"add new sequence to left",[0],"add new sequence to left",[0]);
+        `xtradiff0.0.1_0.11`:=differential_upgrader(`xtradiff0.1_11`,"anstl",[0],"anstl",[0]);
        #`xtradiff0.0.1_0.11`=[[0],[0],[1],[v,j],[xyz]]->[[0],[1,1],[v,j-1-a,a],[yz]]
         implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0.1_0.11`);
        fi;
-       `xtradiff0.0_20`:=differential_upgrader(`xtradiff0_0`,"add new sequence to left",[0],
-                "append to left of leftmost nontrivial sequence",[2]);
+       `xtradiff0.0_20`:=differential_upgrader(`xtradiff0_0`,"anstl",[0],"atlolns",[2]);
       #`xtradiff0.0_20`=[[0],[0],[v,j],[xyz]]->[[2,0],[v,j-1-a,a],[yz]]
        if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0_20`) then
-        `xtradiff0.0.0_0.20`:=differential_upgrader(`xtradiff0.0_20`,"add new sequence to left",[0],"add new sequence to left",[0]);
+        `xtradiff0.0.0_0.20`:=differential_upgrader(`xtradiff0.0_20`,"anstl",[0],"anstl",[0]);
        #`xtradiff0.0_20`=[[0],[0],[0],[v,j],[xyz]]->[[0],[2,0],[v,j-1-a,a],[yz]]
         implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0.0_0.20`)
        fi;
-       `xtradiff10_10`:=differential_upgrader(`xtradiff`,"add new sequence to left",[1,0],"add new sequence to left",[1,0]);
+       `xtradiff10_10`:=differential_upgrader(`xtradiff`,"anstl",[1,0],"anstl",[1,0]);
       #`xtradiff10_10`=[[1,0],[v,j],[xyz]]->[[1,0],[v,j-1-a,a],[yz]]
        implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff10_10`);
       fi;
