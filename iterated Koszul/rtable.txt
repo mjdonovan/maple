@@ -921,10 +921,12 @@ autowipe:=proc()
  seqOfElements:=[seq(OM[i+1,2],i=1..numberOfInterestingRows)];
  numberAtBottomDimension:=nops(remove(x->x<>seqOfDims[1],seqOfDims));
  if numberOfInterestingRows<2*numberAtBottomDimension or
-    seqOfDims[numberAtBottomDimension+1..2*numberAtBottomDimension]
+                 seqOfDims[numberAtBottomDimension+1..2*numberAtBottomDimension]
     <>map(x->x+1,seqOfDims[1..numberAtBottomDimension]) or
-    map(x->x[-1][2..-1],seqOfElements[numberAtBottomDimension+1..2*numberAtBottomDimension])
-    <>map(x->x[-1],seqOfElements[1..numberAtBottomDimension]) then
+      map(x->x[-1][2..-1],seqOfElements[numberAtBottomDimension+1..2*numberAtBottomDimension])
+    <>map(x->x[-1],       seqOfElements[1..numberAtBottomDimension]) or
+      map(x->nops(x[-1])+nops(x[-2]),seqOfElements[numberAtBottomDimension+1..2*numberAtBottomDimension])
+    <>map(x->nops(x[-1])+nops(x[-2]),seqOfElements[1..numberAtBottomDimension]) then
   error "bad idea (no damage done)";
  else
   quick_extract_and_store_initial_diff_string(numberAtBottomDimension);
