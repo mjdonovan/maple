@@ -910,6 +910,12 @@ second_round_of_differentials:=proc()
       #`12xtradiff10_10`=[[1,0],[v,j],[xyz]]->[[1,0],[v,j-1-a,a],[yz]]
        implement_diff_and_all_squares_if_in_range_TF_quick(`12xtradiff10_10`);
       fi;
+      if nops(xtra)=2 then
+       `2xtradiff20_20`:=differential_upgrader(`xtradiff`,"anstl",[2,0],"anstl",[2,0]);
+       `2xtradiff11_11`:=differential_upgrader(`xtradiff`,"anstl",[1,1],"anstl",[1,1]);
+       implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff20_20`);
+       implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff11_11`);
+      fi;
      fi;
     od;
    fi;
