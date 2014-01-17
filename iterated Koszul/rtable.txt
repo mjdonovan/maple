@@ -888,6 +888,12 @@ second_round_of_differentials:=proc()
        `2xtradiff2_2`:=differential_upgrader(`xtradiff`,"anstl",[2],"anstl",[2]);
       #`2xtradiff2_2`=[[2],[u,v,j],[xyz]]->[[2],[u,v,j-1-a,a],[yz]]
        implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff2_2`);
+       `2xtradiff0.2_12`:=differential_upgrader(`2xtradiff2_2`,"anstl",[0],"atlolns",[1])
+       implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.2_12`);
+       `2xtradiff0.1_21`:=differential_upgrader(`xtradiff1_1`,"anstl",[0],"atlolns",[2])
+       implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.1_21`);
+       `2xtradiff0.0_30`:=differential_upgrader(`xtradiff0_0`,"anstl",[0],"atlolns",[3])
+       implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.0_30`);
       fi;
       if nops(xtra)=1 then
        `1xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"anstl",[0],"atlolns",[1]);
