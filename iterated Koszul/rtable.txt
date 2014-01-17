@@ -882,7 +882,7 @@ second_round_of_differentials:=proc()
       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
       if nops(xtra)=2 then
        `xtradiff2_2`:=differential_upgrader(`xtradiff`,"anstl",[2],"anstl",[2]);
-      #`xtradiff2_2`=[[2],[tuv,j],[xyz]]->[[2],[tuv,j-1-a,a],[yz]]
+      #`xtradiff2_2`=[[2],[u,v,j],[xyz]]->[[2],[u,v,j-1-a,a],[yz]]
        implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff2_2`);
       fi;
       if nops(xtra)=1 then
@@ -897,7 +897,7 @@ second_round_of_differentials:=proc()
       #`xtradiff0.0_20`=[[0],[0],[v,j],[xyz]]->[[2,0],[v,j-1-a,a],[yz]]
        if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0_20`) then
         `xtradiff0.0.0_0.20`:=differential_upgrader(`xtradiff0.0_20`,"anstl",[0],"anstl",[0]);
-       #`xtradiff0.0_20`=[[0],[0],[0],[v,j],[xyz]]->[[0],[2,0],[v,j-1-a,a],[yz]]
+       #`xtradiff0.0.0_0.20`=[[0],[0],[0],[v,j],[xyz]]->[[0],[2,0],[v,j-1-a,a],[yz]]
         implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0.0_0.20`)
        fi;
        `xtradiff10_10`:=differential_upgrader(`xtradiff`,"anstl",[1,0],"anstl",[1,0]);
@@ -959,7 +959,8 @@ set_dimensions(2000,2);
 # apply_stored_diffs_and_assign_and_print_OM();
 #fi;
 
-while LowestDimension<calcToDimension do autowipe(); od;
+
 
 quick_extract_and_store_initial_diff_string(1,3);
 apply_stored_diffs_and_assign_and_print_OM();
+while LowestDimension<calcToDimension do autowipe(); od;
