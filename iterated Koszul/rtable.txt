@@ -826,8 +826,8 @@ second_round_of_differentials:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,predecessor_data,delta_admissables;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,tnLP,cdLP,
        `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,`diff0.0.0.0.0_0.10.10`,
-       xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff2_2`,`xtradiff0.1_11`,`xtradiff0.0_20`,
-       `xtradiff10_10`,`xtradiff0.0.0_0.20`,`xtradiff0.0.1_0.11`,`diff0.0.0.0.0.0_10.10.10`,
+       xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`2xtradiff2_2`,`1xtradiff0.1_11`,`1xtradiff0.0_20`,
+       `1xtradiff10_10`,`1xtradiff0.0.0_0.20`,`1xtradiff0.0.1_0.11`,`diff0.0.0.0.0.0_10.10.10`,
        predecessor_data_of_i;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
@@ -885,28 +885,28 @@ second_round_of_differentials:=proc()
      #`xtradiff1_1`=[[1],[tuv,j],[xyz]]->[[1],[tuv,j-1-a,a],[yz]]
       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
       if nops(xtra)=2 then
-       `xtradiff2_2`:=differential_upgrader(`xtradiff`,"anstl",[2],"anstl",[2]);
-      #`xtradiff2_2`=[[2],[u,v,j],[xyz]]->[[2],[u,v,j-1-a,a],[yz]]
-       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff2_2`);
+       `2xtradiff2_2`:=differential_upgrader(`xtradiff`,"anstl",[2],"anstl",[2]);
+      #`2xtradiff2_2`=[[2],[u,v,j],[xyz]]->[[2],[u,v,j-1-a,a],[yz]]
+       implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff2_2`);
       fi;
       if nops(xtra)=1 then
-       `xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"anstl",[0],"atlolns",[1]);
-      #`xtradiff0.1_11`=[[0],[1],[v,j],[xyz]]->[[1,1],[v,j-1-a,a],[yz]]
-       if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.1_11`) then
-        `xtradiff0.0.1_0.11`:=differential_upgrader(`xtradiff0.1_11`,"anstl",[0],"anstl",[0]);
-       #`xtradiff0.0.1_0.11`=[[0],[0],[1],[v,j],[xyz]]->[[0],[1,1],[v,j-1-a,a],[yz]]
-        implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0.1_0.11`);
+       `1xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"anstl",[0],"atlolns",[1]);
+      #`1xtradiff0.1_11`=[[0],[1],[v,j],[xyz]]->[[1,1],[v,j-1-a,a],[yz]]
+       if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.1_11`) then
+        `1xtradiff0.0.1_0.11`:=differential_upgrader(`1xtradiff0.1_11`,"anstl",[0],"anstl",[0]);
+       #`1xtradiff0.0.1_0.11`=[[0],[0],[1],[v,j],[xyz]]->[[0],[1,1],[v,j-1-a,a],[yz]]
+        implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.1_0.11`);
        fi;
-       `xtradiff0.0_20`:=differential_upgrader(`xtradiff0_0`,"anstl",[0],"atlolns",[2]);
-      #`xtradiff0.0_20`=[[0],[0],[v,j],[xyz]]->[[2,0],[v,j-1-a,a],[yz]]
-       if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0_20`) then
-        `xtradiff0.0.0_0.20`:=differential_upgrader(`xtradiff0.0_20`,"anstl",[0],"anstl",[0]);
-       #`xtradiff0.0.0_0.20`=[[0],[0],[0],[v,j],[xyz]]->[[0],[2,0],[v,j-1-a,a],[yz]]
-        implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0.0.0_0.20`)
+       `1xtradiff0.0_20`:=differential_upgrader(`xtradiff0_0`,"anstl",[0],"atlolns",[2]);
+      #`1xtradiff0.0_20`=[[0],[0],[v,j],[xyz]]->[[2,0],[v,j-1-a,a],[yz]]
+       if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0_20`) then
+        `1xtradiff0.0.0_0.20`:=differential_upgrader(`1xtradiff0.0_20`,"anstl",[0],"anstl",[0]);
+       #`1xtradiff0.0.0_0.20`=[[0],[0],[0],[v,j],[xyz]]->[[0],[2,0],[v,j-1-a,a],[yz]]
+        implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.0_0.20`)
        fi;
-       `xtradiff10_10`:=differential_upgrader(`xtradiff`,"anstl",[1,0],"anstl",[1,0]);
-      #`xtradiff10_10`=[[1,0],[v,j],[xyz]]->[[1,0],[v,j-1-a,a],[yz]]
-       implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff10_10`);
+       `1xtradiff10_10`:=differential_upgrader(`xtradiff`,"anstl",[1,0],"anstl",[1,0]);
+      #`1xtradiff10_10`=[[1,0],[v,j],[xyz]]->[[1,0],[v,j-1-a,a],[yz]]
+       implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff10_10`);
       fi;
      fi;
     od;
