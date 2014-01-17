@@ -827,7 +827,7 @@ second_round_of_differentials:=proc()
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,diffCounterStarting,tnLP,cdLP,
        `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,`diff0.0.0.0.0_0.10.10`,
        xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`xtradiff2_2`,`xtradiff0.1_11`,`xtradiff0.0_20`,
-       `xtradiff10_10`,`xtradiff0.0.0_0.20`,`xtradiff0.0.1_0.11`,
+       `xtradiff10_10`,`xtradiff0.0.0_0.20`,`xtradiff0.0.1_0.11`,`diff0.0.0.0.0.0_10.10.10`,
        predecessor_data_of_i;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
@@ -865,7 +865,11 @@ second_round_of_differentials:=proc()
        if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0_10.10`) then
         `diff0.0.0.0.0_0.10.10`:=differential_upgrader(`diff0.0.0.0_10.10`,"anstl",[0],"anstl",[0]);
        #`diff0.0.0.0.0_0.10.10`=[[0],[0],[0],[0],[0],[j],[xyz]]->[[0],[1,0],[1,0],[j-1-a,a],[yz]]
-        implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0_0.10.10`)
+        if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0_0.10.10`) then
+         `diff0.0.0.0.0.0_10.10.10`:=differential_upgrader(`diff0.0.0.0.0_0.10.10`,"anstl",[0],"atlolns",[1]);
+        #`diff0.0.0.0.0.0_10.10.10`=[[0],[0],[0],[0],[0],[0],[j],[xyz]]->[[1,0],[1,0],[1,0],[j-1-a,a],[yz]]
+         implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0.0_10.10.10`)
+        fi;
        fi;
       fi;
      fi;
