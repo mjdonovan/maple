@@ -925,6 +925,8 @@ second_round_of_differentials:=proc()
          if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.10_110`) then
           `1xtradiff10.10_0.110`:=differential_upgrader(`1xtradiff0.10_110`,"atlolns",[1],"anstl",[0]);
           implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff10.10_0.110`);
+          `1xtradiff0.0.10_1.110`:=differential_upgrader(`1xtradiff0.10_110`,"anstl",[0],"anstl",[1]);
+          implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.10_1.110`);
          fi;
         fi;
        fi;
