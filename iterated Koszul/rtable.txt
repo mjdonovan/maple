@@ -489,12 +489,14 @@ assign_OM:=proc(numDimsToPrint:=2)
  rectify_TravIns_find_LD();
  L:=[];
  T:=TravIns[2];
- while T<>"finished" do
-  if StatMat[op(T)][1]*StatMat[op(T)][2] <= LowestDimension+numDimsToPrint-1 then
-   L:=[op(L),T];
-  fi;
-  T:=TravIns[1][op(T)];
- od;
+ if LowestDimension<calcToDimension then
+  while T<>"finished" do
+   if StatMat[op(T)][1]*StatMat[op(T)][2] <= LowestDimension+numDimsToPrint-1 then
+    L:=[op(L),T];
+   fi;
+   T:=TravIns[1][op(T)];
+  od;
+ fi;
  #L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)])],L);
  L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)]),StatMat[op(x)][1]*StatMat[op(x)][2],
             2^(add(nops(RL[i][x[i]]),i=1..nops(x)-1))*
@@ -515,12 +517,12 @@ assign_OM:=proc(numDimsToPrint:=2)
  L:=[['loc',`elt`,`pow`,`1powDim`,`t-s`,`t`,`s`,`elt`,`dims`,` `],op(L)];
  OM:=Matrix(L);
  if nops(L)>1 then
-  timed_message("after ",diffCounter," differentials, OM has ",nops(L)-1," entries, starting in dimension ",L[2][5]);
-  if L[2][5]=calcToDimension then 
-   timed_message("------------------------------------final dimension!------------------------------------"); 
-  fi;
+  timed_message("after ",diffCounter," differentials, OM has ",nops(L)-1," entries, starting in dimension ",LowestDimension);
  else
   timed_message("after ",diffCounter," differentials, we've cleared up to dimension ",calcToDimension);
+ fi;
+ if LowestDimension>=calcToDimension then 
+  timed_message("------------------------------------final dimension!------------------------------------"); 
  fi;
  return NULL;
 end proc:
