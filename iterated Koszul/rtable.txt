@@ -369,7 +369,8 @@ end proc:
 build_StatMat_TravIns:=proc(DataSoFar:="none")
  global StatMat,TravIns,calcToDimension,dValue,RL,nops_RL,diffCounter;
  local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
-       newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T;
+       newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T,lengthToGo,
+       prevLength,currDim,iInds,DEPTH;
  if DataSoFar="none" then
   timed_message("commencing build of StatMat and TravIns");
   diffCounter:=0;
@@ -401,13 +402,13 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
  currRLexc:=map(x->`if`(x=[],-1,add(x[i],i=1..nops(x))),
                 RL[-1-DSFsize]);
  fInds:=DataSoFar[3];
- while fInds<>"finished" do
+ if nops(currRLlen)>2 then
+  while fInds<>"finished" do
    for iInd to nops(currRLlen) do
     if currRLexc[iInd]<prevRLlen[fInds[1]] then
      newDimn:=(2^(currRLlen[iInd])  )*DataSoFar[1][op(fInds)]
              +((2^(currRLlen[iInd]))-1)*(prevRLlen[fInds[1]]+1)
              -currRLlen[iInd]-currRLdim[iInd];
-#     UserFeedback([RL[-1-DSFsize][iInd],seq(RL[i][fInds[i]],i=-DSFsize..-1)]);
      if newDimn<=calcToDimension then
       outTable[iInd,op(fInds)]:=newDimn;
       if pInitLoc="finished" then
@@ -420,7 +421,43 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
     fi;
    od;
    fInds:=DataSoFar[2][op(fInds)];
- od;
+  od;
+ else
+  lengthToGo:=nops_RL-DSFsize;
+  timed_message("computing last ",lengthToGo," dimensions all at once");
+  outTable:=rtable(seq(1..2,abcdef=1..lengthToGo),
+                  rtable_dims(DataSoFar[1]),storage=sparse);
+  pTable:=rtable(rtable_dims(outTable),storage=sparse);  
+  while fInds<>"finished" do
+   prevLength:=prevRLlen[fInds[1]];
+   currDim:=DataSoFar[1][op(fInds)];
+   iInds:=[seq(1,abcde=1..lengthToGo)];
+   outTable[op(iInds),op(fInds)]:=currDim;
+   if pInitLoc="finished" then
+    pInitLoc:=[op(iInds),op(fInds)]; 
+   else
+    pTable[op(pLastLoc)]:=[op(iInds),op(fInds)];
+   fi;
+   pLastLoc:=[op(iInds),op(fInds)];
+   for DEPTH from DSFsize+1 to nops_RL while prevLength>0 do
+    currDim:=2*currDim+prevLength;
+    prevLength=1;
+    iInds[-DEPTH+DSFsize]:=2;
+    if currDim<=calcToDimension then
+     outTable[op(iInds),op(fInds)]:=currDim;
+     if pInitLoc="finished" then
+      pInitLoc:=[op(iInds),op(fInds)]; 
+     else
+      pTable[op(pLastLoc)]:=[op(iInds),op(fInds)];
+     fi;
+     pLastLoc:=[op(iInds),op(fInds)];
+    else
+     prevLength=0;
+    fi;
+   od;
+   fInds:=DataSoFar[2][op(fInds)];
+  od;
+ fi;
  pTable[op(pLastLoc)]:="finished";
  if rtable_num_dims(outTable)<nops_RL then
   timed_message("computed ",rtable_num_dims(outTable)," out of ",nops_RL," dimensions deep");
