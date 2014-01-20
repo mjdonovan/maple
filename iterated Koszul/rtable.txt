@@ -184,7 +184,8 @@ timed_dlog:=proc()
 end proc:
 
 set_dimensions:=proc(cTD,d)
- global calcToDimension,dValue;
+ global calcToDimension,dValue,num_of_squarings_calculator;
+ forget(num_of_squarings_calculator);
  calcToDimension:=cTD;dValue:=d;
  timed_message("set dimensions: up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
  return NULL;
@@ -785,6 +786,11 @@ string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_rece
  return ans;
 end proc:
 
+num_of_squarings_calculator:=proc(SM82) option remember;
+ global calcToDimension;
+ return ilog2( (1+calcToDimension)/(1+SM82) );
+end proc;
+
 implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
  global StatMat,calcToDimension,diffCounter,nops_RL;
  local counter,diff,dim,num_of_squarings,SM7,SM8,trimmedTargIndex,prefixes;
@@ -794,7 +800,7 @@ implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
  if SM7=0 then return false; fi;
  if SM8=0 or SM7[1]<>1 or SM8[1]<>1 then error "this class has already been messed with"; fi;
  if SM7[2]<>SM8[2]+1 then error "dimensions don't differ by 1"; fi;
- num_of_squarings:=ilog2( (1+calcToDimension)/(1+SM8[2]) );
+ num_of_squarings:=num_of_squarings_calculator(SM8[2]);
  trimmedTargIndex:=remove(x->x=1,difl[8]);
  prefixes:=string_of_length_one_sequences_for_squares_index_finder(nops(trimmedTargIndex),
             nops(RL[-nops(trimmedTargIndex)][trimmedTargIndex[1]]))[-num_of_squarings..-1];
