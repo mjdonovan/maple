@@ -1,3 +1,5 @@
+restart; with(CodeTools[Profiling]);
+
 interface(rtablesize=2000):
 SqCompsMi:=proc(M,i1min)
   local ans,L;
