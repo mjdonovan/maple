@@ -54,10 +54,10 @@ end proc:
 #quick_extract_and_store_initial_diff_string(len,sourceStarts:="no gap")
 #apply_stored_diffs_and_assign_and_print_OM(numDimsToPrint:=2,outputVector:=[10,8,7,5])
 #
-#find_RL_coordinates(S)
-#find_RL_coordinates_with_hints(S,hints:=[])
+#*find_RL_coordinates(S)
+#*find_RL_coordinates_with_hints(S,hints:=[])
 #find_RL_coordinates_with_consecutive_hints(S,hints:=[])
-#differential_coords_finder(diff,sEqualityPositions:=false,tEqualityPositions:=false)
+#differential_coords_finder_ints_guaranteed(diff,sEqualityPositions,tEqualityPositions)
 #
 #*double_class(inds)
 #kill_class(inds)
@@ -321,9 +321,6 @@ find_RL_coordinates_with_consecutive_hints:=proc(S,hints:=[])
  #hints is a list like [2,5,47] indicating the rightmost positions
  global RL,nops_RL,RLlookup;
  local i,ans,RLglance;
- if nops(S)>nops_RL then
-  return 0;
- fi; 
  ans:=hints;
  for i from -1-nops(hints) to -nops(S) by -1 do
   RLglance:=RLlookup(i,op(S[i]));
@@ -685,39 +682,16 @@ implement_diff_if_in_range_TF_with_some_squares:=proc(difl,numSquares:=2^31-1)
  return evalb(counter<>0);
 end proc:
 
-differential_coords_finder:=proc(diff,sEqualityPositions:=false,tEqualityPositions:=false)
- #will find the coordinates of the elements in a differential if they are missing
- #if no hints are to be supplied, stick in false or "no hints"
- #if diff[7..8] are present, will automatically refind them unless passed "done" or "same"
- #if diff[7..8] present but partially incorrect, will correct them - can be passed a short list...
- #...of negative integer indices where the coordinates given are known.
- #finally, last two entries can be integers which state how many of the final entries of...
+differential_coords_finder_ints_guaranteed:=proc(diff,sEqualityPositions,tEqualityPositions)
+ #last two entries can be integers which state 
+ #how many of the final entries of...
  #...diff[7] and diff[8] are correct.
- local output;
- output:=diff[1..6];
- if type(sEqualityPositions,integer) then
-  output:=[op(output),find_RL_coordinates_with_consecutive_hints(diff[3],diff[7][-sEqualityPositions..-1])];
- elif sEqualityPositions="no hints" or sEqualityPositions=false then
-  output:=[op(output),find_RL_coordinates(diff[3])];
- elif sEqualityPositions="same" or sEqualityPositions="done" then
-  output:=[op(output),diff[7]];
- else
-  output:=[op(output),find_RL_coordinates_with_hints(diff[3],
-                 map(x->[x,diff[7][x]],sEqualityPositions))];
- fi;
- if output[7]=0 then return 0; fi;
- if type(tEqualityPositions,integer) then
-  output:=[op(output),find_RL_coordinates_with_consecutive_hints(diff[5],diff[8][-tEqualityPositions..-1])];
- elif tEqualityPositions="no hints" or tEqualityPositions=false then
-  output:=[op(output),find_RL_coordinates(diff[5])];
- elif tEqualityPositions="same" or tEqualityPositions="done" then
-  output:=[op(output),diff[8]];
- else
-  output:=[op(output),find_RL_coordinates_with_hints(diff[5],
-                 map(x->[x,diff[8][x]],tEqualityPositions))];
- fi;
- if output[8]=0 then return 0; fi;
- return output;
+ local t1,t2;
+ t1:=find_RL_coordinates_with_consecutive_hints(diff[3],diff[7][-sEqualityPositions..-1]);
+ if t1=0 then return 0; fi;
+ t2:=find_RL_coordinates_with_consecutive_hints(diff[5],diff[8][-tEqualityPositions..-1]);
+ if t2=0 then return 0; fi;
+ return [seq(diff[abc],abc=1..6),t1,t2];
 end proc:
 
 double_rMinusOne:=proc(dwhat)
@@ -745,50 +719,50 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
  output:=diff;
  output[3]:=remove(x->x=[],output[3]);
  output[5]:=remove(x->x=[],output[5]);
- if sDescriptor="square" then
-  output[4]:=2*output[4];
-  sHint:="done";
- elif sDescriptor="anstl" then
+ #if sDescriptor="square" then
+ # output[4]:=2*output[4];
+ # sHint:="done";
+ if sDescriptor="anstl" then
   sHint:=nops(output[3]);
   output[3]:=[sData,op(output[3])];
- elif sDescriptor="add top 1-element sequence to left" then
-  sHint:=nops(output[3]);
-  output[3]:=[[nops(output[3][1])-1],op(output[3])];
+ #elif sDescriptor="add top 1-element sequence to left" then
+ # sHint:=nops(output[3]);
+ # output[3]:=[[nops(output[3][1])-1],op(output[3])];
  elif sDescriptor="atlolns" then
   sHint:=nops(output[3])-1;
   output[3][1]:=[op(sData),op(output[3][1])];
- elif sDescriptor="completely replace, (k+...+ell2)+=1, inputting [S,pow]" then
-  output[3]:=sData[1];output[4]:=sData[2];
-  sHint:="no hints";
+ #elif sDescriptor="completely replace, (k+...+ell2)+=1, inputting [S,pow]" then
+ # output[3]:=sData[1];output[4]:=sData[2];
+ # sHint:="no hints";
  else
   error "I don't recognise the command";
  fi;
- if tDescriptor="square" then
-  output[6]:=2*output[6];
-  tHint:="done";
- elif tDescriptor="anstl" then
+ #if tDescriptor="square" then (out of fashion)
+ # output[6]:=2*output[6];
+ # tHint:="done";
+ if tDescriptor="anstl" then
   tHint:=nops(output[5]);
   output[5]:=[tData,op(output[5])];
- elif tDescriptor="add top 1-element sequence to left" then
-  tHint:=nops(output[5]);
-  output[5]:=[[nops(output[5][1])-1],op(output[5])];
+ #elif tDescriptor="add top 1-element sequence to left" then
+ # tHint:=nops(output[5]);
+ # output[5]:=[[nops(output[5][1])-1],op(output[5])];
  elif tDescriptor="atlolns" then
   tHint:=nops(output[5])-1;
   output[5][1]:=[op(tData),op(output[5][1])];
- elif tDescriptor="completely replace, (k+...+ell2)+=1, inputting [S,pow]" then
-  output[5]:=tData[1];output[6]:=tData[2];
-  tHint:="no hints";
+ #elif tDescriptor="completely replace, (k+...+ell2)+=1, inputting [S,pow]" then
+ # output[5]:=tData[1];output[6]:=tData[2];
+ # tHint:="no hints";
  else
   error "I don't recognise the command";
  fi;
  output[2]:=double_rMinusOne(output[2]);
- output:=differential_coords_finder(output,sHint,tHint);
+ output:=differential_coords_finder_ints_guaranteed(output,sHint,tHint);
  return output;
 end proc:
 
-differential_squarer:=proc(diff)
- return differential_upgrader(diff,"square","meh","add top 1-element sequence to left","meh");
-end proc:
+#differential_squarer:=proc(diff)
+# return differential_upgrader(diff,"square","meh","add top 1-element sequence to left","meh");
+#end proc:
 
 string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_recent_length) option remember;
  #helps speed up the process of adding in the squares of a differential
@@ -857,7 +831,7 @@ first_round_of_differentials:=proc()
     error "this is strange";
    fi;
    diff:=[`rnd1`,cat("d",a),[srcI1],1,trgS,1,[i],[predecessor_data_of_i]];
-   diff:=differential_coords_finder(diff,1,1);
+   diff:=differential_coords_finder_ints_guaranteed(diff,1,1);
    implement_diff_and_all_squares_if_in_range_TF_quick(diff);
   fi;
  od;
@@ -890,7 +864,7 @@ second_round_of_differentials:=proc()
   for jay from 2+dValue+ell1-exc1 to ell1-1 do
    srcS:=[[jay],srcI1];
    trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
-   `initdiff`:=differential_coords_finder([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
+   `initdiff`:=differential_coords_finder_ints_guaranteed([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
                      srcS,1,trgS,1,[i],[predecessor_data_of_i]],1,1);
   #`initdiff`=[[j],[xyz]]->[[j-1-a,a],[yz]]
    if implement_diff_and_all_squares_if_in_range_TF_quick(`initdiff`) then   
