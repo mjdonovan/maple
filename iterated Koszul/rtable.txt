@@ -706,8 +706,9 @@ end proc:
 double_rMinusOne_repeat:=proc(dwhat,number)
  option remember;
  if number=0 then return dwhat;
- elif number<0 then error "need a nonnegative number of iterations"
+ elif number<0 then error "need a nonnegative number of iterations";
  else return double_rMinusOne_repeat(double_rMinusOne(dwhat),number-1);
+ fi;
 end proc:
 
 all_ordered_partitions_with_sum_at_most:=proc(mAx) option remember;
