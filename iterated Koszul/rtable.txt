@@ -697,11 +697,17 @@ end proc:
 double_rMinusOne:=proc(dwhat)
  option remember;
  local SR;
- if not type("hi",'string') then error "not a string" fi;
  SR:=StringTools[SelectRemove]( StringTools[IsDigit],  dwhat  );
  if SR[2]<>"d" or dwhat[1]<>"d" then error "not of form d123" fi;
  SR[1];
  cat("d",2*parse(%)-1);
+end proc:
+
+double_rMinusOne_repeat:=proc(dwhat,number)
+ option remember;
+ if number=0 then return dwhat;
+ elif number<0 then error "need a nonnegative number of iterations"
+ else return double_rMinusOne_repeat(double_rMinusOne(dwhat),number-1);
 end proc:
 
 all_ordered_partitions_with_sum_at_most:=proc(mAx) option remember;
@@ -753,7 +759,7 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
  else
   error "I don't recognise the command";
  fi;
- output[2]:=double_rMinusOne(output[2]);
+ output[2]:=double_rMinusOne_repeat(output[2],nops(sData));
  output:=differential_coords_finder_ints_guaranteed(output,sHint,tHint);
  return output;
 end proc:
