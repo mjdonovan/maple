@@ -372,7 +372,7 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
  global StatMat,TravIns,calcToDimension,dValue,RL,nops_RL,diffCounter;
  local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
        newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T,lengthToGo,
-       prevLength,currDim,iInds,DEPTH;
+       prevLength,currDim,iInds,DEPTH,prevRLlen_finds1,DSF1;
  if DataSoFar="none" then
   timed_message("commencing build of StatMat and TravIns");
   diffCounter:=0;
@@ -406,10 +406,12 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
  fInds:=DataSoFar[3];
  if nops(currRLlen)>2 then
   while fInds<>"finished" do
+   prevRLlen_finds1:=prevRLlen[fInds[1]];
+   DSF1:=DataSoFar[1][op(fInds)];
    for iInd to nops(currRLlen) do
-    if currRLexc[iInd]<prevRLlen[fInds[1]] then
-     newDimn:=(2^(currRLlen[iInd])  )*DataSoFar[1][op(fInds)]
-             +((2^(currRLlen[iInd]))-1)*(prevRLlen[fInds[1]]+1)
+    if currRLexc[iInd]<prevRLlen_finds1 then
+     newDimn:=(2^(currRLlen[iInd])  )*DSF1
+             +((2^(currRLlen[iInd]))-1)*(prevRLlen_finds1+1)
              -currRLlen[iInd]-currRLdim[iInd];
      if newDimn<=calcToDimension then
       outTable[iInd,op(fInds)]:=newDimn;
