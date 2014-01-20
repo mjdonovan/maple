@@ -761,8 +761,7 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
   error "I don't recognise the command";
  fi;
  output[2]:=double_rMinusOne_repeat(output[2],nops(sData));
- output:=differential_coords_finder_ints_guaranteed(output,sHint,tHint);
- return output;
+ return differential_coords_finder_ints_guaranteed(output,sHint,tHint);
 end proc:
 
 #differential_squarer:=proc(diff)
@@ -1042,3 +1041,21 @@ SortBy('number'=20,'order'=time);
 quick_extract_and_store_initial_diff_string(1,3);
 apply_stored_diffs_and_assign_and_print_OM();
 while LowestDimension<calcToDimension do autowipe(); od;
+
+
+SUGGESTED SPEEDUPS
+
+return [seq(1,asd = 1 .. nops_RL-nops(S)), op(ans)] and
+if not type(RLglance,'integer') then
+   from find_RL_coordinates_with_consecutive_hints
+
+trimmedTargIndex := remove(x -> x = 1,difl[8]); and
+if difl = 0 then
+   from implement_diff_and_all_squares_if_in_range_TF_quick
+
+output[3] := remove(x -> x = [],output[3]);
+output[5] := remove(x -> x = [],output[5]);
+   from differential_upgrader
+
+return [seq(diff[abc],abc = 1 .. 6), t1, t2]
+   from differential_coords_finder_ints_guaranteed
