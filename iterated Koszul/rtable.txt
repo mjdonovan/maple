@@ -1008,15 +1008,15 @@ end proc:
 
 
 
-
+Profile();
 ########### begin program
 set_dimensions(2000,2);
-fileNm:=cat(cat(cat("C:\\maple_output\\afterRound2_S",dValue),"dim"),calcToDimension):
-if FileTools[Exists](fileNm)=false then
+#fileNm:=cat(cat(cat("C:\\maple_output\\afterRound2_S",dValue),"dim"),calcToDimension):
+#if FileTools[Exists](fileNm)=false then
  build_RL_and_RLlookup();
  build_StatMat_TravIns();
  trim_off_00002_001002_classes();
- save RL, nops_RL, predecessor_data, delta_admissables, StatMat, TravIns, diffCounter, RLlookup, cat(fileNm);
+# save RL, nops_RL, predecessor_data, delta_admissables, StatMat, TravIns, diffCounter, RLlookup, cat(fileNm);
  assign_and_print_OM();
  first_round_of_differentials();
  close_dlog();
@@ -1024,19 +1024,20 @@ if FileTools[Exists](fileNm)=false then
  second_round_of_differentials();
  assign_and_print_OM();
  close_dlog();
-else
- read fileNm:
- timed_message("you just loaded the early data");
- assign_and_print_OM();
- first_round_of_differentials();
- close_dlog();
- assign_and_print_OM();
- second_round_of_differentials();
- assign_and_print_OM();
- close_dlog();
-fi;
+#else
+# read fileNm:
+# timed_message("you just loaded the early data");
+# assign_and_print_OM();
+# first_round_of_differentials();
+# close_dlog();
+# assign_and_print_OM();
+# second_round_of_differentials();
+# assign_and_print_OM();
+# close_dlog();
+#fi;
 
 
+SortBy('number'=20,'order'=time);
 
 quick_extract_and_store_initial_diff_string(1,3);
 apply_stored_diffs_and_assign_and_print_OM();
