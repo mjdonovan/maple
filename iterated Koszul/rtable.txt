@@ -941,8 +941,8 @@ second_round_of_differentials:=proc()
         fi;
        fi;
       fi;
-      if nops(xtra)=1 or nops(xtra)=2 then
-       `12xtradiff10_10`:=differential_upgrader(`xtradiff`,"add",[1,0],"add",[1,0]);
+      if xd00flag and (nops(xtra)=1 or nops(xtra)=2) then
+       `12xtradiff10_10`:=differential_upgrader(`xtradiff0_0`,"app",[1],"app",[1]);
       #`12xtradiff10_10`=[[1,0],[v,j],[xyz]]->[[1,0],[v,j-1-a,a],[yz]]
        if implement_diff_and_all_squares_if_in_range_TF_quick(`12xtradiff10_10`) then
         if nops(xtra)=1 then
