@@ -199,7 +199,7 @@ delta_admissables_by_max_sum_using_stack:=proc(maxSum,d)
   ent:=stack[pop](q);
   AMLcount:=AMLcount+1:
   ADMISlist[AMLcount]:=ent;
-  sumSoFar:=sum(ent[k],k=1..nops(ent));
+  sumSoFar:=add(ent[k],k=1..nops(ent));
   for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent)+d))
           to `if`(nops(ent)>0,2*ent[1],2) by -1 do
    stack[push]([j,op(ent)],q);
@@ -217,7 +217,7 @@ build_delta_admissables_with_predecessor_data:=proc(maxSum,d)
   ent:=stack[pop](q);
   AMLcount:=AMLcount+1:
   ADMISlist[AMLcount]:=ent;
-  sumSoFar:=sum(ent[1][k],k=1..nops(ent[1]));
+  sumSoFar:=add(ent[1][k],k=1..nops(ent[1]));
   for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent[1])+d))
           to `if`(nops(ent[1])>0,2*ent[1][1],2) by -1 do
    stack[push]([[j,op(ent[1])],AMLcount],q);
