@@ -48,6 +48,7 @@ end proc:
 #build_RL_and_RLlookup()
 #StatMat_TravIns_starter()
 #build_StatMat_TravIns(DataSoFar:="none")
+#strip_subroot_classes_from_TravIns()
 #trim_off_00002_001002_classes()
 #delta_admissables_by_max_sum_using_stack(maxSum,d)
 #build_delta_admissables_with_predecessor_data(maxSum,d)
@@ -528,6 +529,25 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
   timed_message("computed ",rtable_num_dims(outTable)," out of ",nops_RL," dimensions deep");
  fi;
  return build_StatMat_TravIns([outTable,pTable,pInitLoc]);
+end proc:
+
+strip_subroot_classes_from_TravIns:=proc()
+ global StatMat,TravIns,LowestDimension,Root;
+ local T;
+ if nops(Root)<2 then return NULL; fi;
+ T:=TravIns[2];
+ while T<>"finished" and T[-1]=1 do
+  TravIns[2]:=TravIns[1][op(T)];
+  T:=TravIns[2];
+ od;
+ while T<>"finished" do
+  if TravIns[1][op(T)]<>"finished" and TravIns[1][op(T)][-1]=1 then
+   TravIns[1][op(T)]:=TravIns[1][op(TravIns[1][op(T)])]:
+  else
+   T:=TravIns[1][op(T)];
+  fi;
+ od:
+ return NULL;
 end proc:
 
 double_class:=proc(inds)
@@ -1083,6 +1103,7 @@ set_dimensions_and_Root(2000,2);
 #if FileTools[Exists](fileNm)=false then
  build_RL_and_RLlookup();
  build_StatMat_TravIns();
+ strip_subroot_classes_from_TravIns();
  trim_off_00002_001002_classes();
 # save RL, nops_RL, predecessor_data, delta_admissables, StatMat, TravIns, diffCounter, RLlookup, cat(fileNm);
  assign_and_print_OM();
