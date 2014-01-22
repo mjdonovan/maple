@@ -596,8 +596,12 @@ rectify_TravIns_find_LD:=proc()
 end proc:
 
 pretty_print_power_of_sequence:=proc(KE,pow)
-local ANS,i;
+ global Root;
+ local ANS,i;
  ANS:='e^pow':
+ if Root<>[] and KE[-1]=Root[2..-1] then
+  ANS:='srt^pow':
+ fi;
  for i from nops(KE) to 1 by -1 do 
   if nops(KE[i])>0 then 
    ANS:=[delta,SQa,SQb,SQc,SQd,SQe,SQf,SQg,SQh,SQi,SQj,SQk][1+nops(KE)-i][op(KE[i])]*ANS;
@@ -651,7 +655,7 @@ end proc:
 assign_OM:=proc(numDimsToPrint:=2)
  #automatically runs rectify_TravIns_find_LD beforehand
  global StatMat,TravIns,LowestDimension,OM,calcToDimension,diffCounter,Root;
- local T,L,i;
+ local T,L,i,dimOfInterest;
  if Root=[] then
   rectify_TravIns_find_LD();
  else
@@ -1148,7 +1152,7 @@ end proc:
 
 Profile();
 ########### begin program
-set_dimensions_and_Root(2000,2);
+set_dimensions_and_Root(2000,2,[0,2,0,2]);
 #fileNm:=cat(cat(cat("C:\\maple_output\\afterRound2_S",dValue),"dim"),calcToDimension):
 #if FileTools[Exists](fileNm)=false then
  build_RL_and_RLlookup();
