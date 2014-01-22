@@ -17,13 +17,21 @@ SqCompsMi:=proc(M,i1min)
   ans;
 end proc:
 ExcessFormatSingle:=y->`if`(y=[],[], [seq(y[i-1]-2*y[i],i=2..nops(y)),y[-1]]):
+unExcessFormatSingle:=proc(y)
+ local j,ans;
+ ans:=y;
+ for j from nops(y)-1 to 1 by -1 do
+  ans[j]:=ans[j]+2*ans[j+1];
+ od:
+ return ans;
+end proc:
 UserFeedback:=proc()
  local ans,x;ans:="";
  for x in args do ans:=cat(ans,convert(x,'string'));od;
  writeline(default,ans); return NULL;
 end proc:
 
-#calcToDimension, dValue, delta_admissables, predecessor_data, RL, nops_RL, RLlookup,
+#calcToDimension, dValue, Root, delta_admissables, predecessor_data, RL, nops_RL, RLlookup,
 #StatMat, TravIns, diffCounter, LowestDimension, OM
 #
 #new_dlog()
@@ -36,13 +44,14 @@ end proc:
 #timed_message()
 #timed_dlog()
 #
-#set_dimensions(cTd,d)
+#set_dimensions_and_Root(cTd,d,rt:=[])
 #build_RL_and_RLlookup()
 #StatMat_TravIns_starter()
 #build_StatMat_TravIns(DataSoFar:="none")
 #trim_off_00002_001002_classes()
 #delta_admissables_by_max_sum_using_stack(maxSum,d)
 #build_delta_admissables_with_predecessor_data(maxSum,d)
+#build_delta_admissables_with_Root_and_PD(maxSum,d)
 #
 #rectify_TravIns_find_LD()
 #assign_OM(numDimsToPrint:=2)
@@ -183,11 +192,14 @@ timed_dlog:=proc()
  NULL;
 end proc:
 
-set_dimensions:=proc(cTD,d)
- global calcToDimension,dValue,num_of_squarings_calculator;
+set_dimensions_and_Root:=proc(cTD,d,rt:=[])
+ global calcToDimension,dValue,num_of_squarings_calculator,Root;
  forget(num_of_squarings_calculator);
- calcToDimension:=cTD;dValue:=d;
+ calcToDimension:=cTD;dValue:=d;Root:=rt;
  timed_message("set dimensions: up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
+ if Root<>[] then
+  timed_message("the root has been set to ",Root);
+ fi;
  return NULL;
 end proc:
 
@@ -206,6 +218,37 @@ delta_admissables_by_max_sum_using_stack:=proc(maxSum,d)
   od;
  od:
  [seq(ADMISlist[j],j=1..AMLcount)];
+end proc:
+
+build_delta_admissables_with_Root_and_PD:=proc(maxSum,d)
+#enter the root in excess format
+#this will leave RL[-1][1] the result of stripping an element off the root
+#this is a placeholder - most desirable is to leave it in the computation
+#until after the StatMat, etc are done and then to remove it from TravIns.
+ local ADMISlist,AMLcount,q,ent,j,PostReln,sumSoFar,RootNONexcess;
+ global delta_admissables,predecessor_data,Root;
+ if Root=[] then
+  build_delta_admissables_with_predecessor_data(maxSum,d);
+  return NULL;
+ fi;
+ RootNONexcess:=unExcessFormatSingle(Root);
+ ADMISlist:=Table(): AMLcount:=1:
+ ADMISlist[1]:=[RootNONexcess[2..-1],0];
+ q := stack[new]([RootNONexcess,1]):
+ while not stack[empty](q) do
+  ent:=stack[pop](q);
+  AMLcount:=AMLcount+1:
+  ADMISlist[AMLcount]:=ent;
+  sumSoFar:=add(ent[1][k],k=1..nops(ent[1]));
+  for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent[1])+d))
+          to `if`(nops(ent[1])>0,2*ent[1][1],2) by -1 do
+   stack[push]([[j,op(ent[1])],AMLcount],q);
+  od;
+ od:
+ delta_admissables:=[seq(ExcessFormatSingle(ADMISlist[j][1]),j=1..AMLcount)];
+ #so that delta_admissables ends up in excess form!
+ predecessor_data:=[seq(ADMISlist[j][2],j=1..AMLcount)];
+ return NULL;
 end proc:
 
 build_delta_admissables_with_predecessor_data:=proc(maxSum,d)
@@ -237,7 +280,7 @@ build_RL_and_RLlookup:=proc()
        inclusionList,oldInterface,prevLength,m,ISEQ,tempo,i,j;
  forget(string_of_length_one_sequences_for_squares_index_finder);
  timed_message("building RL for calculation up to dimension ",calcToDimension);
- build_delta_admissables_with_predecessor_data(calcToDimension,dValue);
+ build_delta_admissables_with_Root_and_PD(calcToDimension,dValue);
  I3lists:=[seq(SqCompsMi(M,0),M=-1..11)]:
  I2lists:=[seq(SqCompsMi(M,2),M=-1..11)]:
  newInterface:=[seq(2^(i+1)+dValue-2,i=1..max(seq(nops(delta_admissables[i]),i=1..nops(delta_admissables))))];
@@ -367,15 +410,21 @@ StatMat_TravIns_starter:=proc()
 end proc:
 
 build_StatMat_TravIns:=proc(DataSoFar:="none")
- global StatMat,TravIns,calcToDimension,dValue,RL,nops_RL,diffCounter;
+ global StatMat,TravIns,calcToDimension,dValue,Root,RL,nops_RL,diffCounter;
  local outTable,cp,fInds,iInd,currRLlen,prevRLlen,currRLdim,currRLexc,
        newDimn,iterDims,pTable,pInitLoc,pLastLoc,DSFsize,T,lengthToGo,
        prevLength,currDim,iInds,DEPTH,prevRLlen_finds1,DSF1;
  if DataSoFar="none" then
   timed_message("commencing build of StatMat and TravIns");
   diffCounter:=0;
-  if map(x->x[1],RL)<>map(x->[],RL) then
-   error "need RL[i][1]=[] for all i";
+  if Root<>[] then
+   if map(x->x[1],RL)[1..-2]<>map(x->[],RL)[1..-2] or RL[-1][1]<>Root[2..-1] then
+    error "need RL[i][1]=[] for all i<-1 and RL[-1][1]=Root[2..-1]";
+   fi;
+  else
+   if map(x->x[1],RL)<>map(x->[],RL) or RL[-1][1]<>[] then
+    error "need RL[i][1]=[] for all i<-1 and RL[-1][1]=Root[2..-1]";
+   fi;
   fi;
   return build_StatMat_TravIns(StatMat_TravIns_starter());
  fi;
@@ -1015,7 +1064,7 @@ end proc:
 
 Profile();
 ########### begin program
-set_dimensions(2000,2);
+set_dimensions_and_Root(2000,2);
 #fileNm:=cat(cat(cat("C:\\maple_output\\afterRound2_S",dValue),"dim"),calcToDimension):
 #if FileTools[Exists](fileNm)=false then
  build_RL_and_RLlookup();
@@ -1049,19 +1098,15 @@ apply_stored_diffs_and_assign_and_print_OM();
 while LowestDimension<calcToDimension do autowipe(); od;
 
 
-SUGGESTED SPEEDUPS
-
+SUGGESTED SPEEDUPS:
 return [seq(1,asd = 1 .. nops_RL-nops(S)), op(ans)] and
 if not type(RLglance,'integer') then
    from find_RL_coordinates_with_consecutive_hints
-
-trimmedTargIndex := remove(x -> x = 1,difl[8]); and
+trimmedTargIndex := remove(x->x = 1,difl[8]); and
 if difl = 0 then
    from implement_diff_and_all_squares_if_in_range_TF_quick
-
-output[3] := remove(x -> x = [],output[3]);
-output[5] := remove(x -> x = [],output[5]);
+output[3] := remove(x ->x = [],output[3]);
+output[5] := remove(x ->x = [],output[5]);
    from differential_upgrader
-
 return [seq(diff[abc],abc = 1 .. 6), t1, t2]
    from differential_coords_finder_ints_guaranteed
