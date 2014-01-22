@@ -354,7 +354,7 @@ build_RL_and_RLlookup:=proc()
    RLlookup(i,op(RL[i][j])):=j;
   od;
  od: 
- timed_message("built lookup table inverting RL:{-2,...,",nops_RL,"}*N-->seq");
+ timed_message("built lookup table inverting RL:{-2,...,-",nops_RL,"}*N-->seq");
  return NULL;
 end proc:
 
