@@ -292,6 +292,9 @@ build_RL_and_RLlookup:=proc()
   newInterface:=map(x->2^31-1,oldInterface):
   for prevLength from 1 to nops(oldInterface) do
    m:=prevLength - 1;
+   if m+2>nops(ILIST) then
+    error cat("you need to extend ",`if`(ILIST=I2lists,"I2lists","I3lists"));
+   fi;
    for ISEQ in ILIST[m+2] do
     tempo:=2^(nops(ISEQ))*oldInterface[m+1]
            +(2^(nops(ISEQ))-1)*(m+2)
