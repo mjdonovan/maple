@@ -43,6 +43,7 @@ end proc:
 #dlog()
 #timed_message()
 #timed_dlog()
+#savefile_name()
 #
 #set_dimensions_and_Root(cTd,d,rt:=[])
 #build_RL_and_RLlookup()
@@ -193,6 +194,24 @@ timed_dlog:=proc()
  od;
  dlog(ans);
  NULL;
+end proc:
+savefile_name:=proc()
+ global dValue,calcToDimension,Root;
+ local ans,i;
+ ans:="C:\\maple_output\\afterRound2_S";
+ ans:=cat(ans,dValue);
+ ans:=cat(ans,"CtD");
+ ans:=cat(ans,calcToDimension);
+ if Root<>[] then
+  ans:=cat(ans,"Root");
+  for i in Root do
+   ans:=cat(ans,convert(i,string));
+  od;
+ fi;
+ for i in args do
+  ans:=cat(ans,convert(i,string));
+ od;
+ return ans;
 end proc:
 
 set_dimensions_and_Root:=proc(cTD,d,rt:=[])
@@ -1152,13 +1171,12 @@ end proc:
 
 Profile();
 ########### begin program
-set_dimensions_and_Root(2000,2,[0,2,0,2]);
-#fileNm:=cat(cat(cat("C:\\maple_output\\afterRound2_S",dValue),"dim"),calcToDimension):
-#if FileTools[Exists](fileNm)=false then
+set_dimensions_and_Root(2000,2,[0,0,2,0,2]);
+#if FileTools[Exists](savefile_name())=false then
  build_RL_and_RLlookup();
  build_StatMat_TravIns();
  trim_off_00002_001002_classes();
-# save RL, nops_RL, predecessor_data, delta_admissables, StatMat, TravIns, diffCounter, RLlookup, cat(fileNm);
+# save RL, nops_RL, predecessor_data, delta_admissables, StatMat, TravIns, diffCounter, RLlookup, savefile_name();
  assign_and_print_OM();
  first_round_of_differentials();
  close_dlog();
@@ -1167,7 +1185,7 @@ set_dimensions_and_Root(2000,2,[0,2,0,2]);
  assign_and_print_OM();
  close_dlog();
 #else
-# read fileNm:
+# read savefile_name():
 # timed_message("you just loaded the early data");
 # assign_and_print_OM();
 # first_round_of_differentials();
