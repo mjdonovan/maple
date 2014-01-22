@@ -1067,6 +1067,12 @@ second_round_of_differentials:=proc()
       `xtradiff1_1`:=differential_upgrader(`xtradiff`,"add",[1],"add",[1]);
      #`xtradiff1_1`=[[1],[tuv,j],[xyz]]->[[1],[tuv,j-1-a,a],[yz]]
       xd11flag:=implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
+      if nops(xtra)=3 then
+       `3xtradiff2_2`:=differential_upgrader(`xtradiff`,"add",[2],"add",[2]);
+      #`3xtradiff2_2`=[[2],[t,u,v,j],[xyz]]->[[2],[t,u,v,j-1-a,a],[yz]]
+       `3xtradiff3_3`:=differential_upgrader(`xtradiff`,"add",[3],"add",[3]);
+      #`3xtradiff3_3`=[[3],[t,u,v,j],[xyz]]->[[3],[t,u,v,j-1-a,a],[yz]]
+      fi;
       if nops(xtra)=2 then
        `2xtradiff2_2`:=differential_upgrader(`xtradiff`,"add",[2],"add",[2]);
       #`2xtradiff2_2`=[[2],[u,v,j],[xyz]]->[[2],[u,v,j-1-a,a],[yz]]
@@ -1081,6 +1087,8 @@ second_round_of_differentials:=proc()
        if xd00flag then
         `2xtradiff0.0_30`:=differential_upgrader(`xtradiff0_0`,"add",[0],"app",[3]);
         implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.0_30`);
+        `2xtradiff110_110`:=differential_upgrader(`xtradiff0_0`,"app",[11],"app",[11]);
+        implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff110_110`);
        fi;
       fi;
       if nops(xtra)=1 then
