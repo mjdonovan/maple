@@ -661,7 +661,9 @@ assign_OM:=proc(numDimsToPrint:=2)
  T:=TravIns[2];
  if LowestDimension<calcToDimension then
   while T<>"finished" do
-   if StatMat[op(T)][1]*StatMat[op(T)][2] <= LowestDimension+numDimsToPrint-1 then
+   dimOfInterest:=StatMat[op(T)][1]*StatMat[op(T)][2];
+   if (dimOfInterest <= LowestDimension+numDimsToPrint-1 and T[-1]<>1) 
+   or  dimOfInterest = LowestDimension-1 then
     L:=[op(L),T];
    fi;
    T:=TravIns[1][op(T)];
