@@ -1148,6 +1148,11 @@ end proc:
 autowipe:=proc()
  global OM;
  local numberOfInterestingRows,seqOfDims,numberAtBottomDimension,seqOfElements;
+ if nargs>0 then
+  quick_extract_and_store_diffs(args);
+  apply_stored_diffs_and_assign_and_print_OM();
+  return NULL;
+ fi;
  numberOfInterestingRows:=LinearAlgebra[RowDimension](OM)-1;
  seqOfDims:=[seq(OM[i+1,5],i=1..numberOfInterestingRows)];
  seqOfElements:=[seq(OM[i+1,2],i=1..numberOfInterestingRows)];
@@ -1164,6 +1169,7 @@ autowipe:=proc()
   quick_extract_and_store_initial_diff_string(numberAtBottomDimension);
   apply_stored_diffs_and_assign_and_print_OM();
  fi;
+ return NULL;
 end proc:
 
 
