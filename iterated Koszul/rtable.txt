@@ -194,11 +194,22 @@ end proc:
 
 set_dimensions_and_Root:=proc(cTD,d,rt:=[])
  global calcToDimension,dValue,num_of_squarings_calculator,Root;
+ local L,MinDeg,storeddim,i;
  forget(num_of_squarings_calculator);
  calcToDimension:=cTD;dValue:=d;Root:=rt;
  timed_message("set dimensions: up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
  if Root<>[] then
   timed_message("the root has been set to ",Root);
+  L:=unExcessFormatSingle(Root);
+  MinDeg:=L[nops(L)];
+  storeddim:=0;
+  for i by -1 from nops(L)-1 to 1 do
+   storeddim:=storeddim+L[i+1]+1;
+   MinDeg:=max(MinDeg,L[i]-storeddim);
+  od;
+  if MinDeg>d then
+   error "I don't think that this class is unstable";
+  fi;
  fi;
  return NULL;
 end proc:
@@ -282,7 +293,7 @@ build_RL_and_RLlookup:=proc()
  timed_message("building RL for calculation up to dimension ",calcToDimension);
  build_delta_admissables_with_Root_and_PD(calcToDimension,dValue);
  I3lists:=[seq(SqCompsMi(M,0),M=-1..11)]:
- I2lists:=[seq(SqCompsMi(M,2),M=-1..11)]:
+ I2lists:=[seq(SqCompsMi(M,2),M=-1..17)]:
  newInterface:=[seq(2^(i+1)+dValue-2,i=1..max(seq(nops(delta_admissables[i]),i=1..nops(delta_admissables))))];
  inclusionLists:=[];
  for ILIST in [I2lists,I3lists,I3lists,I3lists,I3lists,I3lists,I3lists,I3lists,
@@ -853,7 +864,7 @@ implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
  if SM8=0 or SM7[1]<>1 or SM8[1]<>1 then error "this class has already been messed with"; fi;
  if SM7[2]<>SM8[2]+1 then error "dimensions don't differ by 1"; fi;
  num_of_squarings:=num_of_squarings_calculator(SM8[2]);
- trimmedTargIndex:=remove(x->x=1,difl[8]);
+ trimmedTargIndex:=[op(remove(x->x=1,difl[8][1..-2])),difl[8][-1]];
  prefixes:=string_of_length_one_sequences_for_squares_index_finder(nops(trimmedTargIndex),
             nops(RL[-nops(trimmedTargIndex)][trimmedTargIndex[1]]))[-num_of_squarings..-1];
  dlog(difl); diffCounter:=diffCounter+1;
@@ -1113,3 +1124,4 @@ output[5] := remove(x ->x = [],output[5]);
    from differential_upgrader
 return [seq(diff[abc],abc = 1 .. 6), t1, t2]
    from differential_coords_finder_ints_guaranteed
+trimmedTargIndex:=[op(remove(x->x=1,difl[8][1..-2])),difl[8][-1]]; is inefficient
