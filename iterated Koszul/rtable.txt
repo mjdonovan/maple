@@ -75,14 +75,14 @@ end proc:
 #*double_class(inds)
 #kill_class(inds)
 #double_rMinusOne(dwhat)
-#differential_upgrader(diff,sDescriptor,sData,tDescriptor,tData)
+#UP(diff,sDescriptor,sData,tDescriptor,tData) (formerly differential_upgrader)
 #*differential_squarer(diff)
 #all_ordered_partitions_with_sum_at_most(mAx)
 #
 #*implement_diff(difl)
 #*implement_diff_if_in_range_TF(difl)
 #*implement_diff_if_in_range_TF_with_some_squares(difl,numSquares:=2^31-1)
-#implement_diff_and_all_squares_if_in_range_TF_quick(difl)
+#IM(difl) (formerly "implement_diff_and_all_squares_if_in_range_TF_quick")
 #string_of_length_one_sequences_for_squares_index_finder(N_so_far,most_recent_length)
 #
 #first_round_of_differentials()
@@ -748,7 +748,7 @@ apply_stored_diffs_and_assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:
  ensure_dlog_open();
  if assigned(ManuallyStoredDiffs) then
   for i in ManuallyStoredDiffs do
-   implement_diff_and_all_squares_if_in_range_TF_quick(i);
+   IM(i);
   od;
  fi;
  ManuallyStoredDiffs:=[];
@@ -872,7 +872,7 @@ all_ordered_partitions_with_sum_at_most:=proc(mAx) option remember;
  return [seq(seq(op(combinat[composition](n,i)),i=1..n),n=1..mAx)];
 end proc:
 
-differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
+UP:=proc(diff,sDescriptor,sData,tDescriptor,tData)
  #changes a differential in one of 2*2 simple ways:
  #2. "add"="add new sequence to left"
  #3. "app"="append to left of leftmost nontrivial sequence"
@@ -922,7 +922,7 @@ differential_upgrader:=proc(diff,sDescriptor,sData,tDescriptor,tData)
 end proc:
 
 #differential_squarer:=proc(diff)
-# return differential_upgrader(diff,"square","meh","add top 1-element sequence to left","meh");
+# return UP(diff,"square","meh","add top 1-element sequence to left","meh");
 #end proc:
 
 string_of_length_one_sequences_for_squares_index_finder:=proc(N_so_far,most_recent_length) option remember;
@@ -947,7 +947,7 @@ num_of_squarings_calculator:=proc(SM82) option remember;
  return ilog2( (1+calcToDimension)/(1+SM82) );
 end proc:
 
-implement_diff_and_all_squares_if_in_range_TF_quick:=proc(difl)
+IM:=proc(difl)
  global StatMat,calcToDimension,diffCounter,nops_RL;
  local counter,diff,dim,num_of_squarings,SM7,SM8,trimmedTargIndex,prefixes;
  if difl=0 then return false; fi;
@@ -998,7 +998,7 @@ first_round_of_differentials:=proc()
    fi;
    diff:=[`rnd1`,cat("d",a),[srcI1],1,trgS,1,[i],[predecessor_data_of_i]];
    diff:=differential_coords_finder_ints_guaranteed(diff,1,1);
-   implement_diff_and_all_squares_if_in_range_TF_quick(diff);
+   IM(diff);
   fi;
  od;
  timed_message("finished first round of differentials - there were ",diffCounter-diffCounterStarting);
@@ -1033,27 +1033,27 @@ second_round_of_differentials:=proc()
    `initdiff`:=differential_coords_finder_ints_guaranteed([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
                      srcS,1,trgS,1,[i],[predecessor_data_of_i]],1,1);
   #`initdiff`=[[j],[xyz]]->[[j-1-a,a],[yz]]
-   if implement_diff_and_all_squares_if_in_range_TF_quick(`initdiff`) then   
-    `diff0_0`:=differential_upgrader(`initdiff`,"add",[0],"add",[0]);
+   if IM(`initdiff`) then   
+    `diff0_0`:=UP(`initdiff`,"add",[0],"add",[0]);
    #`diff0_0`=[[0],[j],[xyz]]->[[0],[j-1-a,a],[yz]]
-    if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0_0`) then
-     `diff0.0_10`:=differential_upgrader(`diff0_0`,"add",[0],"app",[1]);
+    if IM(`diff0_0`) then
+     `diff0.0_10`:=UP(`diff0_0`,"add",[0],"app",[1]);
     #`diff0.0_10`=[[0],[0],[j],[xyz]]->[[1,0],[j-1-a,a],[yz]]
-     if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0_10`) then
-      `diff0.0.0_0.10`:=differential_upgrader(`diff0.0_10`,"add",[0],"add",[0]);
+     if IM(`diff0.0_10`) then
+      `diff0.0.0_0.10`:=UP(`diff0.0_10`,"add",[0],"add",[0]);
      #`diff0.0.0_0.10`=[[0],[0],[0],[j],[xyz]]->[[0],[1,0],[j-1-a,a],[yz]]
-      if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0_0.10`) then
-       `diff0.0.0.0_10.10`:=differential_upgrader(`diff0.0.0_0.10`,"add",[0],"app",[1]);
+      if IM(`diff0.0.0_0.10`) then
+       `diff0.0.0.0_10.10`:=UP(`diff0.0.0_0.10`,"add",[0],"app",[1]);
       #`diff0.0.0.0_10.10`=[[0],[0],[0],[0],[j],[xyz]]->[[1,0],[1,0],[j-1-a,a],[yz]]
-       if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0_10.10`) then
-        `diff0.0.0.0.0_0.10.10`:=differential_upgrader(`diff0.0.0.0_10.10`,"add",[0],"add",[0]);
+       if IM(`diff0.0.0.0_10.10`) then
+        `diff0.0.0.0.0_0.10.10`:=UP(`diff0.0.0.0_10.10`,"add",[0],"add",[0]);
        #`diff0.0.0.0.0_0.10.10`=[[0],[0],[0],[0],[0],[j],[xyz]]->[[0],[1,0],[1,0],[j-1-a,a],[yz]]
-        if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0_0.10.10`) then
-         `diff0.0.0.0.0.0_10.10.10`:=differential_upgrader(`diff0.0.0.0.0_0.10.10`,"add",[0],"app",[1]);
+        if IM(`diff0.0.0.0.0_0.10.10`) then
+         `diff0.0.0.0.0.0_10.10.10`:=UP(`diff0.0.0.0.0_0.10.10`,"add",[0],"app",[1]);
         #`diff0.0.0.0.0.0_10.10.10`=[[0],[0],[0],[0],[0],[0],[j],[xyz]]->[[1,0],[1,0],[1,0],[j-1-a,a],[yz]]
-         if implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0.0_10.10.10`) then
-          `diff0.0.0.0.0.0.0_0.10.10.10`:=differential_upgrader(`diff0.0.0.0.0.0_10.10.10`,"add",[0],"add",[0]);
-          implement_diff_and_all_squares_if_in_range_TF_quick(`diff0.0.0.0.0.0.0_0.10.10.10`);
+         if IM(`diff0.0.0.0.0.0_10.10.10`) then
+          `diff0.0.0.0.0.0.0_0.10.10.10`:=UP(`diff0.0.0.0.0.0_10.10.10`,"add",[0],"add",[0]);
+          IM(`diff0.0.0.0.0.0.0_0.10.10.10`);
          fi;
         fi;
        fi;
@@ -1061,130 +1061,130 @@ second_round_of_differentials:=proc()
      fi;
     fi;
     for xtra in all_ordered_partitions_with_sum_at_most(ell1-jay-1) do
-     `xtradiff`:=differential_upgrader(`initdiff`,"app",xtra,"app",xtra);
+     `xtradiff`:=UP(`initdiff`,"app",xtra,"app",xtra);
     #`xtradiff`=[[tuv,j],[xyz]]->[[tuv,j-1-a,a],[yz]]
-     if implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff`) then
-      `xtradiff0_0`:=differential_upgrader(`xtradiff`,"add",[0],"add",[0]);
+     if IM(`xtradiff`) then
+      `xtradiff0_0`:=UP(`xtradiff`,"add",[0],"add",[0]);
      #`xtradiff0_0`=[[0],[tuv,j],[xyz]]->[[0],[tuv,j-1-a,a],[yz]]
-      xd00flag:=implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff0_0`);
-      `xtradiff1_1`:=differential_upgrader(`xtradiff`,"add",[1],"add",[1]);
+      xd00flag:=IM(`xtradiff0_0`);
+      `xtradiff1_1`:=UP(`xtradiff`,"add",[1],"add",[1]);
      #`xtradiff1_1`=[[1],[tuv,j],[xyz]]->[[1],[tuv,j-1-a,a],[yz]]
-      xd11flag:=implement_diff_and_all_squares_if_in_range_TF_quick(`xtradiff1_1`);
+      xd11flag:=IM(`xtradiff1_1`);
       if nops(xtra)=3 then
-       `3xtradiff2_2`:=differential_upgrader(`xtradiff`,"add",[2],"add",[2]);
+       `3xtradiff2_2`:=UP(`xtradiff`,"add",[2],"add",[2]);
       #`3xtradiff2_2`=[[2],[t,u,v,j],[xyz]]->[[2],[t,u,v,j-1-a,a],[yz]]
-       `3xtradiff3_3`:=differential_upgrader(`xtradiff`,"add",[3],"add",[3]);
+       `3xtradiff3_3`:=UP(`xtradiff`,"add",[3],"add",[3]);
       #`3xtradiff3_3`=[[3],[t,u,v,j],[xyz]]->[[3],[t,u,v,j-1-a,a],[yz]]
       fi;
       if nops(xtra)=2 then
-       `2xtradiff2_2`:=differential_upgrader(`xtradiff`,"add",[2],"add",[2]);
+       `2xtradiff2_2`:=UP(`xtradiff`,"add",[2],"add",[2]);
       #`2xtradiff2_2`=[[2],[u,v,j],[xyz]]->[[2],[u,v,j-1-a,a],[yz]]
-       if implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff2_2`) then
-        `2xtradiff0.2_12`:=differential_upgrader(`2xtradiff2_2`,"add",[0],"app",[1]);
-        if implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.2_12`) then
-         `2xtradiff0.0.2_0.12`:=differential_upgrader(`2xtradiff0.2_12`,"add",[0],"add",[0]);
-         implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.0.2_0.12`);
+       if IM(`2xtradiff2_2`) then
+        `2xtradiff0.2_12`:=UP(`2xtradiff2_2`,"add",[0],"app",[1]);
+        if IM(`2xtradiff0.2_12`) then
+         `2xtradiff0.0.2_0.12`:=UP(`2xtradiff0.2_12`,"add",[0],"add",[0]);
+         IM(`2xtradiff0.0.2_0.12`);
         fi;
        fi;
        if xd11flag then
-        `2xtradiff0.1_21`:=differential_upgrader(`xtradiff1_1`,"add",[0],"app",[2]);
-        if implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.1_21`) then
-         `2xtradiff0.0.1_0.21`:=differential_upgrader(`2xtradiff0.1_21`,"add",[0],"add",[0]);
-         implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.0.1_0.21`);
+        `2xtradiff0.1_21`:=UP(`xtradiff1_1`,"add",[0],"app",[2]);
+        if IM(`2xtradiff0.1_21`) then
+         `2xtradiff0.0.1_0.21`:=UP(`2xtradiff0.1_21`,"add",[0],"add",[0]);
+         IM(`2xtradiff0.0.1_0.21`);
         fi;
        fi;
        if xd00flag then
-        `2xtradiff0.0_30`:=differential_upgrader(`xtradiff0_0`,"add",[0],"app",[3]);
-        if implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.0_30`) then
-         `2xtradiff0.0.0_0.30`:=differential_upgrader(`2xtradiff0.0_30`,"add",[0],"add",[0]);
-         implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.0.0_0.30`);
+        `2xtradiff0.0_30`:=UP(`xtradiff0_0`,"add",[0],"app",[3]);
+        if IM(`2xtradiff0.0_30`) then
+         `2xtradiff0.0.0_0.30`:=UP(`2xtradiff0.0_30`,"add",[0],"add",[0]);
+         IM(`2xtradiff0.0.0_0.30`);
         fi;
-        `2xtradiff110_110`:=differential_upgrader(`xtradiff0_0`,"app",[11],"app",[11]);
-        implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff110_110`);
+        `2xtradiff110_110`:=UP(`xtradiff0_0`,"app",[11],"app",[11]);
+        IM(`2xtradiff110_110`);
        fi;
       fi;
       if nops(xtra)=1 then
        if xd11flag then
-        `1xtradiff0.1_11`:=differential_upgrader(`xtradiff1_1`,"add",[0],"app",[1]);
+        `1xtradiff0.1_11`:=UP(`xtradiff1_1`,"add",[0],"app",[1]);
        #`1xtradiff0.1_11`=[[0],[1],[v,j],[xyz]]->[[1,1],[v,j-1-a,a],[yz]]
-        if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.1_11`) then
-         `1xtradiff0.0.1_0.11`:=differential_upgrader(`1xtradiff0.1_11`,"add",[0],"add",[0]);
+        if IM(`1xtradiff0.1_11`) then
+         `1xtradiff0.0.1_0.11`:=UP(`1xtradiff0.1_11`,"add",[0],"add",[0]);
         #`1xtradiff0.0.1_0.11`=[[0],[0],[1],[v,j],[xyz]]->[[0],[1,1],[v,j-1-a,a],[yz]]
-         if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.1_0.11`) then
-          `1xtradiff0.0.0.1_10.11`:=differential_upgrader(`1xtradiff0.0.1_0.11`,"add",[0],"app",[1]);
-          if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.0.1_10.11`) then
-           `1xtradiff0.0.0.0.1_0.10.11`:=differential_upgrader(`1xtradiff0.0.0.1_10.11`,"add",[0],"add",[0]);
-           implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.0.0.1_0.10.11`);
+         if IM(`1xtradiff0.0.1_0.11`) then
+          `1xtradiff0.0.0.1_10.11`:=UP(`1xtradiff0.0.1_0.11`,"add",[0],"app",[1]);
+          if IM(`1xtradiff0.0.0.1_10.11`) then
+           `1xtradiff0.0.0.0.1_0.10.11`:=UP(`1xtradiff0.0.0.1_10.11`,"add",[0],"add",[0]);
+           IM(`1xtradiff0.0.0.0.1_0.10.11`);
           fi;
          fi;
         fi;
        fi;
        if xd00flag then
-        `1xtradiff0.0_20`:=differential_upgrader(`xtradiff0_0`,"add",[0],"app",[2]);
+        `1xtradiff0.0_20`:=UP(`xtradiff0_0`,"add",[0],"app",[2]);
        #`1xtradiff0.0_20`=[[0],[0],[v,j],[xyz]]->[[2,0],[v,j-1-a,a],[yz]]
-        if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0_20`) then
-         `1xtradiff0.0.0_0.20`:=differential_upgrader(`1xtradiff0.0_20`,"add",[0],"add",[0]);
+        if IM(`1xtradiff0.0_20`) then
+         `1xtradiff0.0.0_0.20`:=UP(`1xtradiff0.0_20`,"add",[0],"add",[0]);
         #`1xtradiff0.0.0_0.20`=[[0],[0],[0],[v,j],[xyz]]->[[0],[2,0],[v,j-1-a,a],[yz]]
-         if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.0_0.20`) then
-          `1xtradiff0.0.0.0_10.20`:=differential_upgrader(`1xtradiff0.0.0_0.20`,"add",[0],"app",[1]);
-          if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.0.0_10.20`) then
-           `1xtradiff0.0.0.0.0_0.10.20`:=differential_upgrader(`1xtradiff0.0.0.0_10.20`,"add",[0],"add",[0]);
-           implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.0.0.0_0.10.20`);
+         if IM(`1xtradiff0.0.0_0.20`) then
+          `1xtradiff0.0.0.0_10.20`:=UP(`1xtradiff0.0.0_0.20`,"add",[0],"app",[1]);
+          if IM(`1xtradiff0.0.0.0_10.20`) then
+           `1xtradiff0.0.0.0.0_0.10.20`:=UP(`1xtradiff0.0.0.0_10.20`,"add",[0],"add",[0]);
+           IM(`1xtradiff0.0.0.0.0_0.10.20`);
           fi;
          fi;
         fi;
        fi;
       fi;
       if xd00flag and (nops(xtra)=1 or nops(xtra)=2) then
-       `12xtradiff10_10`:=differential_upgrader(`xtradiff0_0`,"app",[1],"app",[1]);
+       `12xtradiff10_10`:=UP(`xtradiff0_0`,"app",[1],"app",[1]);
       #`12xtradiff10_10`=[[1,0],[v,j],[xyz]]->[[1,0],[v,j-1-a,a],[yz]]
-       if implement_diff_and_all_squares_if_in_range_TF_quick(`12xtradiff10_10`) then
+       if IM(`12xtradiff10_10`) then
         if nops(xtra)=1 then
-         `1xtradiff0.10_110`:=differential_upgrader(`12xtradiff10_10`,"add",[0],"app",[1]);
-         `1xtradiff1.10_0.10`:=differential_upgrader(`12xtradiff10_10`,"add",[1],"add",[0]);
-         if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff1.10_0.10`) then
-          `1xtradiff0.1.10_10.10`:=differential_upgrader(`1xtradiff1.10_0.10`,"add",[0],"app",[1]);
-          if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.1.10_10.10`) then
-           `1xtradiff0.0.1.10_0.10.10`:=differential_upgrader(`1xtradiff0.1.10_10.10`,"add",[0],"add",[0]);
-           implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.1.10_0.10.10`);
+         `1xtradiff0.10_110`:=UP(`12xtradiff10_10`,"add",[0],"app",[1]);
+         `1xtradiff1.10_0.10`:=UP(`12xtradiff10_10`,"add",[1],"add",[0]);
+         if IM(`1xtradiff1.10_0.10`) then
+          `1xtradiff0.1.10_10.10`:=UP(`1xtradiff1.10_0.10`,"add",[0],"app",[1]);
+          if IM(`1xtradiff0.1.10_10.10`) then
+           `1xtradiff0.0.1.10_0.10.10`:=UP(`1xtradiff0.1.10_10.10`,"add",[0],"add",[0]);
+           IM(`1xtradiff0.0.1.10_0.10.10`);
           fi;
          fi;
-         if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.10_110`) then
-          `1xtradiff10.10_0.110`:=differential_upgrader(`1xtradiff0.10_110`,"app",[1],"add",[0]);
-          if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff10.10_0.110`) then
-           `1xtradiff0.10.10_10.110`:=differential_upgrader(`1xtradiff10.10_0.110`,"add",[0],"app",[1]);
-           implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.10.10_10.110`);
-           `1xtradiff1.10.10_20.110`:=differential_upgrader(`1xtradiff10.10_0.110`,"add",[1],"app",[2]);
-           implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff1.10.10_20.110`);
+         if IM(`1xtradiff0.10_110`) then
+          `1xtradiff10.10_0.110`:=UP(`1xtradiff0.10_110`,"app",[1],"add",[0]);
+          if IM(`1xtradiff10.10_0.110`) then
+           `1xtradiff0.10.10_10.110`:=UP(`1xtradiff10.10_0.110`,"add",[0],"app",[1]);
+           IM(`1xtradiff0.10.10_10.110`);
+           `1xtradiff1.10.10_20.110`:=UP(`1xtradiff10.10_0.110`,"add",[1],"app",[2]);
+           IM(`1xtradiff1.10.10_20.110`);
           fi;
-          `1xtradiff0.0.10_1.110`:=differential_upgrader(`1xtradiff0.10_110`,"add",[0],"add",[1]);
-          if implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.10_1.110`) then
-           `1xtradiff0.0.0.10_11.110`:=differential_upgrader(`1xtradiff0.0.10_1.110`,"add",[0],"app",[1]);
-           implement_diff_and_all_squares_if_in_range_TF_quick(`1xtradiff0.0.0.10_11.110`);
+          `1xtradiff0.0.10_1.110`:=UP(`1xtradiff0.10_110`,"add",[0],"add",[1]);
+          if IM(`1xtradiff0.0.10_1.110`) then
+           `1xtradiff0.0.0.10_11.110`:=UP(`1xtradiff0.0.10_1.110`,"add",[0],"app",[1]);
+           IM(`1xtradiff0.0.0.10_11.110`);
           fi;
          fi;
         fi;
         if nops(xtra)=2 then
-         `2xtradiff0.10_210`:=differential_upgrader(`12xtradiff10_10`,"add",[0],"app",[2]);
-          implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.10_210`);
-         `2xtradiff1.10_0.10`:=differential_upgrader(`12xtradiff10_10`,"add",[0],"add",[0]);
-          implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff1.10_0.10`);
+         `2xtradiff0.10_210`:=UP(`12xtradiff10_10`,"add",[0],"app",[2]);
+          IM(`2xtradiff0.10_210`);
+         `2xtradiff1.10_0.10`:=UP(`12xtradiff10_10`,"add",[0],"add",[0]);
+          IM(`2xtradiff1.10_0.10`);
         fi;
        fi;
       fi;
       if nops(xtra)=2 then
-       `2xtradiff11_11`:=differential_upgrader(`xtradiff1_1`,"app",[1],"app",[1]);
-       if implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff11_11`) then
-        `2xtradiff0.11_111`:=differential_upgrader(`2xtradiff11_11`,"add",[0],"app",[1]);
-        implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.11_111`);
-        `2xtradiff1.11_0.11`:=differential_upgrader(`2xtradiff11_11`,"add",[1],"add",[0]);
-        implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff1.11_0.11`);
-        `2xtradiff20_20`:=differential_upgrader(`xtradiff0_0`,"app",[2],"app",[2]);
-        if implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff20_20`) then
-         `2xtradiff0.20_120`:=differential_upgrader(`2xtradiff20_20`,"add",[0],"app",[1]);
-         implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff0.20_120`);
-         `2xtradiff1.20_0.20`:=differential_upgrader(`2xtradiff20_20`,"add",[1],"add",[0]);
-         implement_diff_and_all_squares_if_in_range_TF_quick(`2xtradiff1.20_0.20`);
+       `2xtradiff11_11`:=UP(`xtradiff1_1`,"app",[1],"app",[1]);
+       if IM(`2xtradiff11_11`) then
+        `2xtradiff0.11_111`:=UP(`2xtradiff11_11`,"add",[0],"app",[1]);
+        IM(`2xtradiff0.11_111`);
+        `2xtradiff1.11_0.11`:=UP(`2xtradiff11_11`,"add",[1],"add",[0]);
+        IM(`2xtradiff1.11_0.11`);
+        `2xtradiff20_20`:=UP(`xtradiff0_0`,"app",[2],"app",[2]);
+        if IM(`2xtradiff20_20`) then
+         `2xtradiff0.20_120`:=UP(`2xtradiff20_20`,"add",[0],"app",[1]);
+         IM(`2xtradiff0.20_120`);
+         `2xtradiff1.20_0.20`:=UP(`2xtradiff20_20`,"add",[1],"add",[0]);
+         IM(`2xtradiff1.20_0.20`);
         fi;
        fi;
       fi;
@@ -1268,10 +1268,10 @@ if not type(RLglance,'integer') then
    from find_RL_coordinates_with_consecutive_hints
 trimmedTargIndex := remove(x->x = 1,difl[8]); and
 if difl = 0 then
-   from implement_diff_and_all_squares_if_in_range_TF_quick
+   from IM
 output[3] := remove(x ->x = [],output[3]);
 output[5] := remove(x ->x = [],output[5]);
-   from differential_upgrader
+   from UP
 return [seq(diff[abc],abc = 1 .. 6), t1, t2]
    from differential_coords_finder_ints_guaranteed
 trimmedTargIndex:=[op(remove(x->x=1,difl[8][1..-2])),difl[8][-1]]; is inefficient
