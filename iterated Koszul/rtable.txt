@@ -1076,15 +1076,32 @@ second_round_of_differentials:=proc()
        if IM(`3xtradiff2_2`) then
         `3xtradiff12_12`:=UP(`3xtradiff2_2`,"app",[1],"app",[1]);
         IM(`3xtradiff12_12`);
+        `3xtradiff0.2_22`:=UP(`3xtradiff2_2`,"add",[0],"app",[2]);
+        IM(`3xtradiff0.2_22`);
        fi;
        `3xtradiff3_3`:=UP(`xtradiff`,"add",[3],"add",[3]);
       #`3xtradiff3_3`=[[3],[t,u,v,j],[xyz]]->[[3],[t,u,v,j-1-a,a],[yz]]
-       IM(`3xtradiff3_3`);
+       if IM(`3xtradiff3_3`) then
+        `3xtradiff0.3_13`:=UP(`3xtradiff3_3`,"add",[0],"app",[1]);
+        IM(`3xtradiff0.3_13`);
+       fi;
        if xd11flag then
         `3xtradiff11_11`:=UP(`xtradiff1_1`,"app",[1],"app",[1]);
         IM(`3xtradiff11_11`);
         `3xtradiff21_21`:=UP(`xtradiff1_1`,"app",[2],"app",[2]);
         IM(`3xtradiff21_21`);
+        `3xtradiff0.1_31`:=UP(`xtradiff1_1`,"add",[0],"app",[3]);
+        IM(`3xtradiff0.1_31`);
+       fi;
+       if xd00flag then
+        `3xtradiff0.0_40`:=UP(`xtradiff0_0`,"add",[0],"app",[4]);
+        IM(`3xtradiff0.0_40`);
+        `3xtradiff30_30`:=UP(`xtradiff0_0`,"app",[3],"app",[3]);
+        IM(`3xtradiff30_30`);
+        `3xtradiff20_20`:=UP(`xtradiff0_0`,"app",[2],"app",[2]);
+        IM(`3xtradiff20_20`);
+        `3xtradiff10_10`:=UP(`xtradiff0_0`,"app",[1],"app",[1]);
+        IM(`3xtradiff10_10`);
        fi;
       fi;
       if nops(xtra)=2 then
@@ -1239,6 +1256,9 @@ end proc:
 
 
 
+
+#calcToDimension, dValue, Root, delta_admissables, predecessor_data, RL, nops_RL, RLlookup,
+#StatMat, TravIns, diffCounter, LowestDimension, OM
 
 Profile();
 ########### begin program
