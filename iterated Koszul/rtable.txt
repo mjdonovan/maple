@@ -1188,15 +1188,6 @@ second_round_of_differentials:=proc()
          `2xtradiff0.0.0_0.30`:=UP(`2xtradiff0.0_30`,"add",[0],"add",[0]);
          IM(`2xtradiff0.0.0_0.30`);
         fi;
-        `2xtradiff110_110`:=UP(`xtradiff0_0`,"app",[11],"app",[11]);
-        if IM(`2xtradiff110_110`) then
-         `2xtradiff0.110_1110`:=UP(`2xtradiff110_110`,"add",[0],"app",[1]);
-         IM(`2xtradiff0.110_1110`);
-         `2xtradiff1.110_0.110`:=UP(`2xtradiff110_110`,"add",[1],"add",[0]);
-         IM(`2xtradiff1.110_0.110`);
-         `2xtradiff2.110_1.110`:=UP(`2xtradiff110_110`,"add",[2],"add",[1]);
-         IM(`2xtradiff2.110_1.110`);
-        fi;
        fi;
       fi;
       if nops(xtra)=1 then
@@ -1269,7 +1260,14 @@ second_round_of_differentials:=proc()
          `2xtradiff1.10_0.10`:=UP(`12xtradiff10_10`,"add",[1],"add",[0]);
          IM(`2xtradiff1.10_0.10`);
          `2xtradiff110_110`:=UP(`12xtradiff10_10`,"app",[1],"app",[1]);
-         IM(`2xtradiff110_110`);
+         if IM(`2xtradiff110_110`) then
+          `2xtradiff0.110_1110`:=UP(`2xtradiff110_110`,"add",[0],"app",[1]);
+          IM(`2xtradiff0.110_1110`);
+          `2xtradiff1.110_0.110`:=UP(`2xtradiff110_110`,"add",[1],"add",[0]);
+          IM(`2xtradiff1.110_0.110`);
+          `2xtradiff2.110_1.110`:=UP(`2xtradiff110_110`,"add",[2],"add",[1]);
+          IM(`2xtradiff2.110_1.110`);
+         fi;
         fi;
        fi;
       fi;
