@@ -1073,10 +1073,19 @@ second_round_of_differentials:=proc()
       if nops(xtra)=3 then
        `3xtradiff2_2`:=UP(`xtradiff`,"add",[2],"add",[2]);
       #`3xtradiff2_2`=[[2],[t,u,v,j],[xyz]]->[[2],[t,u,v,j-1-a,a],[yz]]
-       IM(`3xtradiff2_2`);
+       if IM(`3xtradiff2_2`) then
+        `3xtradiff12_12`:=UP(`3xtradiff2_2`,"app",[1],"app",[1]);
+        IM(`3xtradiff12_12`);
+       fi;
        `3xtradiff3_3`:=UP(`xtradiff`,"add",[3],"add",[3]);
       #`3xtradiff3_3`=[[3],[t,u,v,j],[xyz]]->[[3],[t,u,v,j-1-a,a],[yz]]
        IM(`3xtradiff3_3`);
+       if xd11flag then
+        `3xtradiff11_11`:=UP(`xtradiff1_1`,"app",[1],"app",[1]);
+        IM(`3xtradiff11_11`);
+        `3xtradiff21_21`:=UP(`xtradiff1_1`,"app",[2],"app",[2]);
+        IM(`3xtradiff21_21`);
+       fi;
       fi;
       if nops(xtra)=2 then
        `2xtradiff2_2`:=UP(`xtradiff`,"add",[2],"add",[2]);
@@ -1168,9 +1177,11 @@ second_round_of_differentials:=proc()
         fi;
         if nops(xtra)=2 then
          `2xtradiff0.10_210`:=UP(`12xtradiff10_10`,"add",[0],"app",[2]);
-          IM(`2xtradiff0.10_210`);
-         `2xtradiff1.10_0.10`:=UP(`12xtradiff10_10`,"add",[0],"add",[0]);
-          IM(`2xtradiff1.10_0.10`);
+         IM(`2xtradiff0.10_210`);
+         `2xtradiff1.10_0.10`:=UP(`12xtradiff10_10`,"add",[1],"add",[0]);
+         IM(`2xtradiff1.10_0.10`);
+         `2xtradiff110_110`:=UP(`12xtradiff10_10`,"app",[1],"app",[1]);
+         IM(`2xtradiff110_110`);
         fi;
        fi;
       fi;
