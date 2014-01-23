@@ -1073,8 +1073,10 @@ second_round_of_differentials:=proc()
       if nops(xtra)=3 then
        `3xtradiff2_2`:=UP(`xtradiff`,"add",[2],"add",[2]);
       #`3xtradiff2_2`=[[2],[t,u,v,j],[xyz]]->[[2],[t,u,v,j-1-a,a],[yz]]
+       IM(`3xtradiff2_2`);
        `3xtradiff3_3`:=UP(`xtradiff`,"add",[3],"add",[3]);
       #`3xtradiff3_3`=[[3],[t,u,v,j],[xyz]]->[[3],[t,u,v,j-1-a,a],[yz]]
+       IM(`3xtradiff3_3`);
       fi;
       if nops(xtra)=2 then
        `2xtradiff2_2`:=UP(`xtradiff`,"add",[2],"add",[2]);
