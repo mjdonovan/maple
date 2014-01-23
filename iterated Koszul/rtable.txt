@@ -1242,7 +1242,7 @@ end proc:
 
 Profile();
 ########### begin program
-set_dimensions_and_Root(2000,2,[1,0,0,2,0,2]);
+set_dimensions_and_Root(50000,2,[1,0,0,2,0,2]);
 if FileTools[Exists](savefile_name(SMandTI))=false then
  build_RL_and_RLlookup();
  build_StatMat_TravIns();
