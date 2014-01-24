@@ -872,6 +872,10 @@ all_ordered_partitions_with_sum_at_most:=proc(mAx) option remember;
  return [seq(seq(op(combinat[composition](n,i)),i=1..n),n=1..mAx)];
 end proc:
 
+all_ordered_possibly_empty_partitions_with_sum_at_most:=proc(mAx) option remember;
+ return [[],seq(seq(op(combinat[composition](n,i)),i=1..n),n=1..mAx)];
+end proc:
+
 UP:=proc(diff,sDescriptor,sData,tDescriptor,tData)
  #changes a differential in one of 2*2 simple ways:
  #2. "add"="add new sequence to left"
@@ -1070,7 +1074,7 @@ second_round_of_differentials:=proc()
       `xtradiff1_1`:=UP(`xtradiff`,"add",[1],"add",[1]);
      #`xtradiff1_1`=[[1],[tuv,j],[xyz]]->[[1],[tuv,j-1-a,a],[yz]]
       xd11flag:=IM(`xtradiff1_1`);
-      if nops(xtra)=3 then
+      if nops(xtra)=4 then
        `4xtradiff2_2`:=UP(`xtradiff`,"add",[2],"add",[2]);
        IM(`4xtradiff2_2`);
        `4xtradiff3_3`:=UP(`xtradiff`,"add",[3],"add",[3]);
