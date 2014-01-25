@@ -742,7 +742,7 @@ assign_OM:=proc(numDimsToPrint:=2)
  for i to nops(target_of_what) do
   if nops(target_of_what[i])>1 then 
    UserFeedback("two sequences may need the same subroot, ",L[i][2][-2..-1]," with ",c3au," prior operators:");
-   for j in i do
+   for j in target_of_what[i] do
     UserFeedback(L[j][2]);
    od;
   fi;
@@ -1465,7 +1465,7 @@ second_round_of_differentials_using_diff_trees:=proc()
         diff_tree_lengths_when_ell2_equals;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,
        diffCounterStarting,tnLP,cdLP,xtra,`xtradiff`,
-       predecessor_data_of_i,loaded_tree,pos,length_of_tree,IMxd;
+       predecessor_data_of_i,loaded_tree,pos,length_of_tree,IMxd,tmp;
  timed_message("starting second round of differentials using diff_trees");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
@@ -1520,8 +1520,8 @@ second_round_of_differentials_using_diff_trees:=proc()
 end proc:
 
 extract_new_differentials:=proc()
- global manual_differentials_implemented;
- local lengths,MDI,len,the_list2s,the_list1s,the_list;
+ global manual_differentials_implemented,diff_list_when_ell2_equals;
+ local lengths,MDI,len,the_list2s,the_list1s,the_list,error_spring;
  if not assigned(manual_differentials_implemented) then
   UserFeedback("YOU HAVEN'T MANUALLY IMPLEMENTED A SINGLE DIFFERENTIAL!");
   return NULL;
@@ -1537,11 +1537,28 @@ extract_new_differentials:=proc()
    error "it doesn't seem like the new differentials are themselves defining an Injective Function";
   fi;
   print(op(the_list));
+  if type(diff_list_when_ell2_equals[len],'list') then
+   error_spring:=false;
+   if nops({op(diff_list_when_ell2_equals[len])}intersect{op(the_list)})<>0 then
+    UserFeedback("we had to manually implement a differential which we already programmed in");
+    error_spring:=true;
+   fi;
+   if nops({op(map(x->x[1],diff_list_when_ell2_equals[len]))}intersect{op(map(x->x[1],the_list))})<>0 then
+    UserFeedback("there was some awful commonality on the source side");
+    error_spring:=true;
+   fi;
+   if nops({op(map(x->x[2],diff_list_when_ell2_equals[len]))}intersect{op(map(x->x[2],the_list))})<>0 then
+    UserFeedback("there was some awful commonality on the target side");
+    error_spring:=true;
+   fi;
+   if error_spring then error; fi;
+  fi;
  od;
 end proc:
 
 
 ########### begin program
+read "C:\\Users\\Michael\\Desktop\\maple\\iterated Koszul\\diff_tree.txt";
 set_dimensions_and_Root(100000,2,[1,0,0,2,0,2]);
 build_RL_and_RLlookup();
 build_StatMat_TravIns();
