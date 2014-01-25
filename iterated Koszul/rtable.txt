@@ -1336,6 +1336,21 @@ end proc:
 
 
 
+########### begin program
+set_dimensions_and_Root(100000,2,[1,0,0,2,0,2]);
+build_RL_and_RLlookup();
+build_StatMat_TravIns();
+trim_off_00002_001002_classes();
+assign_and_print_OM();
+first_round_of_differentials();
+close_dlog();
+assign_and_print_OM();
+build_diff_trees();
+second_round_of_differentials_using_diff_trees();
+assign_and_print_OM();
+close_dlog();
+
+
 
 Profile();
 ########### begin program
@@ -1349,7 +1364,8 @@ if FileTools[Exists](savefile_name(SMandTI))=false then
  first_round_of_differentials();
  close_dlog();
  assign_and_print_OM();
- second_round_of_differentials();
+ build_diff_trees();
+ second_round_of_differentials_using_diff_trees();
  assign_and_print_OM();
  close_dlog();
 else
