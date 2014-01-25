@@ -788,8 +788,11 @@ diff_extractor:=proc(TR,SR,outputVector:=[10,8,7,5])
 end proc:
 
 apply_stored_diffs_and_assign_and_print_OM:=proc(numDimsToPrint:=2,outputVector:=[10,8,7,5])
- global ManuallyStoredDiffs;
+ global ManuallyStoredDiffs,manual_differentials_implemented;
  local i;
+ if not assigned(manual_differentials_implemented) then
+  manual_differentials_implemented:=[];
+ fi;
  ensure_dlog_open();
  if assigned(ManuallyStoredDiffs) then
   for i in ManuallyStoredDiffs do
@@ -840,7 +843,7 @@ trim_off_00002_001002_classes:=proc()
 end proc:
 
 implement_diff:=proc(difl)
- global RL,StatMat,diffCounter;
+ global RL,StatMat,diffCounter,manual_differentials_implemented;
  if nops(StatMat[op(difl[7])])<>2 or nops(StatMat[op(difl[8])])<>2 then
   error "either source or target is already dead or broken";
  fi;
@@ -859,6 +862,9 @@ implement_diff:=proc(difl)
   new_dlog();
  fi;
  dlog(difl);
+ if assigned(manual_differentials_implemented) then
+  manual_differentials_implemented:=[op(manual_differentials_implemented),difl];
+ fi;
  return NULL;
 end proc:
 
@@ -997,7 +1003,7 @@ num_of_squarings_calculator:=proc(SM82) option remember;
 end proc:
 
 IM:=proc(difl)
- global StatMat,calcToDimension,diffCounter,nops_RL;
+ global StatMat,calcToDimension,diffCounter,nops_RL,manual_differentials_implemented;
  local counter,diff,dim,num_of_squarings,SM7,SM8,trimmedTargIndex,prefixes;
  if difl=0 then return false; fi;
  if difl[4]<>1 or difl[6]<>1 then error "I expected only first power to first power"; fi; 
@@ -1010,6 +1016,9 @@ IM:=proc(difl)
  prefixes:=string_of_length_one_sequences_for_squares_index_finder(nops(trimmedTargIndex),
             nops(RL[-nops(trimmedTargIndex)][trimmedTargIndex[1]]))[-num_of_squarings..-1];
  dlog(difl); diffCounter:=diffCounter+1;
+ if assigned(manual_differentials_implemented) then
+  manual_differentials_implemented:=[op(manual_differentials_implemented),difl];
+ fi;
  StatMat[op(difl[7])]:=0;
  for counter from 0 to nops(prefixes) do
   StatMat[seq(1,hhh=counter+nops(trimmedTargIndex)+1..nops_RL),op(prefixes[-counter..-1]),op(trimmedTargIndex)]:=0;
