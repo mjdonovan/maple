@@ -88,6 +88,7 @@ end proc:
 #first_round_of_differentials()
 #second_round_of_differentials()
 #autowipe()
+#extract_new_differentials()
 
 #*=out of date
 
@@ -709,7 +710,7 @@ assign_OM:=proc(numDimsToPrint:=2)
                             )):
  subroots_needed:=[];
  for i to nops(L) do
-  L[i]:=[op(L[i]),i];
+#  L[i]:=[op(L[i]),i];
 #  print(L[i]);
   if L[i][5]=LowestDimension then
 #   UserFeedback(L[i]);
@@ -749,6 +750,9 @@ assign_OM:=proc(numDimsToPrint:=2)
  L:=remove(x->x="kill me",L);
  target_of_what:=remove(x->x="kill me",target_of_what);
  subroots_needed:=remove(x->x="kill me",subroots_needed);
+ for i to nops(L) do
+  L[i]:=[op(L[i]),i];
+ od;
  target_of_what:=map(x->x[1],target_of_what);
  Lstart:=[seq([L[abcd],target_of_what[abcd]],abcd=1..nops(target_of_what))];
  Lstart:=sort(Lstart,(x,y)->x[2]<y[2]);
@@ -1401,7 +1405,26 @@ autowipe:=proc()
  return NULL;
 end proc:
 
-
+extract_new_differentials:=proc()
+ global manual_differentials_implemented;
+ local lengths,MDI,len,the_list2s,the_list1s,the_list;
+ if not assigned(manual_differentials_implemented) then
+  UserFeedback("YOU HAVEN'T MANUALLY IMPLEMENTED A SINGLE DIFFERENTIAL!");
+  return NULL;
+ fi;
+ MDI:=map(x->[x[3],x[5]],manual_differentials_implemented);
+ lengths:=ListTools[MakeUnique](map(x->nops(x[1][-2]),MDI));
+ for len in lengths do
+  UserFeedback("Sequence of differentials found for classes with ell2 = ",len,":");
+  the_list:=(ListTools[MakeUnique](map(x->map(y->y[1..-3],x),remove(x->nops(x[1][-2])<>len,MDI))));
+  the_list2s:=ListTools[MakeUnique](map(x->x[2],the_list));
+  the_list1s:=ListTools[MakeUnique](map(x->x[2],the_list));
+  if nops(the_list)<>nops(the_list2s) or nops(the_list2s)<>nops(the_list1s) then
+   error "it doesn't seem like the new differentials are themselves defining an Injective Function";
+  fi;
+  print(op(the_list));
+ od;
+end proc:
 
 
 ########### begin program
@@ -1418,6 +1441,11 @@ second_round_of_differentials_using_diff_trees();
 assign_and_print_OM();
 close_dlog();
 
+
+
+autowipe();
+...
+extract_new_differentials();
 
 
 Profile();
