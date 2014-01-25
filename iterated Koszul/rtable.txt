@@ -1060,7 +1060,21 @@ second_round_of_differentials:=proc()
        `diff`,`diff0_0`,`diff1_1`,`diff0.0_10`,`diff0.0.0_0.10`,`diff0.0.0.0_10.10`,`diff0.0.0.0.0_0.10.10`,
        xtra,`xtradiff`,`xtradiff0_0`,`xtradiff1_1`,`2xtradiff2_2`,`1xtradiff0.1_11`,`1xtradiff0.0_20`,
        `12xtradiff10_10`,`1xtradiff0.0.0_0.20`,`1xtradiff0.0.1_0.11`,`diff0.0.0.0.0.0_10.10.10`,
-       predecessor_data_of_i;
+ `diff0.0.0.0.0.0.0_0.10.10.10`,`xd00flag`,`xd11flag`,`4xtradiff2_2`,`4xtradiff3_3`,`4xtradiff4_4`,`3xtradiff2_2`,
+ `3xtradiff12_12`,`3xtradiff0.12_112`,`3xtradiff1.12_0.12`,`3xtradiff0.2_22`,`3xtradiff0.0.2_0.22`,
+ `3xtradiff3_3`,`3xtradiff0.3_13`,`3xtradiff0.0.3_0.13`,`3xtradiff11_11`,`3xtradiff111_111`,`3xtradiff0.11_211`,
+ `3xtradiff1.11_0.11`,`3xtradiff21_21`,`3xtradiff0.21_121`,`3xtradiff1.21_0.21`,`3xtradiff0.1_31`,
+ `3xtradiff0.0.1_0.31`,`3xtradiff0.0_40`,`3xtradiff0.0.0_0.40`,`3xtradiff30_30`,`3xtradiff0.30_130`,
+ `3xtradiff1.30_0.30`,`3xtradiff20_20`,`3xtradiff120_120`,`3xtradiff0.20_220`,`3xtradiff1.20_0.20`,`3xtradiff10_10`,
+ `3xtradiff110_110`,`3xtradiff1110_1110`,`3xtradiff210_210`,`3xtradiff0.10_310`,`3xtradiff1.10_0.10`,
+ `2xtradiff0.2_12`,`2xtradiff0.0.2_0.12`,`2xtradiff0.1_21`,`2xtradiff0.0.1_0.21`,`2xtradiff0.0_30`,
+ `2xtradiff0.0.0_0.30`,`1xtradiff0.0.0.1_10.11`,`1xtradiff0.0.0.0.1_0.10.11`,`1xtradiff0.0.0.0_10.20`,
+ `1xtradiff0.0.0.0.0_0.10.20`,`1xtradiff1.10_0.10`,`1xtradiff0.1.10_10.10`,`1xtradiff0.0.1.10_0.10.10`,
+ `1xtradiff0.10_110`,`1xtradiff10.10_0.110`,`1xtradiff0.10.10_10.110`,`1xtradiff1.10.10_20.110`,
+ `1xtradiff0.0.10_1.110`,`1xtradiff0.0.0.10_11.110`,`2xtradiff0.10_210`,`2xtradiff10.10_0.210`,
+ `2xtradiff1.10_0.10`,`2xtradiff110_110`,`2xtradiff0.110_1110`,`2xtradiff1.110_0.110`,
+ `2xtradiff2.110_1.110`,`2xtradiff11_11`,`2xtradiff0.11_111`,`2xtradiff10.11_0.111`,`2xtradiff1.11_0.11`,
+ `2xtradiff20_20`,`2xtradiff0.20_120`,`2xtradiff10.20_0.120`,`2xtradiff1.20_0.20`,predecessor_data_of_i;
  timed_message("starting second round of differentials");
  ensure_dlog_open();
  diffCounterStarting:=diffCounter;
