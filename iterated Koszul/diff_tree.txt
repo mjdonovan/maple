@@ -107,18 +107,22 @@ differential_tree_from_list:=proc(diffList)
 end proc:
 
 build_diff_trees:=proc()
- global diff_tree_when_ell2_equals,diff_list_when_ell2_equals;
+ global diff_tree_when_ell2_equals,diff_list_when_ell2_equals,
+        diff_tree_lengths_when_ell2_equals;
  local i;
  diff_tree_when_ell2_equals:=table();
+ diff_tree_lengths_when_ell2_equals:=table();
  for i in indices(diff_list_when_ell2_equals) do
   diff_tree_when_ell2_equals[op(i)]:=differential_tree_from_list(diff_list_when_ell2_equals[op(i)]);
+  diff_tree_lengths_when_ell2_equals[op(i)]:=ArrayNumElems(diff_tree_when_ell2_equals[op(i)]);
  od;
  return NULL;
 end proc:
 
 second_round_of_differentials_using_diff_trees:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,
-        predecessor_data,delta_admissables,diff_tree_when_ell2_equals;
+        predecessor_data,delta_admissables,diff_tree_when_ell2_equals,
+        diff_tree_lengths_when_ell2_equals;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,
        diffCounterStarting,tnLP,cdLP,xtra,`xtradiff`,
        predecessor_data_of_i,loaded_tree,pos,length_of_tree,IMxd;
@@ -147,7 +151,7 @@ second_round_of_differentials_using_diff_trees:=proc()
      xtradiff:=UP(initdiff,"app",xtra,"app",xtra);
      if type(diff_tree_when_ell2_equals[nops(xtra)+1],'Array') then
       loaded_tree:=copy(diff_tree_when_ell2_equals[nops(xtra)+1]);
-      length_of_tree:=nops(diff_tree_when_ell2_equals[nops(xtra)+1]);
+      length_of_tree:=diff_tree_lengths_when_ell2_equals[nops(xtra)+1];
      else
       loaded_tree:=Array(["raw differential"]);
       length_of_tree:=1;
@@ -159,8 +163,12 @@ second_round_of_differentials_using_diff_trees:=proc()
      fi;
      if IMxd then
       for pos from 2 to length_of_tree do
-       loaded_tree[pos]:=UP(loaded_tree[loaded_tree[pos][1]],op(loaded_tree[pos][2..5]));
-       IM(loaded_tree[pos]);
+       tmp:=UP(loaded_tree[loaded_tree[pos][1]],op(loaded_tree[pos][2..5]));
+       if IM(tmp) then
+        loaded_tree[pos]:=tmp;
+       else
+        loaded_tree[pos]:=0;
+       fi;
       od;
      fi;
     od;
