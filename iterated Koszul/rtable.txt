@@ -673,8 +673,9 @@ end proc:
 
 assign_OM:=proc(numDimsToPrint:=2)
  #automatically runs rectify_TravIns_find_LD beforehand
- global StatMat,TravIns,LowestDimension,OM,calcToDimension,diffCounter,Root;
- local T,L,i,dimOfInterest;
+ global StatMat,TravIns,LowestDimension,OM,calcToDimension,diffCounter,Root,dValue;
+ local T,L,i,dimOfInterest,ell1,exc1,jay,xtra,trgS,subroots_needed,target_of_what,count_3_and_up,
+ j,Lstart,search_outcome_list,c3au;
  if Root=[] then
   rectify_TravIns_find_LD();
  else
@@ -706,9 +707,53 @@ assign_OM:=proc(numDimsToPrint:=2)
   lexorder(StringTools[Reverse](convert(ListTools[Flatten](x[2]),string)),
            StringTools[Reverse](convert(ListTools[Flatten](y[2]),string)))
                             )):
+ subroots_needed:=[];
  for i to nops(L) do
   L[i]:=[op(L[i]),i];
+#  print(L[i]);
+  if L[i][5]=LowestDimension then
+#   UserFeedback(L[i]);
+   ell1:=nops(L[i][2][-1]);
+   exc1:=add(L[i][2][-1][gh],gh=1..ell1);
+   jay:=L[i][2][-2][-1];
+   xtra:=L[i][2][-2][1..-2];
+   trgS:=[[op(xtra),jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],L[i][2][-1][2..-1]];
+   count_3_and_up:=add(nops(L[i][2][abcd]),abcd=1..nops(L[i][2])-2);
+   subroots_needed:=[op(subroots_needed),[trgS,count_3_and_up]];
+  else
+   subroots_needed:=[op(subroots_needed),"nah"];
+  fi;
  od;
+ target_of_what:=[];
+ for i to nops(L) while L[i][5]=LowestDimension-1 do
+  c3au:=add(nops(L[i][2][abcd]),abcd=1..nops(L[i][2])-2);
+  search_outcome_list:=[ListTools[SearchAll]([L[i][2][-2..-1],c3au],subroots_needed)];
+  if search_outcome_list=[] then
+   UserFeedback("suppressing subroot class ",L[i][2]);
+   L[i]:="kill me";
+   subroots_needed[i]:="kill me";
+   target_of_what:=[op(target_of_what),"kill me"];
+  else
+   target_of_what:=[op(target_of_what),search_outcome_list];
+#   print(search_outcome_list);
+  fi;
+ od;
+ for i to nops(target_of_what) do
+  if nops(target_of_what[i])>1 then 
+   UserFeedback("two sequences may need the same subroot, ",L[i][2][-2..-1]," with ",c3au," prior operators:");
+   for j in i do
+    UserFeedback(L[j][2]);
+   od;
+  fi;
+ od;
+ L:=remove(x->x="kill me",L);
+ target_of_what:=remove(x->x="kill me",target_of_what);
+ subroots_needed:=remove(x->x="kill me",subroots_needed);
+ target_of_what:=map(x->x[1],target_of_what);
+ Lstart:=[seq([L[abcd],target_of_what[abcd]],abcd=1..nops(target_of_what))];
+ Lstart:=sort(Lstart,(x,y)->x[2]<y[2]);
+ Lstart:=map(x->x[1],Lstart);
+ L:=[op(Lstart),op(L[nops(target_of_what)+1..-1])];
  L:=[['loc',`elt`,`pow`,`1powDim`,`t-s`,`t`,`s`,`elt`,`dims`,` `],op(L)];
  OM:=Matrix(L);
  if nops(L)>1 then
