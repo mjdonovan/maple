@@ -170,8 +170,3 @@ second_round_of_differentials_using_diff_trees:=proc()
  timed_message("finished 2nd round of differentials - there were ",diffCounter-diffCounterStarting);
  return NULL;
 end proc:
-
-
-
-
-
