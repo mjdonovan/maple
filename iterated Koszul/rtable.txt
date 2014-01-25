@@ -1405,6 +1405,120 @@ autowipe:=proc()
  return NULL;
 end proc:
 
+differential_tree_from_list:=proc(diffList)
+ local DL,i,diff_tree,Sremoved,Tremoved,SremovalType,TremovalType,DLi,DLiStrip,parentLocation;
+ DL:=map(x->[op(x),add(nops(x[1][k]),k=1..nops(x[1])),add(nops(x[2][k]),k=1..nops(x[2]))],diffList);
+ for i in DL do
+  if i[3]<>i[4] then
+   error "these don't look balanced";
+  fi;
+ od;
+ DL:=sort(DL,(x,y)->x[3]<y[3]);
+ DL:=map(x->x[1..2],DL);
+ if nops(ListTools[MakeUnique](DL))<>nops(DL) then
+  return "there's a repetition in here";
+ fi;
+ if DL[1]<>[[],[]] then
+  return "you're missing the starting differential [[],[]]";
+ fi;
+ diff_tree:=["raw differential"];
+ for i from 2 to nops(DL) do
+  DLi:=DL[i];
+  Sremoved:=DLi[1][1][1];
+  Tremoved:=DLi[2][1][1];
+  SremovalType:="app";
+  TremovalType:="app";
+  DLiStrip:=[[DLi[1][1][2..-1],op(DLi[1][2..-1])],[DLi[2][1][2..-1],op(DLi[2][2..-1])]];
+  if DLiStrip[1][1]=[] then
+   DLiStrip[1]:=DLiStrip[1][2..-1];
+   SremovalType:="add";
+  fi;
+  if DLiStrip[2][1]=[] then
+   DLiStrip[2]:=DLiStrip[2][2..-1];
+   TremovalType:="add";
+  fi;
+  parentLocation:=ListTools[Search](DLiStrip,DL);
+  if parentLocation=0 then
+   error cat(convert(DLi,string)," is an orphan");
+  fi;
+  diff_tree:=[op(diff_tree),[parentLocation,SremovalType,[Sremoved],TremovalType,[Tremoved]]];
+ od;
+ return Array(diff_tree);
+end proc:
+
+build_diff_trees:=proc()
+ global diff_tree_when_ell2_equals,diff_list_when_ell2_equals,
+        diff_tree_lengths_when_ell2_equals;
+ local i;
+ diff_tree_when_ell2_equals:=table();
+ diff_tree_lengths_when_ell2_equals:=table();
+ for i in indices(diff_list_when_ell2_equals) do
+  diff_tree_when_ell2_equals[op(i)]:=differential_tree_from_list(diff_list_when_ell2_equals[op(i)]);
+  diff_tree_lengths_when_ell2_equals[op(i)]:=ArrayNumElems(diff_tree_when_ell2_equals[op(i)]);
+ od;
+ return NULL;
+end proc:
+
+second_round_of_differentials_using_diff_trees:=proc()
+ global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,
+        predecessor_data,delta_admissables,diff_tree_when_ell2_equals,
+        diff_tree_lengths_when_ell2_equals;
+ local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,
+       diffCounterStarting,tnLP,cdLP,xtra,`xtradiff`,
+       predecessor_data_of_i,loaded_tree,pos,length_of_tree,IMxd;
+ timed_message("starting second round of differentials using diff_trees");
+ ensure_dlog_open();
+ diffCounterStarting:=diffCounter;
+ tnLP:=nops(delta_admissables);
+ cdLP:=tnLP:
+ for i from 2 to tnLP do
+  if cdLP>1 and (i-2)*cdLP>=tnLP then
+   timed_message((1/cdLP," done"));
+   cdLP:=`if`(cdLP>5,iquo(cdLP,2),cdLP/2);
+   save_dlog("quiet");
+  fi:
+  srcI1:=delta_admissables[i];
+  predecessor_data_of_i:=predecessor_data[i];
+  ell1:=nops(srcI1);
+  exc1:=add(srcI1[gh],gh=1..ell1); 
+  for jay from 2+dValue+ell1-exc1 to ell1-1 do
+   srcS:=[[jay],srcI1];
+   trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
+   initdiff:=differential_coords_finder_ints_guaranteed([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
+                     srcS,1,trgS,1,[i],[predecessor_data_of_i]],1,1);
+   if IM(initdiff) then
+    for xtra in all_ordered_possibly_empty_partitions_with_sum_at_most(ell1-jay-1) do
+     xtradiff:=UP(initdiff,"app",xtra,"app",xtra);
+     if type(diff_tree_when_ell2_equals[nops(xtra)+1],'Array') then
+      loaded_tree:=copy(diff_tree_when_ell2_equals[nops(xtra)+1]);
+      length_of_tree:=diff_tree_lengths_when_ell2_equals[nops(xtra)+1];
+     else
+      loaded_tree:=Array(["raw differential"]);
+      length_of_tree:=1;
+     fi;
+     loaded_tree[1]:=xtradiff;
+     IMxd:=true;
+     if xtra<>[] then
+      IMxd:=IM(xtradiff);
+     fi;
+     if IMxd then
+      for pos from 2 to length_of_tree do
+       tmp:=UP(loaded_tree[loaded_tree[pos][1]],op(loaded_tree[pos][2..5]));
+       if IM(tmp) then
+        loaded_tree[pos]:=tmp;
+       else
+        loaded_tree[pos]:=0;
+       fi;
+      od;
+     fi;
+    od;
+   fi;
+  od;
+ od;
+ timed_message("finished 2nd round of differentials - there were ",diffCounter-diffCounterStarting);
+ return NULL;
+end proc:
+
 extract_new_differentials:=proc()
  global manual_differentials_implemented;
  local lengths,MDI,len,the_list2s,the_list1s,the_list;
