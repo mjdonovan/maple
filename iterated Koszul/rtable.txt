@@ -415,18 +415,18 @@ StatMat_TravIns_starter:=proc()
  global calcToDimension,dValue,RL;
  local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc,I1vulnerabilities,I1lengths,
        I1tMs,I2vulnerabilities,I2ellPlusEnn2,I2exc,I2lengths;
- outTable:=rtable(1..nops(RL[-2]),1..nops(RL[-1]),storage=sparse);
- pTable:=rtable(1..nops(RL[-2]),1..nops(RL[-1]),storage=sparse);
- I1vulnerabilities:=map(x->evalb(nops(x)>2 and add(x[i],i=1..nops(x))=dValue+nops(x)-1),RL[-1]);
- I1lengths:=map(x->nops(x),RL[-1]);
- I1tMs:=map(x->dValue+add((2^i-1)*x[i],i=1..nops(x)),RL[-1]);
+ outTable:=rtable(1..nops(RL[-2]),1..nops(delta_admissables),storage=sparse);
+ pTable:=rtable(1..nops(RL[-2]),1..nops(delta_admissables),storage=sparse);
+ I1vulnerabilities:=map(x->evalb(nops(x)>2 and add(x[i],i=1..nops(x))=dValue+nops(x)-1),delta_admissables);
+ I1lengths:=map(x->nops(x),delta_admissables);
+ I1tMs:=map(x->dValue+add((2^i-1)*x[i],i=1..nops(x)),delta_admissables);
  I2vulnerabilities:=map(x->evalb(x=[] or x[-1]>2) ,RL[-2]);
  I2ellPlusEnn2:=map(x->nops(x)+add((2^i-1)*x[i],i=1..nops(x)),RL[-2]);
  I2exc:=map(x->`if`(x=[],-1,add(x[i],i=1..nops(x))),RL[-2]);
  I2lengths:=map(x->nops(x),RL[-2]);
  pInitLoc:="finished";
  for i to nops(RL[-2]) do
-  for j to nops(RL[-1]) do
+  for j to nops(delta_admissables) do
    if I2exc[i]<I1lengths[j] and not (I1vulnerabilities[j] and I2vulnerabilities[i]) then
     newDimn:=2^(I2lengths[i])*(I1tMs[j]+I1lengths[j]+1)-(I1lengths[j]+1)-I2ellPlusEnn2[i];
     if newDimn<=calcToDimension then
@@ -455,12 +455,12 @@ build_StatMat_TravIns:=proc(DataSoFar:="none")
   timed_message("commencing build of StatMat and TravIns");
   diffCounter:=0;
   if Root<>[] then
-   if map(x->x[1],RL)[1..-2]<>map(x->[],RL)[1..-2] or RL[-1][1]<>Root[2..-1] then
-    error "need RL[i][1]=[] for all i<-1 and RL[-1][1]=Root[2..-1]";
+   if map(x->x[1],RL)[1..-2]<>map(x->[],RL)[1..-2] or delta_admissables[1]<>Root[2..-1] then
+    error "need RL[i][1]=[] for all i<-1 and delta_admissables[1]=Root[2..-1]";
    fi;
   else
-   if map(x->x[1],RL)<>map(x->[],RL) or RL[-1][1]<>[] then
-    error "need RL[i][1]=[] for all i<-1 and RL[-1][1]=Root[2..-1]";
+   if map(x->x[1],RL)<>map(x->[],RL) or delta_admissables[1]<>[] then
+    error "need RL[i][1]=[] for all i<-1 and delta_admissables[1]=Root[2..-1]";
    fi;
   fi;
   return build_StatMat_TravIns(StatMat_TravIns_starter());
@@ -697,8 +697,8 @@ assign_OM:=proc(numDimsToPrint:=2)
  #L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)])],L);
  L:=map(x->[x,remove(y->y=[],[seq(RL[i][x[i]],i=1..nops(x))]),op(StatMat[op(x)]),StatMat[op(x)][1]*StatMat[op(x)][2],
             2^(add(nops(RL[i][x[i]]),i=1..nops(x)-1))*
-            StatMat[op(x)][1]*(dValue+1+nops(RL[-1][x[-1]])
-            +add(RL[-1][x[-1]][j]*(2^j-1),j=1..nops(RL[-1][x[-1]])))-1   ],L);
+            StatMat[op(x)][1]*(dValue+1+nops(delta_admissables[x[-1]])
+            +add(delta_admissables[x[-1]][j]*(2^j-1),j=1..nops(delta_admissables[x[-1]])))-1   ],L);
  #[1=location,2=printout,3=power,4=dimensionOfFirstPower,5=t-s,6=t]
  L:=map(x->[op(x),x[6]-x[5],pretty_print_power_of_sequence(x[2],x[3])   ,   E2DegreePRHomEltNoZero(unExcessFormatPR([[x[3],x[2]]]),dValue)],L);
  #[...,7=s,8=prettyprint,9=allE2dimensions(forDebug)]
