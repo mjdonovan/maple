@@ -1592,7 +1592,7 @@ end proc:
 ########### begin program
 read "C:\\Users\\Michael\\Desktop\\maple\\iterated Koszul\\diff_tree.txt";
 build_diff_trees();
-set_dimensions_and_Root(100000,2,[1,0,0,2,0,2]);
+set_dimensions_and_Root(100000000,2,[1,0,1,0,0,2,0,2],4);
 build_RL_and_RLlookup();
 build_StatMat_TravIns();
 trim_off_00002_001002_classes();
@@ -1603,15 +1603,16 @@ assign_and_print_OM();
 second_round_of_differentials_using_diff_trees();
 assign_and_print_OM();
 close_dlog();
-
-
-
+########################
 autowipe();
 while LinearAlgebra[RowDimension](OM)=2+1 or
      (LinearAlgebra[RowDimension](OM)=3+1 and OM[2,7]=OM[4,7]+1) do
  autowipe();
 od:
+########################
 extract_new_differentials();
+
+
 
 
 Profile();
