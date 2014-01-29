@@ -3,9 +3,13 @@ restart; with(CodeTools[Profiling]):
 interface(rtablesize=2000):
 SqCompsMi:=proc(M,i1min)
   local ans,L;
+  global ell1_ell2_extra;
   ans:=[];
+  if not assigned(ell1_ell2_extra) then
+   error "you haven't set ell1_ell2_extra";
+  fi;
   if M=-1 then return [[]]; fi;
-  for L from 1 to M-i1min+1 do
+  for L from 1 to min(M-i1min+1,ell1_ell2_extra) do
     ans:=[op(ans),
           op( map(xx->xx+[seq(0,dummy=1..L-1),i1min-1],
                   sort([op(combinat[composition](M-(i1min-1), L))],
@@ -31,7 +35,7 @@ UserFeedback:=proc()
  writeline(default,ans); return NULL;
 end proc:
 
-#calcToDimension, dValue, Root, delta_admissables, predecessor_data, RL, nops_RL, RLlookup,
+#calcToDimension, dValue, Root, ell1_ell2_extra, delta_admissables, predecessor_data, RL, nops_RL, RLlookup,
 #StatMat, TravIns, diffCounter, LowestDimension, OM
 #
 #new_dlog()
@@ -215,12 +219,13 @@ savefile_name:=proc()
  return ans;
 end proc:
 
-set_dimensions_and_Root:=proc(cTD,d,rt:=[])
- global calcToDimension,dValue,num_of_squarings_calculator,Root;
+set_dimensions_and_Root:=proc(cTD,d,rt:=[],ell1ell2extra:=0)
+ global calcToDimension,dValue,num_of_squarings_calculator,Root,ell1_ell2_extra;
  local L,MinDeg,storeddim,i;
  forget(num_of_squarings_calculator);
  calcToDimension:=cTD;dValue:=d;Root:=rt;
  timed_message("set dimensions: up to the ",calcToDimension,"-stem on the ",dValue,"-sphere");
+ ell1_ell2_extra:=ell1ell2extra;
  if Root<>[] then
   timed_message("the root has been set to ",Root);
   L:=unExcessFormatSingle(Root);
@@ -238,6 +243,7 @@ set_dimensions_and_Root:=proc(cTD,d,rt:=[])
 end proc:
 
 delta_admissables_by_max_sum_using_stack:=proc(maxSum,d)
+ global Root;
  local ADMISlist,AMLcount,q,ent,j,PostReln,sumSoFar;
  ADMISlist:=Table(): AMLcount:=0:
  q := stack[new]([]):
@@ -259,8 +265,8 @@ build_delta_admissables_with_Root_and_PD:=proc(maxSum,d)
 #this will leave RL[-1][1] the result of stripping an element off the root
 #this is a placeholder - most desirable is to leave it in the computation
 #until after the StatMat, etc are done and then to remove it from TravIns.
- local ADMISlist,AMLcount,q,ent,j,PostReln,sumSoFar,RootNONexcess;
- global delta_admissables,predecessor_data,Root;
+ local ADMISlist,AMLcount,q,ent,j,PostReln,sumSoFar,RootNONexcess,newpositions;
+ global delta_admissables,predecessor_data,Root,ell1_ell2_extra;
  if Root=[] then
   build_delta_admissables_with_predecessor_data(maxSum,d);
   return NULL;
@@ -269,19 +275,37 @@ build_delta_admissables_with_Root_and_PD:=proc(maxSum,d)
  ADMISlist:=Table(): AMLcount:=1:
  ADMISlist[1]:=[RootNONexcess[2..-1],0];
  q := stack[new]([RootNONexcess,1]):
- while not stack[empty](q) do
-  ent:=stack[pop](q);
-  AMLcount:=AMLcount+1:
-  ADMISlist[AMLcount]:=ent;
-  sumSoFar:=add(ent[1][k],k=1..nops(ent[1]));
-  for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent[1])+d))
-          to `if`(nops(ent[1])>0,2*ent[1][1],2) by -1 do
-   stack[push]([[j,op(ent[1])],AMLcount],q);
-  od;
- od:
- delta_admissables:=[seq(ExcessFormatSingle(ADMISlist[j][1]),j=1..AMLcount)];
+ if ell1_ell2_extra<>0 then
+  while not stack[empty](q) do
+   ent:=stack[pop](q);
+   AMLcount:=AMLcount+1:
+   ADMISlist[AMLcount]:=ent;
+   if nops(Root)+ell1_ell2_extra>nops(ent[1]) then
+    sumSoFar:=add(ent[1][k],k=1..nops(ent[1]));
+    for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent[1])+d))
+            to `if`(nops(ent[1])>0,2*ent[1][1],2) by -1 do
+     stack[push]([[j,op(ent[1])],AMLcount],q);
+    od;
+   fi;
+  od:
+ else
+  while not stack[empty](q) do
+   ent:=stack[pop](q);
+   AMLcount:=AMLcount+1:
+   ADMISlist[AMLcount]:=ent;
+   sumSoFar:=add(ent[1][k],k=1..nops(ent[1]));
+   for j from min(maxSum-sumSoFar,(sumSoFar+nops(ent[1])+d))
+           to `if`(nops(ent[1])>0,2*ent[1][1],2) by -1 do
+    stack[push]([[j,op(ent[1])],AMLcount],q);
+   od;
+  od:
+ fi;
  #so that delta_admissables ends up in excess form!
- predecessor_data:=[seq(ADMISlist[j][2],j=1..AMLcount)];
+ #sort it!
+ delta_admissables:=sort([seq([ExcessFormatSingle(ADMISlist[p][1]),p],p=1..AMLcount)],(x,y)->nops(x[1])<nops(y[1]));
+ newpositions:=map(x->x[2],delta_admissables);
+ delta_admissables:=map(x->x[1],delta_admissables);
+ predecessor_data:=[0,seq(ListTools[Search](ADMISlist[newpositions[ghj]][2],newpositions),ghj=2..AMLcount)];
  return NULL;
 end proc:
 
@@ -412,7 +436,7 @@ find_RL_coordinates_with_consecutive_hints:=proc(S,hints:=[])
 end proc:
 
 StatMat_TravIns_starter:=proc()
- global calcToDimension,dValue,RL;
+ global calcToDimension,dValue,RL,Root, ell1_ell2_extra;
  local RLs,outTable,pTable,i,j,excess,I2Evul,newDimn,pLastLoc,pInitLoc,I1vulnerabilities,I1lengths,
        I1tMs,I2vulnerabilities,I2ellPlusEnn2,I2exc,I2lengths;
  outTable:=rtable(1..nops(RL[-2]),1..nops(delta_admissables),storage=sparse);
@@ -425,8 +449,10 @@ StatMat_TravIns_starter:=proc()
  I2exc:=map(x->`if`(x=[],-1,add(x[i],i=1..nops(x))),RL[-2]);
  I2lengths:=map(x->nops(x),RL[-2]);
  pInitLoc:="finished";
+ pLastLoc:="unused";
  for i to nops(RL[-2]) do
   for j to nops(delta_admissables) do
+if ell1_ell2_extra=0 or I2lengths[i]+I1lengths[j]=nops(Root)+ell1_ell2_extra then
    if I2exc[i]<I1lengths[j] and not (I1vulnerabilities[j] and I2vulnerabilities[i]) then
     newDimn:=2^(I2lengths[i])*(I1tMs[j]+I1lengths[j]+1)-(I1lengths[j]+1)-I2ellPlusEnn2[i];
     if newDimn<=calcToDimension then
@@ -439,9 +465,15 @@ StatMat_TravIns_starter:=proc()
      pLastLoc:=[i,j];
     fi;
    fi;
+fi;
   od;
  od;
- pTable[op(pLastLoc)]:="finished";
+ if pLastLoc="unused" then
+  UserFeedback("That seems to have been too small a choice of ell1_ell2_extra, or of calcToDimension, or too \
+large a choice of Root. You're going to get an error."); error;
+ else
+  pTable[op(pLastLoc)]:="finished";
+ fi;
  timed_message("calculated StatMat_TravIns_starter");
  return [outTable,pTable,pInitLoc];
 end proc:
@@ -929,6 +961,10 @@ end proc:
 
 all_ordered_possibly_empty_partitions_with_sum_at_most:=proc(mAx) option remember;
  return [[],seq(seq(op(combinat[composition](n,i)),i=1..n),n=1..mAx)];
+end proc:
+
+all_ordered_possibly_empty_partitions_with_sum_at_most_and_given_length:=proc(mAx,len) option remember;
+ return remove(x->nops(x)<>len,all_ordered_possibly_empty_partitions_with_sum_at_most(mAx));
 end proc:
 
 UP:=proc(diff,sDescriptor,sData,tDescriptor,tData)
@@ -1462,7 +1498,7 @@ end proc:
 second_round_of_differentials_using_diff_trees:=proc()
  global RL,StatMat,dValue,outputSreamOpenFlag,diffCounter,
         predecessor_data,delta_admissables,diff_tree_when_ell2_equals,
-        diff_tree_lengths_when_ell2_equals;
+        diff_tree_lengths_when_ell2_equals,Root,ell1_ell2_extra;
  local ell1,exc1,jay,i,srcI1,srcS,trgS,srcPow,trgPow,`initdiff`,
        diffCounterStarting,tnLP,cdLP,xtra,`xtradiff`,
        predecessor_data_of_i,loaded_tree,pos,length_of_tree,IMxd,tmp;
@@ -1486,8 +1522,8 @@ second_round_of_differentials_using_diff_trees:=proc()
    trgS:=[[jay-1-(dValue+ell1-exc1),dValue+ell1-exc1],srcI1[2..-1]];
    initdiff:=differential_coords_finder_ints_guaranteed([`rnd2`,cat("d",2*(dValue+ell1-exc1-1)+1),
                      srcS,1,trgS,1,[i],[predecessor_data_of_i]],1,1);
-   if IM(initdiff) then
-    for xtra in all_ordered_possibly_empty_partitions_with_sum_at_most(ell1-jay-1) do
+#   if IM(initdiff) then THIS IS A BAD IDEA! it'll only evaluate true if initdiff is long enough already!
+    for xtra in all_ordered_possibly_empty_partitions_with_sum_at_most_and_given_length(ell1-jay-1,nops(Root)+ell1_ell2_extra-1-ell1) do
      xtradiff:=UP(initdiff,"app",xtra,"app",xtra);
      if type(diff_tree_when_ell2_equals[nops(xtra)+1],'Array') then
       loaded_tree:=copy(diff_tree_when_ell2_equals[nops(xtra)+1]);
@@ -1497,11 +1533,7 @@ second_round_of_differentials_using_diff_trees:=proc()
       length_of_tree:=1;
      fi;
      loaded_tree[1]:=xtradiff;
-     IMxd:=true;
-     if xtra<>[] then
-      IMxd:=IM(xtradiff);
-     fi;
-     if IMxd then
+     if IM(xtradiff) then
       for pos from 2 to length_of_tree do
        tmp:=UP(loaded_tree[loaded_tree[pos][1]],op(loaded_tree[pos][2..5]));
        if IM(tmp) then
@@ -1512,7 +1544,7 @@ second_round_of_differentials_using_diff_trees:=proc()
       od;
      fi;
     od;
-   fi;
+#   fi;
   od;
  od;
  timed_message("finished 2nd round of differentials - there were ",diffCounter-diffCounterStarting);
@@ -1575,7 +1607,10 @@ close_dlog();
 
 
 autowipe();
-...
+while LinearAlgebra[RowDimension](OM)=2+1 or
+     (LinearAlgebra[RowDimension](OM)=3+1 and OM[2,7]=OM[4,7]+1) do
+ autowipe();
+od:
 extract_new_differentials();
 
 
