@@ -93,6 +93,7 @@ end proc:
 #second_round_of_differentials()
 #autowipe()
 #extract_new_differentials()
+#investigate_tree(numOfInterest)
 
 #*=out of date
 
@@ -1588,6 +1589,30 @@ extract_new_differentials:=proc()
    if error_spring then error; fi;
   fi;
  od;
+end proc:
+
+investigate_tree:=proc(numOfInterest)
+ local i,j,notyetfound,DLstringS,DLstringT,DT,DL;
+ global diff_tree_when_ell2_equals,diff_list_when_ell2_equals,
+        diff_tree_lengths_when_ell2_equals;
+ DT:=diff_tree_when_ell2_equals[numOfInterest]:
+ DL:=diff_list_when_ell2_equals[numOfInterest]:
+ DLstringS:=map(x->StringTools[PadLeft](StringTools[DeleteSpace](convert((x[1]),string)),50),DL):
+ DLstringT:=map(x->StringTools[PadLeft](StringTools[DeleteSpace](convert((x[2]),string)),50),DL):
+ UserFeedback("The ell2=",numOfInterest," differential tree:");
+ for i from 1 to diff_tree_lengths_when_ell2_equals[numOfInterest] do
+  notyetfound:=true;
+  for j from 2 to diff_tree_lengths_when_ell2_equals[numOfInterest] do
+   if DT[j][1]=i then
+    if notyetfound then
+     UserFeedback("\n",(DLstringS[i]),"-->",(DLstringT[i]));
+     notyetfound:=false;
+    fi;
+    UserFeedback((DLstringS[j]),"-->",(DLstringT[j]));
+   fi;
+  od;
+ od:
+ return NULL;
 end proc:
 
 
