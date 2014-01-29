@@ -1479,17 +1479,19 @@ differential_tree_from_list:=proc(diffList)
   fi;
   diff_tree:=[op(diff_tree),[parentLocation,SremovalType,[Sremoved],TremovalType,[Tremoved]]];
  od;
- return Array(diff_tree);
+ return [Array(diff_tree),DL];
 end proc:
 
 build_diff_trees:=proc()
  global diff_tree_when_ell2_equals,diff_list_when_ell2_equals,
         diff_tree_lengths_when_ell2_equals;
- local i;
+ local i,dtfl;
  diff_tree_when_ell2_equals:=table();
  diff_tree_lengths_when_ell2_equals:=table();
  for i in indices(diff_list_when_ell2_equals) do
-  diff_tree_when_ell2_equals[op(i)]:=differential_tree_from_list(diff_list_when_ell2_equals[op(i)]);
+  dtfl:=differential_tree_from_list(diff_list_when_ell2_equals[op(i)]);
+  diff_tree_when_ell2_equals[op(i)]:=copy(dtfl[1]);
+  diff_list_when_ell2_equals[op(i)]:=dtfl[2];
   diff_tree_lengths_when_ell2_equals[op(i)]:=ArrayNumElems(diff_tree_when_ell2_equals[op(i)]);
  od;
  return NULL;
