@@ -656,7 +656,7 @@ pretty_print_power_of_sequence:=proc(KE,pow)
  fi;
  for i from nops(KE) to 1 by -1 do 
   if nops(KE[i])>0 then 
-   ANS:=[delta,SQa,SQb,SQc,SQd,SQe,SQf,SQg,SQh,SQi,SQj,SQk][1+nops(KE)-i][op(KE[i])]*ANS;
+   ANS:=[delta,Sa,Sb,Sc,Sd,Se,Sf,Sg,Sh,Si,Sj,Sk,Sl,Sm,Sn,So,Sp,Sq,Sr,Ss,St,Su,Sv,Sw,Sx,Sy,Sz][1+nops(KE)-i][op(KE[i])]*ANS;
   fi;
  od;
  ANS; 
