@@ -1592,31 +1592,140 @@ extract_new_differentials:=proc()
 end proc:
 
 investigate_tree:=proc(numOfInterest)
- local i,j,notyetfound,DLstringS,DLstringT,DT,DL;
+ local i,j,notyetfound,DLstringS,DLstringT,DT,DL,counter,pups,founddiffs,difftype;
  global diff_tree_when_ell2_equals,diff_list_when_ell2_equals,
         diff_tree_lengths_when_ell2_equals;
  DT:=diff_tree_when_ell2_equals[numOfInterest]:
  DL:=diff_list_when_ell2_equals[numOfInterest]:
- DLstringS:=map(x->StringTools[PadLeft](StringTools[DeleteSpace](convert((x[1]),string)),50),DL):
- DLstringT:=map(x->StringTools[PadLeft](StringTools[DeleteSpace](convert((x[2]),string)),50),DL):
- UserFeedback("The ell2=",numOfInterest," differential tree:");
- for i from 1 to diff_tree_lengths_when_ell2_equals[numOfInterest] do
-  notyetfound:=true;
+ DLstringS:=map(x->StringTools[PadLeft](StringTools[DeleteSpace](convert((x[1]),string)),1),DL):
+ DLstringT:=map(x->StringTools[PadLeft](StringTools[DeleteSpace](convert((x[2]),string)),1),DL):
+ UserFeedback("The ell2=",numOfInterest," differential tree, skipping raw-diff:");
+ for i from 2 to diff_tree_lengths_when_ell2_equals[numOfInterest] do
+  counter:=0;
+  UserFeedback((DLstringS[i]),"-->",(DLstringT[i]));
+  pups:=sort(possible_upgrades(DL[i],numOfInterest));
+#  UserFeedback("expected extensions: ",pups);
+  founddiffs:=[];
   for j from 2 to diff_tree_lengths_when_ell2_equals[numOfInterest] do
    if DT[j][1]=i then
-    if notyetfound then
-     UserFeedback("\n",(DLstringS[i]),"-->",(DLstringT[i]));
-     notyetfound:=false;
-    fi;
-    UserFeedback((DLstringS[j]),"-->",(DLstringT[j]));
+#    UserFeedback((DLstringS[j]),"-->",(DLstringT[j]));
+    difftype:=cat(`if`(nops(DL[j][1][1])=1,"add","app"),`if`(nops(DL[j][2][1])=1,"add","app"));
+    founddiffs:=[op(founddiffs),[difftype,DL[j][1][1][1],DL[j][2][1][1]]];
+    counter:=counter+1;
    fi;
   od;
+  founddiffs:=sort(founddiffs);
+  if not (verify({op(founddiffs)}, {op(pups)}, `subset`)) then
+   UserFeedback("expected extensions: ",pups);
+   UserFeedback(" actual  extensions: ",founddiffs);
+   error "actually, there's something here we didn't expect!";
+  elif nops(founddiffs)<>nops(pups) then
+   UserFeedback("expected extensions: ",pups);
+   UserFeedback(" actual  extensions: ",founddiffs);
+  fi;
  od:
  return NULL;
 end proc:
 
+diff_tree_formula_checker:=proc(favnum)
+ global diff_tree_lengths_when_ell2_equals, diff_tree_when_ell2_equals, diff_list_when_ell2_equals;
+ local ellN1,ellN1m1,excN1,excN0,ellN0m1,ellN0,i,inq,df,parent,didntdoit,ADD,parentboost,GAIN;
+ ADD:=x->add(x[i],i=1..nops(x));
+ for i from 2 to diff_tree_lengths_when_ell2_equals[favnum] do
+  inq:=diff_tree_when_ell2_equals[favnum][i];
+  df:=diff_list_when_ell2_equals[favnum][i];
+  parent:=diff_list_when_ell2_equals[favnum][inq[1]];
+  didntdoit:=true;
+  if parent<>[[],[]] then
+   parentboost:=[[op(parent[1]),[seq(wwww,wwww=1..favnum)]],[op(parent[2]),[seq(wwww,wwww=1..favnum+1)]]];
+   didntdoit:=false;
+   ellN1:=nops(parentboost[2][1]);
+   ellN1m1:=nops(parentboost[2][2]);
+   excN1:=ADD(parent[2][1]);
+   ellN0:=nops(parent[1][1]);
+   ellN0m1:=nops(parentboost[1][2]);
+   excN0:=ADD(parent[1][1]);
+   GAIN:=inq[5][1]-inq[3][1];
+   if inq[2]="app" and inq[4]="add" then
+    if not evalb(GAIN=ellN1+excN0-ellN0-ellN0m1-1) then
+     UserFeedback(df," born of ",parent);
+     UserFeedback("gain=",GAIN," RHS=",ellN1+excN0-ellN0-ellN0m1-1);
+     UserFeedback("ellN1=",ellN1," ellN1m1=",ellN1m1," excN1=",excN1," ellN0=",ellN0," ellN0m1=",ellN0m1," excN0=",excN0);
+    fi;
+   elif inq[2]="app" and inq[4]="app" then
+    if not evalb(GAIN=ellN1+ellN1m1-excN1-(ellN0+ellN0m1-excN0)-1 and GAIN=0) then
+     UserFeedback(df," born of ",parent);
+     UserFeedback("gain=",GAIN," RHS=",ellN1+ellN1m1-excN1-(ellN0+ellN0m1-excN0)-1);
+     UserFeedback("ellN1=",ellN1," ellN1m1=",ellN1m1," excN1=",excN1," ellN0=",ellN0," ellN0m1=",ellN0m1," excN0=",excN0);
+    fi;
+   elif inq[2]="add" and inq[4]="app" then
+    if not evalb(GAIN=ellN1+ellN1m1-excN1-(ellN0+1)) then
+     UserFeedback(df," born of ",parent);
+     UserFeedback("gain=",GAIN," RHS=",ellN1+ellN1m1-excN1-(ellN0+1));
+     UserFeedback("ellN1=",ellN1," ellN1m1=",ellN1m1," excN1=",excN1," ellN0=",ellN0," ellN0m1=",ellN0m1," excN0=",excN0);
+    fi;
+   elif inq[2]="add" and inq[4]="add" then
+    if not evalb(GAIN=ellN1-(ellN0+1)) then
+     UserFeedback(df," born of ",parent);
+     UserFeedback("gain=",GAIN," RHS=",ellN1-(ellN0+1));
+     UserFeedback("ellN1=",ellN1," ellN1m1=",ellN1m1," excN1=",excN1," ellN0=",ellN0," ellN0m1=",ellN0m1," excN0=",excN0);
+    fi;
+   fi;
+  fi;
+  if didntdoit then
+   UserFeedback("I didn't do ",df);
+  fi;
+ od:
+end proc:
 
-########### begin program
+possible_upgrades:=proc(parent,favnum)
+ local k1,j1,k0,j0,ADD,ellN1,ellN1m1,excN1,ellN0,ellN0m1,excN0,ans,parentboost,appaddGAIN,addaddGAIN,movetoappGAINincrease;
+ ans:=[];
+ if parent=[[],[]] then return []; fi;
+ parentboost:=[[op(parent[1]),[seq(wwww,wwww=1..favnum)]],[op(parent[2]),[seq(wwww,wwww=1..favnum+1)]]];
+ ADD:=x->add(x[i],i=1..nops(x));
+   ellN1:=nops(parentboost[2][1]);
+   ellN1m1:=nops(parentboost[2][2]);
+   excN1:=ADD(parent[2][1]);
+   ellN0:=nops(parent[1][1]);
+   ellN0m1:=nops(parentboost[1][2]);
+   excN0:=ADD(parent[1][1]);
+   appaddGAIN:=`if`(ellN1+ellN1m1-excN1-(ellN0+ellN0m1-excN0)-1=0,ellN1+excN0-ellN0-ellN0m1-1,false);
+   addaddGAIN:=ellN1-(ellN0+1);
+   movetoappGAINincrease:=ellN1m1-excN1;
+   for k0 from 0 to 20000 while k0<ellN0 do
+    k1:=k0+addaddGAIN;
+    if k1<0 then
+     j1:=k1+movetoappGAINincrease;
+     #if j1>0 then
+      ans:=[op(ans),["addapp",k0,j1]];
+     #fi;
+    else
+     ans:=[op(ans),["addadd",k0,k1]];
+    fi;
+   od;
+   if appaddGAIN<>false then
+    for j0 from 1 to 20000 while j0+excN0<ellN0m1 do
+    k1:=j0+appaddGAIN;
+    if k1<0 then
+     j1:=k1+movetoappGAINincrease;
+     #if j1>0 then
+      ans:=[op(ans),["appapp",j0,j1]];
+     #fi;
+    else
+     ans:=[op(ans),["appadd",j0,k1]];
+    fi;
+   od;
+   fi;
+   return ans;
+end proc:
+
+
+########### investigate trees
+investigate_tree(1);
+investigate_tree(2);
+investigate_tree(3);
+########### build sseq
 read "C:\\Users\\Michael\\Desktop\\maple\\iterated Koszul\\diff_tree.txt";
 build_diff_trees();
 set_dimensions_and_Root(100000000,2,[1,0,1,0,0,2,0,2],4);
