@@ -1751,6 +1751,15 @@ extract_new_differentials();
 
 
 
+
+###############################
+read "C:\\Users\\Michael\\Desktop\\maple\\iterated Koszul\\diff_tree.txt";
+build_diff_trees();
+investigate_tree(2);
+###############################
+
+
+
 Profile();
 ########### begin program
 set_dimensions_and_Root(100000,2,[1,0,0,2,0,2]);
